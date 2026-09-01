@@ -15,6 +15,8 @@
   };
 
   home.packages = with pkgs; [
+    claude-code
+    codex
     herdr
     lazygit
     ripgrep

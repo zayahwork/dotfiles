@@ -39,6 +39,10 @@
   home.file.".codex/AGENTS.md".source = ./home/AGENTS.md;
   xdg.configFile."opencode/AGENTS.md".source = ./home/AGENTS.md;
 
+  # The method skills, pulled by any project rather than copied into each one.
+  # The scaffolding they refer to is in method/.
+  home.file.".claude/skills".source = ./home/.claude/skills;
+
   # Neovim config lives in the repo, not hand edited in place.
   xdg.configFile."nvim/init.lua".source = ./home/.config/nvim/init.lua;
   xdg.configFile."nvim/lua".source = ./home/.config/nvim/lua;
@@ -98,6 +102,7 @@
     switch_tab       = "ctrl+alt+1..9"
 
     # The rare ones stay behind the prefix, out of the way.
+    copy_mode       = "prefix+y"
     goto            = "prefix+g"
     detach          = "prefix+q"
     help            = "prefix+?"

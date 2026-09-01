@@ -16,3 +16,8 @@ After the first switch:
 
 - `flake.nix` pins nixpkgs and home-manager
 - `home.nix` is the actual config: packages, git, zsh, starship
+- `home/` is the source for anything deployed into `$HOME`
+- `home/AGENTS.md` is the one rules file every agent reads
+- `home/.claude/skills/` are the method skills, deployed to `~/.claude/skills/`
+- `method/` is the build workflow: vocabulary, templates and an empty board.
+  `method/README.md` explains it. Copy its pieces into a new project to start one.

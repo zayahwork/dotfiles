@@ -34,6 +34,15 @@
     unzip
   ];
 
+  # One memory file, every agent reads it.
+  home.file.".claude/CLAUDE.md".source = ./home/AGENTS.md;
+  home.file.".codex/AGENTS.md".source = ./home/AGENTS.md;
+  xdg.configFile."opencode/AGENTS.md".source = ./home/AGENTS.md;
+
+  # Neovim config lives in the repo, not hand edited in place.
+  xdg.configFile."nvim/init.lua".source = ./home/.config/nvim/init.lua;
+  xdg.configFile."nvim/lua".source = ./home/.config/nvim/lua;
+
   programs.git = {
     enable = true;
     settings = {

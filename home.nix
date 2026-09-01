@@ -79,18 +79,36 @@
 
   xdg.configFile."herdr/config.toml".text = ''
     [keys]
+    # Prefix is Caps Lock, remapped to F12 by PowerToys on the Windows side.
     prefix = "f12"
-    focus_pane_left  = "prefix+h"
-    focus_pane_down  = "prefix+j"
-    focus_pane_up    = "prefix+k"
-    focus_pane_right = "prefix+l"
-    split_horizontal = "prefix+double_quote"
-    split_vertical   = "prefix+percent"
-    new_tab   = "prefix+c"
-    close_tab = "prefix+ampersand"
-    workspace_picker = "prefix+w"
-    goto             = "prefix+g"
-    copy_mode = "prefix+y"
+
+    # The everyday actions are direct chords, no prefix needed.
+    focus_pane_left  = "ctrl+alt+h"
+    focus_pane_down  = "ctrl+alt+j"
+    focus_pane_up    = "ctrl+alt+k"
+    focus_pane_right = "ctrl+alt+l"
+    new_tab          = "ctrl+alt+t"
+    split_vertical   = "ctrl+alt+v"
+    split_horizontal = "ctrl+alt+s"
+    zoom             = "ctrl+alt+z"
+    close_pane       = "ctrl+alt+x"
+    workspace_picker = "ctrl+alt+w"
+    next_tab         = "ctrl+alt+n"
+    previous_tab     = "ctrl+alt+p"
+    switch_tab       = "ctrl+alt+1..9"
+
+    # The rare ones stay behind the prefix, out of the way.
+    goto            = "prefix+g"
+    detach          = "prefix+q"
+    help            = "prefix+?"
+    settings        = "prefix+s"
+    reload_config   = "prefix+shift+r"
+    toggle_sidebar  = "prefix+b"
+    resize_mode     = "prefix+r"
+    close_tab       = "prefix+shift+x"
+    new_workspace   = "prefix+shift+n"
+    new_worktree    = "prefix+shift+g"
+    rename_tab      = "prefix+shift+t"
 
     [ui]
     agent_panel_sort = "spaces"

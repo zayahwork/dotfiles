@@ -68,7 +68,7 @@
 
   xdg.configFile."herdr/config.toml".text = ''
     [keys]
-    prefix = "ctrl+b"
+    prefix = "f12"
     focus_pane_left  = "prefix+h"
     focus_pane_down  = "prefix+j"
     focus_pane_up    = "prefix+k"

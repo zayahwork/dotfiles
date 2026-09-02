@@ -71,10 +71,12 @@ different one, and nothing here assumes its layout.
 
 ## The library
 
-`~/github/dotfiles/library/` is what we know about this machine and how we work on it.
-Three levels: `INDEX.md` is a table of topics, each topic file opens with a contents
-block of its subjects, and the subject holds the detail. Read one line of each until the
-last. A lookup should cost three short reads and a miss should cost one.
+`~/github/dotfiles/library/` is everything we know: this machine, how we work on it, how
+we learn, how we build, and what made a build faster. Not three fixed levels but as many
+as the system has grown. `INDEX.md` is a table of general topics, a topic lists its
+subtopics, a subtopic lists its subjects, and the subject holds the detail. Read one line
+of each until the last. A lookup costs one short read per level and a miss costs one read
+total, which is what lets it hold everything without costing everything to read.
 
 - Read the index whenever a row might match what you are about to do. It is one small
   table and checking costs almost nothing, while being wrong about this machine costs a
@@ -96,6 +98,10 @@ last. A lookup should cost three short reads and a miss should cost one.
 - **Every level clicks through on GitHub.** The index row links to the topic, and each
   line of a topic's contents block links to its own subject. Keep that true when you add
   a subject, or the level below it stops being reachable.
+- **Split rather than write less.** A topic is one file with a contents block until it
+  gets fat, then its groups become files and its contents block becomes an `INDEX.md` in
+  a directory of its own. `tooling/` already did this. Depth costs one line per level, so
+  going deeper is always cheaper than leaving something out.
 - **Track everything. Literally everything.** What we do not write down, we lose, and
   nothing can be measured or scaled from an impression of how it went. Volume is not the
   problem the structure has to solve; findability is, and the three levels solve it. When

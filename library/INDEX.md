@@ -1,13 +1,26 @@
 # The library
 
-Everything worth keeping about this machine and how we work on it. Facts with numbers
-in them, rules that turned out to matter, and what has already gone wrong.
+Everything worth keeping. This machine and how we work on it, but also how we learn, how
+we build, what made a build faster, and what a decision rejected on the way. Facts with
+numbers in them, rules that turned out to matter, and what has already gone wrong.
 
-Three levels, and you only ever read one line of each until the last:
+Track everything. What we do not write down, we lose, and nothing can be measured from an
+impression of how it went. The structure below exists so that writing all of it down
+never makes reading any of it expensive.
 
-1. **This table.** Topics.
-2. **The contents block at the top of a topic file.** Its subjects, one line each.
-3. **The subject itself.** Only the one you came for.
+As many levels as the system has grown, and you only ever read one line of each until
+the last:
+
+1. **This table.** The general topics.
+2. **A topic's contents block.** Its subtopics or subjects, one line each.
+3. **A subtopic**, when a topic got big enough to become a directory with its own
+   `INDEX.md`. `tooling/` is one already.
+4. **The subject itself.** Only the one you came for.
+
+It does not stop at four. Every level costs one line to check, so going deeper is always
+cheaper than leaving something out. When a file gets fat, split it: its groups become
+files and its contents block becomes an `INDEX.md`. Never write less down to keep a file
+small.
 
 Open a topic only when its row matches a question that actually matters to the work in
 front of you. If no row matches, nothing here helps, and reading further to be sure

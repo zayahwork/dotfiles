@@ -28,10 +28,20 @@
           builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
       };
     in {
-      homeConfigurations."stuck" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [ ./home.nix ];
-        extraSpecialArgs = { inherit treehouse; };
-      };
+      # One entry per machine this repo runs on. Same home.nix, same packages,
+      # same keys: the only thing that differs is the Linux user, and that is
+      # the one thing home-manager will not let you get wrong. `apply` picks
+      # the right entry from `id -un`, so the command is identical on both.
+      homeConfigurations =
+        let
+          mkHome = username: home-manager.lib.homeManagerConfiguration {
+            inherit pkgs;
+            modules = [ ./home.nix ];
+            extraSpecialArgs = { inherit treehouse username; };
+          };
+        in {
+          "pc" = mkHome "pc";
+          "stuck" = mkHome "stuck";
+        };
     };
 }

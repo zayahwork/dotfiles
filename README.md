@@ -6,7 +6,7 @@ Nix installed 2026-09-01 with the Determinate Systems installer.
 ## Apply
 
     cd ~/github/dotfiles
-    nix run home-manager/master -- switch --flake .#stuck
+    nix run home-manager/master -- switch --flake ".#$(id -un)"
 
 After the first switch, use `apply` rather than home-manager directly:
 

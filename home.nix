@@ -1,8 +1,11 @@
-{ pkgs, lib, treehouse, ... }:
+{ pkgs, lib, config, treehouse, username, ... }:
 
 {
-  home.username = "stuck";
-  home.homeDirectory = "/home/stuck";
+  # Passed in from flake.nix, one value per machine. Hardcoding it meant a box
+  # whose user was not that name could not activate at all: home-manager refuses
+  # to run when home.username disagrees with whoever is running it.
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "24.11";
 
   programs.home-manager.enable = true;
@@ -259,27 +262,27 @@
     [[keys.command]]
     key = "ctrl+alt+t"
     type = "shell"
-    command = "/home/stuck/.local/bin/stack-tab"
+    command = "${config.home.homeDirectory}/.local/bin/stack-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+n"
     type = "shell"
-    command = "/home/stuck/.local/bin/edit-tab"
+    command = "${config.home.homeDirectory}/.local/bin/edit-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+c"
     type = "shell"
-    command = "/home/stuck/.local/bin/agent-tab claude"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab claude"
 
     [[keys.command]]
     key = "ctrl+alt+shift+x"
     type = "shell"
-    command = "/home/stuck/.local/bin/agent-tab codex"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab codex"
 
     [[keys.command]]
     key = "ctrl+alt+shift+r"
     type = "shell"
-    command = "/home/stuck/.local/bin/agent-tab cursor"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab cursor"
 
     # Open the commit you are looking at on GitHub, in the Windows browser. Runs
     # in the focused pane's directory, so it follows whichever repo you are in,
@@ -287,7 +290,7 @@
     [[keys.command]]
     key = "ctrl+alt+g"
     type = "shell"
-    command = "/home/stuck/.local/bin/commit-url --open"
+    command = "${config.home.homeDirectory}/.local/bin/commit-url --open"
 
     [theme]
     name = "rose-pine"
@@ -370,7 +373,7 @@
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.
     tab_bar_right = [
-      { type = "command", command = "/home/stuck/.local/bin/herdr-status", interval_seconds = 3 },
+      { type = "command", command = "${config.home.homeDirectory}/.local/bin/herdr-status", interval_seconds = 3 },
       { type = "text", text = "  " },
       { type = "datetime", format = "%-I:%M %p" },
     ]

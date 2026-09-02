@@ -4,7 +4,7 @@
 #   apply                  check, then home-manager switch
 #   apply --check          say what would block a switch, change nothing
 #   apply --build          build without activating, for a dry check
-#   apply --flake <ref>    a flake other than the default .#stuck
+#   apply --flake <ref>    a flake other than the default .#<your user>
 #
 # A flake only sees files git tracks. A new file sitting right there in the
 # working directory is invisible, and the switch dies with a derivationStrict
@@ -14,7 +14,9 @@ set -euo pipefail
 export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
 
 repo="$HOME/github/dotfiles"
-flake=".#stuck"
+# The machine names itself. Every box runs the same command, and the config it
+# lands on is the one matching its own user.
+flake=".#$(id -un)"
 mode=switch
 
 while [ $# -gt 0 ]; do

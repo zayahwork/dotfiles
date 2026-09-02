@@ -206,19 +206,18 @@ this machine, this Nix setup, or this shell.
     off-platform-linking rules bind Affiliates and Partners; the account here is neither,
     so this is clear to build. See decision 34 for the threshold that would change it.
 
-32. **A live progress panel on the overlay, fed from the repo.** Viewers see what is
-    being built right now: current project, what is in flight, what shipped today. The
-    data comes from the repo the agents are already working in, so it cannot drift from
-    reality the way a hand-maintained panel does. Requested by Zayah 2026-09-02.
+32. **A task board on the overlay, and it never shows the repo.** Viewers see a
+    general topic, what has to be done today, and what the schedule looks like. That is
+    all. No file names, no commits, no diffs, no issue ids. Somebody watching should
+    understand what is being worked on without knowing anything about the codebase.
 
-    **It is a browser source reading a local file, not a hosted page.** The agent writes
-    a small JSON next to a local HTML page, the page polls it, OBS renders it. Nothing on
-    the live path reaches the network, so the panel cannot go blank because GitHub had a
-    bad minute.
+    **It never competes with the display screens.** The two screens are the stream. The
+    board sits out of their way, and if there is ever a question between more board and
+    more screen, the screen wins. It stays small enough that it never earns a scrollbar.
 
-    **A person adds the browser source to the scene once**, because decision 2 says the
-    agent never touches scene composition and that does not get an exception for its own
-    feature. After that the agent only ever writes the file.
+    **A person places it in the scene once**, because decision 2 says the agent never
+    touches scene composition and that does not get an exception for its own feature.
+    The agent only ever writes the file the browser source reads.
 
 33. **Every library subject carries two tiers.** Tier one is what the admin passed. Tier
     two is what it rejected, kept with the reason and the numbers so far, because a claim
@@ -234,19 +233,30 @@ this machine, this Nix setup, or this shell.
     breach.
 
 35. **Stream keys may live in the private repo.** Approved by Zayah 2026-09-02,
-    overriding decision 19. Recorded objection, because a decision is worth more with
-    what it rejected next to it: this repo is displayed on a live stream by design, and a
-    key in it is one `cat`, one `git diff`, one agent echoing a file, or one Actions log
-    away from being read out to the audience. Rotating a key does not remove it from git
-    history. The alternative that was rejected is one gitignored file on the Acer with
-    the repo holding only the names. Nothing is blocked either way right now, because no
-    key has been handed over yet.
+    overriding decision 19. The objection first raised against it was that the repo is
+    on camera, and that was wrong: Zayah corrected it the same day, the repo is not
+    displayed on the stream. What survives the correction is smaller and worth one line
+    anyway. A key committed once is in git history permanently, so rotating does not
+    remove it; an Actions log can print a secret it was handed; and anyone given access
+    to the repo later is given the keys with it. The rejected alternative was one
+    gitignored file on the Acer with the repo holding only the names.
 
-36. **The progress panel stays small.** A few words, not a wall. Current project, what is
-    in flight, what shipped today, and a simple schedule of what is happening when so
-    viewers know what is coming. Clean and minimal, and it never grows to the point where
-    it competes with the thing being built. If it needs a scrollbar it has already
-    failed.
+36. **Agents push to the board, and only on a state change.** As an agent works it
+    sends the board an item, but "only if it is important" cannot be left to each agent
+    to judge, or every agent decides its own work is important and the board becomes
+    noise on camera. The deterministic version: an agent may push when an issue changes
+    state, started, finished or blocked, and at no other time. A state change is
+    important by definition and everything else is chatter.
+
+37. **A percent bar next to each task, driven by phases and issues.** Viewers see how
+    far along the work is rather than just what it is called. The number comes from the
+    board, not from an agent's opinion of its own progress.
+
+    Open detail, and the recommendation is in the next section: phases alone move the
+    bar in big jumps and can leave it frozen for hours of a five hour stream, which
+    reads as nothing happening. Issues inside the current phase move it several times a
+    stream.
+
 
 ---
 
@@ -271,6 +281,46 @@ From `Screenshot 2026-09-02 080802.png`, the 2026-09-01 stream:
 - **No chat box in the canvas.** The chat panel in that screenshot is YouTube's own
   replay panel, not part of the layout. The merged feed is a thing to build, and the top
   right slot is where it goes.
+
+## The task board
+
+**What it shows.** A general topic in a few words. What has to be done today. What the
+schedule looks like, so viewers know what is coming and when. A percent bar next to each
+task. That is the whole thing.
+
+**What it never shows.** The repo. No file names, no commits, no diffs, no issue ids, no
+branch names. Somebody watching should understand what is being worked on without
+knowing anything about the codebase, and the moment developer vocabulary appears on it
+the board has stopped being for the audience.
+
+**Where it goes, and this is a real constraint.** The canvas is already full: main screen
+top left and large, second screen bottom right, facecam bottom left, "Current Goals" top
+centre, "Current stack" top right. There is no empty slot to drop a board into, and the
+rule is that it never competes with the two display screens because the screens are the
+stream.
+
+Recommendation: **the board replaces "Current Goals" rather than joining it.** They are
+the same idea built twice, one hand-written and one live, and the live one wins. That
+frees the top centre slot at full width without touching either screen, and it removes a
+text source that has to be remembered rather than updating itself.
+
+**What feeds it.** Agents push, and only on an issue state change: started, finished, or
+blocked. Nothing else, ever. "Push if it is important" cannot be left to each agent to
+judge, because every agent believes its own work is important, and the result is noise on
+camera during a five hour stream. A state change is important by definition and the rule
+needs no model in the loop, which is the same argument as the deterministic core.
+
+**What the percent bar measures.** Open, and the recommendation is two numbers rather
+than one:
+
+- **The bar itself is issues finished inside the current phase.** It moves several times
+  in a stream, which is what makes it worth watching.
+- **A small label next to it reads `Phase 3 of 7`.** That carries the shape of the whole
+  project without needing a second bar.
+
+Phases alone would move the bar in big jumps and leave it frozen for hours of a five hour
+stream, which reads to a viewer as nothing happening, which is the opposite of the point.
+
 
 ## The channel
 

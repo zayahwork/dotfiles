@@ -63,7 +63,11 @@ different one, and nothing here assumes its layout.
 - After committing, show `git show --stat --oneline HEAD`, one line of plain English,
   and the link from `commit-url`. That is the whole picture in one screen: what moved,
   how much, what proved it, and where to go look at it.
-- Pushing and promoting are a person's call. Ask.
+- Push to `development` as soon as you commit. Standing yes, given 2026-09-02, because
+  the `commit-url` link is how the work gets reviewed and an unpushed commit makes that
+  link a 404. Promoting to `staging` or `main` is still a person's call. Ask.
+- Committing only part of the tree is normal here. If somebody else's change is sitting
+  in the working tree, stage your hunk and leave theirs alone rather than sweeping it in.
 
 ## The library
 
@@ -89,9 +93,23 @@ last. A lookup should cost three short reads and a miss should cost one.
   string, a `verified:` line naming what proves it, a `where:`, at most five sentences,
   then `Why:` and `Fix:`. The format is at the bottom of the index. An entry that skips
   the structure is not findable, and an entry nobody finds was never written.
+- **Every level clicks through on GitHub.** The index row links to the topic, and each
+  line of a topic's contents block links to its own subject. Keep that true when you add
+  a subject, or the level below it stops being reachable.
 - If a wall turns up a third time despite being in the library, the entry is not the
   fix. Build the check. `apply` exists because the untracked-file trap was written down
   three times and kept happening anyway.
+
+## Agents
+
+`home/.claude/agents/` holds a file per subagent, deployed to `~/.claude/agents/` by
+`home.nix` the same way skills are. A definition there is the only place an agent is
+written down, so an agent nobody can read is an agent nobody can fix. Same limit as
+skills: this reaches Claude Code and not Codex or cursor-agent.
+
+- **`library-admin` is the only thing that writes to `library/`.** Do not edit a library
+  file yourself. Hand it the claim, the rows behind it, and the topic it would live
+  under. Its job is to refute and its default verdict is reject, which is the point.
 
 ## Applying the config
 

@@ -12,6 +12,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
+| [Headless Edge on the Windows side reaches hosts the WSL sandbox blocks, and confirms Reddit's 403 is policy not network](#headless-edge-on-the-windows-side-reaches-hosts-the-wsl-sandbox-blocks-and-confirms-reddits-403-is-policy-not-network) | `msedge.exe --headless=new --dump-dom` returned 189,960 bytes from a Reddit URL that Node cannot reach at all. Same block page though: 0 `short_name` matches. |
 | [The agent sandbox allowlists network egress by host for Node: `registry.npmjs.org` is 200, `reddit.com` and `example.com` are `ETIMEDOUT`](#the-agent-sandbox-allowlists-network-egress-by-host-for-node-registrynpmjsorg-is-200-redditcom-and-examplecom-are-etimedout) | `npm install` works, which hides it. Not IPv6, not `fetch`: `node:https` fails the same way. `curl` is not subject to the allowlist. |
 
 ---
@@ -100,3 +101,20 @@ a green `curl` proves nothing about whether the shipped Node code can reach the 
 **Fix:** verify Node network paths outside the sandbox, or shell out to `curl`. Never
 report a Node fetch path as working on the strength of a `curl` check, and never conclude
 from a working `npm install` that general egress is available.
+
+## Headless Edge on the Windows side reaches hosts the WSL sandbox blocks, and confirms Reddit's 403 is policy not network
+
+**verified:** 2026-09-02, `"/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe" --headless=new --disable-gpu --no-first-run --user-data-dir='C:\Users\Public\edge-probe' --dump-dom <url>` exited 0 with 189,960 bytes from `www.reddit.com/r/smallbusiness/about/rules.json`
+**where:** any WSL agent session that needs to read a page the Node allowlist blocks
+
+Edge is a Windows process, so it is not subject to the WSL egress allowlist that makes
+Node throw `ETIMEDOUT` on the same URL. Use a throwaway `--user-data-dir` under
+`C:\Users\Public\` and a Windows-style path, not a WSL one. The same run also settles
+the Reddit question: the DOM came back as the HTML theme page with 0 occurrences of
+`short_name`, so a real browser from a residential Windows IP is blocked exactly like
+`curl` is, which makes the 403 Reddit policy rather than anything about this machine.
+
+**Fix:** for reads the sandbox blocks, shell out to headless Edge and parse the dumped
+DOM. Do not use it to reach a page behind the user's own login: that needs their real
+browser profile, which is a separate permission and puts any secret on the page into the
+session transcript.

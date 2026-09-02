@@ -312,11 +312,14 @@
     zoom             = "ctrl+alt+z"
     close_pane       = "ctrl+alt+x"
     workspace_picker = "ctrl+alt+w"
+
+    # The line selector. Direct chord rather than behind the prefix, because
+    # this is the thing used to read back and copy from scrollback.
+    copy_mode        = "ctrl+alt+y"
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
 
     # The rare ones stay behind the prefix, out of the way.
-    copy_mode       = "prefix+y"
     # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
     # Letters work, digits do not. Tab numbers live behind the prefix instead.
     switch_tab      = "prefix+1..9"

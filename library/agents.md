@@ -100,13 +100,19 @@ session that installed it: MCP servers are loaded at session start, so `ToolSear
 binary alone then fails at launch with `error while loading shared libraries:
 libnspr4.so: cannot open shared object file`, exit 127. The host is Ubuntu 26.04 managed
 by home-manager, so the missing libraries are an `apt` problem on a machine whose packages
-come from nix, and `--with-deps` is the wrong tool for it either way. UNCONFIRMED whether
-`pkgs.playwright-driver.browsers` plus `PLAYWRIGHT_BROWSERS_PATH` in `home.nix` fixes it;
-that package has to version-match the npm `playwright`, which is its own trap.
+come from nix, and `--with-deps` is the wrong tool for it either way. `pkgs.playwright-driver.browsers` does not fix it as-is, and the reason is a version
+mismatch measured on 2026-09-02: nixpkgs ships `chromium-1228` and `chromium_headless_shell-1228`,
+while npm `playwright@latest` looks for `chromium_headless_shell-1234` and fails with
+`Executable doesn't exist at .../chromium_headless_shell-1234/...`. Pointing
+`PLAYWRIGHT_BROWSERS_PATH` at the nix store path changes the error, not the outcome.
 
-**Fix:** add the server, then restart Claude before expecting the tools. For an actually
-working browser today, use headless Edge on the Windows side - see `web.md` - which needs
-no libraries and is not subject to the WSL egress allowlist either.
+**Fix:** for a working browser today, use headless Edge on the Windows side - see
+`web.md` - which needs no libraries and is not subject to the WSL egress allowlist either.
+To make Playwright itself work, the npm `playwright` version has to be pinned to whichever
+one expects the chromium revision nixpkgs currently ships, and `@playwright/mcp@latest`
+resolves its own playwright, so pinning the MCP server is part of it. Not attempted.
+Add the server, then restart Claude before expecting the tools; `claude mcp list` reporting
+Connected does not mean the current session can see them.
 
 ## A logged-in page is not something an agent can reach on its own. The wall is the password, not the browser
 

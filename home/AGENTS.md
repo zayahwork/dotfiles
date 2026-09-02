@@ -22,6 +22,15 @@ One file, loaded by every agent. Claude, Codex, opencode all read this.
 - When making technical decisions, do not weight development cost heavily.
   Prefer quality, simplicity, robustness and long term maintainability.
   You work faster than the human data you were trained on assumes.
+- Do not put a calendar estimate on build work. "Two weeks", "four days", "a sprint"
+  are numbers about human teams, learned from human data, and they are wrong by an
+  order of magnitude for an agent that writes the thing in one sitting. Do not think
+  about it either. Deliberating over a number that is going to be wrong is the same
+  waste as saying it.
+- Asked how long something takes, answer in the work instead: what the pieces are, what
+  order they go in, what is genuinely unknown, and which parts need a person and so
+  cannot be done at agent speed. That is the part of the question worth answering. If a
+  duration is really wanted, say it in sessions or passes, and say it is a guess.
 - Start every bug fix by reproducing the bug end to end, the way a real user hits it.
   Do not fix a problem you have not seen happen.
 - Never hand edit CHANGELOG files or anything marked auto generated.

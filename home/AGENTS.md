@@ -2,9 +2,17 @@
 
 One file, loaded by every agent. Claude, Codex, opencode all read this.
 
+Read it on boot and read nothing else. Do not scan the repo, do not open its README,
+do not index anything until a task actually asks for it. These rules and the library
+live in `~/github/dotfiles`, which is its own repo. Whatever you are working in is a
+different one, and nothing here assumes its layout.
+
 ## Writing
 
-- No em dashes and no en dashes. Use a plain hyphen or rewrite the sentence.
+- No em dashes and no en dashes. A plain hyphen, or rewrite the sentence.
+- Sound like a person, not a press release. Correct, not stiff. No comma dropped in
+  after every opening word, no short dramatic sentences stacked for effect, no line you
+  would not say out loud. Plain beats polished.
 - Plain sentences. No filler, no throat clearing, no restating the question.
 - Times are 12 hour Pacific. `7:50 pm`, never `19:50`.
 - Absolute dates, never "yesterday" or "last week".
@@ -43,6 +51,18 @@ One file, loaded by every agent. Claude, Codex, opencode all read this.
 - Do the thing asked. Do not quietly widen or narrow it.
 - If a second problem turns up, say so and let the human choose.
 - Nothing sends, publishes or posts without a person saying yes.
+
+## Git
+
+- `development -> staging -> main`, one direction. Never commit directly to `staging` or
+  `main`. Promote with `git merge --no-ff`, so the history says where a change came from.
+- One finished change, one commit. Not a batch of unrelated ones.
+- Every message is a subject line naming the change, then a body saying what you ran to
+  check it and what that actually printed. Somebody reading `git log -p` should see the
+  change and its proof without opening anything else.
+- After committing, show `git show --stat --oneline HEAD` and one line of plain English.
+  That is the whole picture in one screen: what moved, how much, and what proved it.
+- Pushing and promoting are a person's call. Ask.
 
 ## The library
 

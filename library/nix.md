@@ -1,0 +1,41 @@
+# nix
+
+Nix flakes, home-manager and the WSL side of the box.
+
+## Contents
+
+- A file another program writes cannot be a store symlink. Merge the keys you own.
+- Everything deployed into `$HOME` is read-only until the next `home-manager switch`.
+
+---
+
+## A config file another program writes cannot be deployed as a store symlink
+
+**verified:** 2026-09-01, `home.activation.agentContextBar` in `home.nix`
+**where:** `~/.claude/settings.json`, `~/.cursor/cli-config.json`
+
+`home.file.<path>.source` puts a read-only symlink into `$HOME`. Both agents rewrite
+that file themselves - `/config`, theme changes, cursor's own settings - and the write
+lands on `/nix/store`, which is read-only by design.
+
+**Fix:** an activation script that merges only the keys we own, with `jq`, into a temp
+file, then moves it into place. The rest of the file stays whatever the agent last
+wrote. The general rule: own the whole file with a symlink, or own a few keys with a
+merge, and never assume a config file has one writer.
+
+---
+
+## Anything deployed into $HOME is read-only, and stale until the next switch
+
+**verified:** 2026-09-01, `ls -ld ~/.claude/skills ~/.claude/CLAUDE.md`, both symlinks
+into `/nix/store/...-home-manager-files/`
+**where:** `~/.claude/skills`, `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`
+
+Nothing running on the machine can add to them, and an edit to the repo source does not
+appear until `home-manager switch` runs again.
+
+**Why:** `home.file.".claude/skills".source = ./home/.claude/skills` links the directory
+itself, not its contents.
+**Fix:** anything an agent writes during a session lives in the repo working tree and is
+read by path. That is why `library/` sits at the repo root: an entry can be appended and
+committed with no rebuild.

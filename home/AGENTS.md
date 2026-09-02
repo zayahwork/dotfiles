@@ -44,10 +44,16 @@ One file, loaded by every agent. Claude, Codex, opencode all read this.
 - If a second problem turns up, say so and let the human choose.
 - Nothing sends, publishes or posts without a person saying yes.
 
-## Lessons
+## The library
 
-- `~/github/dotfiles/lessons/INDEX.md` is a table of what has already gone wrong on this
-  machine. When something breaks, read that table and open the one file whose line
-  matches. Never the directory whole, and never before you have something to look up.
-- When you solve something that cost real time, append an entry to the file it belongs
-  in. The format is at the bottom of the index.
+`~/github/dotfiles/library/` is what we know about this machine and how we work on it.
+Three levels: `INDEX.md` is a table of topics, each topic file opens with a contents
+block of its subjects, and the subject holds the detail. Read one line of each until the
+last. A lookup should cost three short reads and a miss should cost one.
+
+- Open it when being wrong would cost something: a build or environment problem, a
+  number you are about to state, a rule about this repo. Not for ordinary work. Stop at
+  the level that answers the question, and stop entirely if no row matches.
+- Write to it when you learn something worth more than this session: a number, a rule, a
+  failure and its real fix, or a decision and what it rejected. The format is at the
+  bottom of the index, and the entry title carries the number rather than pointing at it.

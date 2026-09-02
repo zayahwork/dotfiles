@@ -35,6 +35,11 @@
   ];
 
   # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/edit-tab" = {
+    source = ./home/bin/edit-tab;
+    executable = true;
+  };
+
   home.file.".local/bin/stack-tab" = {
     source = ./home/bin/stack-tab;
     executable = true;
@@ -148,6 +153,7 @@
       gs = "git status";
       gd = "git diff";
       gl = "git log --oneline -20";
+      v = "nvim";
       cc = "claude";
       cx = "codex";
       cr = "cursor-agent";
@@ -187,6 +193,11 @@
     key = "ctrl+alt+t"
     type = "shell"
     command = "/home/pc/.local/bin/stack-tab"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+n"
+    type = "shell"
+    command = "/home/pc/.local/bin/edit-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+c"

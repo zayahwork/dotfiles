@@ -113,6 +113,12 @@
     executable = true;
   };
 
+  # One key back to work: the repo, with the last conversation in it reopened.
+  home.file.".local/bin/pickup" = {
+    source = ./home/bin/pickup;
+    executable = true;
+  };
+
   # Switch, but check first that the flake can see every file. A flake only
   # sees what git tracks, and that trap has cost three failed switches.
   home.file.".local/bin/apply" = {
@@ -300,6 +306,14 @@
     key = "ctrl+alt+g"
     type = "shell"
     command = "${config.home.homeDirectory}/.local/bin/commit-url --open"
+
+    # Back to work in one chord. When the session survived, herdr has already
+    # restored the panes and this only focuses one. When it did not, this is
+    # what rebuilds it.
+    [[keys.command]]
+    key = "ctrl+alt+r"
+    type = "shell"
+    command = "${config.home.homeDirectory}/.local/bin/pickup"
 
     [theme]
     name = "rose-pine"

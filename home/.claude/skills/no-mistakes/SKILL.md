@@ -99,7 +99,14 @@ the same way once the work is committed on a feature branch.
 - The work you want validated must be **committed** on a branch. The gate
   validates committed history, not your uncommitted working tree.
 - You must be on a **feature branch**, not the repository's default branch.
-- The repository must already be initialized with `no-mistakes init`.
+- The branch must have at least one commit the default branch does not. A branch
+  level with the default branch is not an error: the run completes with every
+  step from `review` onward `skipped` and returns `outcome: passed`, a green
+  result that validated nothing. Check `git log --oneline <default>..HEAD`
+  before you read a `passed` as proof.
+- The repository must already be initialized with `no-mistakes init`, which
+  itself needs an `origin` remote - without one it refuses with
+  `init: no 'origin' remote in <path>` and tells you to add it.
 - The daemon must have a runnable configured pipeline agent: a supported native
   agent binary, the `agent: cursor` ACP alias, or an explicit `acp:<target>` through
   `acpx`. You are the AXI driver, not
@@ -223,6 +230,9 @@ Run the pipeline and decide on its findings as they come up:
      monitoring the PR in the background until it is merged, closed, or its
      configured idle timeout elapses, so a human can watch it in the TUI.
    - `passed` - the changes cleared the gate and the PR was merged or closed.
+     `passed` alone is not proof a PR existed: when `origin` is not a forge the
+     `pr` and `ci` steps come back `skipped` and the run still ends `passed`.
+     Read the `steps` table, not just the outcome word.
    - `failed` or `cancelled` - they did not; read the output and address it.
      Fix whatever the output points at (a failing test, a lint error, a finding
      you skipped), commit the fix on the same feature branch, then drive the
@@ -323,9 +333,14 @@ no-mistakes axi abort --run <id>   # cancel a specific run by id (works outside 
 - A run object with a `running` or `fixing` step may include an `active_steps` table. Use it to see the active duration, latest activity, native agent PID, and current execution or fix round.
 - The `help` list at the bottom of most responses tells you the next commands to run.
 - Errors are printed as `error: ...` on stdout with a `help` list; act on the suggestion.
-- Exit codes: `0` success, no-op, or normal decision gates, `1` failed or cancelled final outcomes, `2` bad usage.
+- Exit codes: `0` success, no-op, or normal decision gates, `1` a failed or
+  cancelled final outcome **or any `error:` response**, `2` bad usage. Exit 1
+  on its own does not mean the pipeline ran and failed - an uninitialized
+  repository, the default branch, an uncommitted tree, a missing run and a
+  blocked sync all exit 1 too. Read whether the output has an `outcome:` or an
+  `error:` rather than branching on the code.
 
-A `gate:` waiting on you looks roughly like this - a `gate:` line naming the step, optional step-specific fields such as `note`, a `findings[N]{...}:` table with one row per finding, and a `help[N]:` list of next commands:
+A `gate:` waiting on you looks roughly like this - a `gate:` line naming the step, a `status: awaiting_approval` line, optional step-specific fields such as `summary` or `note`, a `findings[N]{...}:` table with one row per finding, and a `help[N]:` list of next commands:
 
 ```
 gate: review

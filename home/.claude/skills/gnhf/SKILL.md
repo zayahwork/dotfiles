@@ -6,8 +6,8 @@ description: Run an autonomous agent loop that keeps working while nobody is wat
 # gnhf
 
 An autonomous loop. Each iteration makes one small change, commits it on success and
-rolls it back on failure, until the objective is met or a cap stops it. You wake up to a
-branch of clean commits and a log of everything that happened.
+rolls it back on failure, until something stops it. You wake up to a branch of clean
+commits and a log of everything that happened.
 
 Installed as a pinned wrapper at `~/.local/bin/gnhf`, which execs `npx -y gnhf@0.1.47`.
 
@@ -36,6 +36,10 @@ a copy of its interface.
 gnhf --agent claude --worktree --max-iterations 1 --max-tokens 500000 "the objective"
 ```
 
+It refuses to start on a dirty working tree: "Working tree is not clean. Commit or
+stash changes first." `--worktree` and `--current-branch` choose different working
+directories, so passing both is an error rather than a preference.
+
 Four things about that line:
 
 - **`--worktree` unless you mean otherwise.** It runs in a separate git worktree, so the
@@ -47,6 +51,25 @@ Four things about that line:
   Pushing is a person's call.
 - **The objective is a sentence, not a ticket.** It is fed to the agent as the standing
   goal for every iteration, so it has to still make sense on iteration forty.
+
+## What actually ends a run
+
+Nothing in gnhf notices that an objective is finished. Left alone it keeps handing the
+same objective to a fresh iteration, so a run ends only when one of these fires:
+
+- `--max-iterations` stops it before the next iteration starts.
+- `--max-tokens` aborts mid-iteration once reported usage crosses the cap.
+- `--stop-when "<condition>"` ends the loop after an iteration whose agent reports that
+  condition met. It is the only way to end on the work rather than on a cap, so give it
+  something observable: "the full test suite passes and no unrelated files changed".
+- Three consecutive failed iterations. That number is fixed in the tool and has no flag.
+  A no-op iteration counts as a failure, which is how a run that has nothing left to do
+  eventually stops itself.
+- A permanent agent error, such as a Claude credit balance too low to continue.
+
+Re-running `gnhf` on an existing `gnhf/` branch resumes that run rather than starting a
+new one, and a resume reuses the saved `--stop-when` unless you pass a new value or
+`--stop-when ""` to clear it.
 
 ## Judging the result
 

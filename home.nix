@@ -55,8 +55,8 @@
     executable = true;
   };
 
-  home.file.".local/bin/claude-context-bar" = {
-    source = ./home/bin/claude-context-bar;
+  home.file.".local/bin/context-bar" = {
+    source = ./home/bin/context-bar;
     executable = true;
   };
 
@@ -71,31 +71,41 @@
   # The scaffolding they refer to is in method/.
   home.file.".claude/skills".source = ./home/.claude/skills;
 
-  # A context bar under Claude's prompt: how full the window is, and the percent.
+  # A context bar under the prompt: how full the window is, and the percent.
   #
-  # Merged into settings.json rather than symlinked from the store, because Claude
-  # writes that file itself - /config, theme changes - and a read-only symlink
-  # would break those. jq rewrites just the statusLine key and leaves the rest.
-  home.activation.claudeStatusLine =
+  # Claude and cursor both run a command and pipe it the session state as JSON, and
+  # the two payloads agree down to the key names, so one script drives both.
+  #
+  # Merged into their config files rather than symlinked from the store, because both
+  # agents write those files themselves - /config, theme changes, cursor's own
+  # settings - and a read-only symlink would break that. jq rewrites just the
+  # statusLine key and leaves the rest of the file alone.
+  home.activation.agentContextBar =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      settings="$HOME/.claude/settings.json"
-      mkdir -p "$HOME/.claude"
+      bar="$HOME/.local/bin/context-bar"
 
-      # A missing or empty file is not valid JSON, so seed it before merging.
-      if [ ! -s "$settings" ] || ! ${pkgs.jq}/bin/jq -e . "$settings" >/dev/null 2>&1; then
-        echo '{}' > "$settings"
-      fi
+      for settings in "$HOME/.claude/settings.json" "$HOME/.cursor/cli-config.json"; do
+        mkdir -p "$(dirname "$settings")"
 
-      # Merge into a temp file first, so a failed jq or a dry run cannot leave
-      # settings.json truncated.
-      tmp=$(mktemp)
-      ${pkgs.jq}/bin/jq \
-        --arg cmd "$HOME/.local/bin/claude-context-bar" \
-        '.statusLine = { type: "command", command: $cmd }' \
-        "$settings" > "$tmp"
+        # A missing or empty file is not valid JSON, so seed it before merging.
+        if [ ! -s "$settings" ] || ! ${pkgs.jq}/bin/jq -e . "$settings" >/dev/null 2>&1; then
+          echo '{}' > "$settings"
+        fi
 
-      $DRY_RUN_CMD mv $VERBOSE_ARG "$tmp" "$settings"
+        # Merge into a temp file first, so a failed jq or a dry run cannot leave
+        # the config truncated.
+        tmp=$(mktemp)
+        ${pkgs.jq}/bin/jq --arg cmd "$bar" \
+          '.statusLine = { type: "command", command: $cmd }' \
+          "$settings" > "$tmp"
+
+        $DRY_RUN_CMD mv $VERBOSE_ARG "$tmp" "$settings"
+      done
     '';
+
+  # codex needs nothing here. It already prints "N% context left" under its
+  # composer by default, and it could not draw the bar anyway: its status line
+  # takes a fixed set of built-in items and has no "run this command" item.
 
   # Neovim config lives in the repo, not hand edited in place.
   xdg.configFile."nvim/init.lua".source = ./home/.config/nvim/init.lua;

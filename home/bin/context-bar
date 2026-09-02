@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
-# Claude Code statusline: how full the context window is, as a bar and a percent.
+# Statusline for Claude Code and cursor-agent: how full the context window is,
+# as a bar and a percent.
 #
-# Claude hands us the session state as JSON on stdin. context_window.used_percentage
-# is in there too, but total_input_tokens over context_window_size is unambiguous, so
-# the number on screen is one that can be checked against /context.
+# Both hand the command the same JSON on stdin, down to the key names, so one
+# script serves both. cursor sends nulls rather than numbers until its first turn,
+# which the `// 0` fallbacks below absorb.
+#
+# context_window.used_percentage is in the payload too, but total_input_tokens over
+# context_window_size is unambiguous, so the number on screen is one that can be
+# checked against /context.
 
 set -uo pipefail
 

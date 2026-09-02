@@ -288,9 +288,9 @@
     # Iris, so the lines and the focused pane read clearly against the glass.
     accent = "#c4a7e7"
 
-    # Lines moved per wheel notch. The scroll hotkeys start at one notch, so
-    # this is what a tap moves.
-    mouse_scroll_lines = 4
+    # One line per notch. The scroll hotkeys send a steady stream of single
+    # notches, so the smoothness comes from the rate, not the step size.
+    mouse_scroll_lines = 1
 
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.

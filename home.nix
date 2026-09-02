@@ -162,11 +162,6 @@
   };
 
   xdg.configFile."herdr/config.toml".text = ''
-    # Direct number shortcuts. The switch_tab range form validates but does not
-    # fire as a direct chord; this indexed table is the documented way.
-    [keys.indexed]
-    tabs = "ctrl+alt"
-
     [session]
     # Bring agent panes back into their own conversation after a full server
     # restart or a reboot, rather than reopening an empty prompt.
@@ -236,6 +231,9 @@
 
     # The rare ones stay behind the prefix, out of the way.
     copy_mode       = "prefix+y"
+    # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
+    # Letters work, digits do not. Tab numbers live behind the prefix instead.
+    switch_tab      = "prefix+1..9"
     goto            = "prefix+g"
     detach          = "prefix+q"
     help            = "prefix+?"

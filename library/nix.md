@@ -6,7 +6,7 @@ Nix flakes, home-manager and the WSL side of the box.
 
 - A file another program writes cannot be a store symlink. Merge the keys you own.
 - Everything deployed into `$HOME` is read-only until the next `home-manager switch`.
-- A flake cannot see an untracked file. Use `apply`, which checks before it switches.
+- A flake cannot see an untracked file. `home-manager switch` routes through `apply`, which fixes it.
 
 ---
 
@@ -58,7 +58,8 @@ tracked by Git.
 
 **Why:** a flake build only sees the git tree, so a brand new file is invisible no
 matter that it sits right there in the working directory.
-**Fix:** `apply` instead of `home-manager switch`. It lists what git does not track,
+**Fix:** `apply`, and nothing to remember: a zsh function routes `home-manager switch`
+through it, so the check runs whichever command gets typed. It lists what git does not track,
 adds it with `git add -N` so the path is known without staging its contents, and only
 then switches. `apply --check` reports without touching anything.
 

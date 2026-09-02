@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Apply the config, after making sure the flake can actually see it.
 #
-#   apply              check, then home-manager switch
-#   apply --check      say what would block a switch, change nothing
-#   apply --build      build without activating, for a dry check
+#   apply                  check, then home-manager switch
+#   apply --check          say what would block a switch, change nothing
+#   apply --build          build without activating, for a dry check
+#   apply --flake <ref>    a flake other than the default .#pc
 #
 # A flake only sees files git tracks. A new file sitting right there in the
 # working directory is invisible, and the switch dies with a derivationStrict
@@ -19,11 +20,19 @@ mode=switch
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)
-      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     --check) mode=check ;;
     --build) mode=build ;;
+    --flake)
+      # `home-manager switch --flake .#pc` routes here through a shell function,
+      # so the flag people already type has to mean something rather than fail.
+      shift
+      [ $# -gt 0 ] || { echo "apply: --flake needs a reference" >&2; exit 2; }
+      flake="$1"
+      ;;
+    --flake=*) flake="${1#--flake=}" ;;
     *)
       echo "apply: unknown argument $1" >&2
       echo "try: apply --help" >&2

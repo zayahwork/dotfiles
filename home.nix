@@ -191,6 +191,21 @@
     # shells, so cursor-agent and the corp scripts went missing in new panes.
     initContent = ''
       export PATH="$HOME/.local/bin:$PATH"
+
+      # Nobody should have to remember to run the check. A flake cannot see an
+      # untracked file, and that trap cost three failed switches before it was
+      # caught, so `home-manager switch` routes through apply, which adds any
+      # untracked path with git add -N first. Every other subcommand is passed
+      # straight through. apply is a bash script, so it calls the real binary
+      # rather than recursing into this function.
+      home-manager() {
+        if [ "$1" = "switch" ]; then
+          shift
+          command apply "$@"
+        else
+          command home-manager "$@"
+        fi
+      }
     '';
 
     autosuggestion.enable = true;

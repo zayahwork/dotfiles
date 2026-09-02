@@ -95,9 +95,13 @@ last. A lookup should cost three short reads and a miss should cost one.
 
 ## Applying the config
 
-`apply` instead of `home-manager switch`. It refuses to hand the flake a file git does
-not track, which is invisible to a flake and dies in a stack trace whose real line is
-thirty down. `apply --check` says what would block a switch and changes nothing.
+`apply`. It adds anything git does not track with `git add -N` first, because a flake
+cannot see an untracked file and dies in a stack trace whose real line is thirty down.
+`apply --check` reports without changing anything.
+
+Nothing to remember: `home-manager switch` is a shell function that routes through
+`apply`, so the check runs either way. Every other home-manager subcommand passes
+straight through.
 
 ## Measuring
 

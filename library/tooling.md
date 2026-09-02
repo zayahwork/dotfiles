@@ -6,6 +6,7 @@ MIT. How each one is installed here and what it cost to get in.
 ## Contents
 
 - treehouse v2.3.0, from their flake, with `doCheck = false` because their tests fail in the sandbox.
+- An agent takes a treehouse with `get --lease`, never the bare subshell, which exits empty.
 - no-mistakes v1.60.2, built by `nix/no-mistakes.nix`, since it is neither in nixpkgs nor a flake.
 - gnhf 0.1.47 and lavish-axi, npm tools reached through npx, never `npm -g`.
 - firstmate is a cloned distro at `~/github/firstmate`, not a package.
@@ -31,6 +32,26 @@ remote and no pull request to attest to:
 **Why:** the check is about their release process, not about whether the binary works.
 **Fix:** `.overrideAttrs (_: { doCheck = false; })` on their package. v2.3.0 was the
 newest release on 2026-09-01, so there was nothing to upgrade to.
+
+---
+
+## An agent takes a treehouse with `get --lease`, never the bare subshell
+
+**verified:** 2026-09-01, `treehouse get --lease --json --no-fetch` printed
+`{"path":"/tmp/th-test/.treehouse/th-test-c49429/1/th-test","lease_id":"9bef1391074cc499832588efb0328b13"}`,
+and `treehouse return <path>` put it back as `available`
+**where:** the `treehouse` skill, and any agent that needs a tree of its own
+
+Bare `treehouse` acquires a worktree and opens a subshell in it. Run with no terminal,
+that subshell exits immediately and the tree is returned before any work happens, so an
+agent following the subshell shape gets a worktree it never occupied. `--lease` acquires
+durably instead: the absolute path on stdout, every banner on stderr, never handed to a
+later `get` and never removed by `prune` until `treehouse return <path>`. Read a tree
+somebody else holds with `treehouse enter --print-path <name>`, which leaves pool state
+alone.
+
+**Fix:** the `treehouse` skill now documents the lease as the agent path beside the
+subshell, and its command list gained `update`, which v2.3.0 has and the skill omitted.
 
 ---
 

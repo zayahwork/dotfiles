@@ -12,7 +12,7 @@ it puts it back in the pool rather than deleting it.
 ## Current guidance lives in the CLI
 
 `treehouse --help`, and `treehouse <command> --help`, are the source of truth. The
-commands are `get`, `enter`, `return`, `status`, `destroy`, `prune`, `init`.
+commands are `get`, `enter`, `return`, `status`, `destroy`, `prune`, `init`, `update`.
 
 ## The shape of it
 
@@ -24,6 +24,21 @@ treehouse status     # what is in the pool and who has what
 
 Run it from inside the repo you want a tree of. You land in a subshell in the worktree,
 do the work there, and `exit` returns it.
+
+## An agent cannot use the subshell
+
+That shape is for a person at a terminal. An agent has no subshell to land in, so it
+uses the lease instead:
+
+```sh
+treehouse get --lease --lease-holder <who>   # prints the absolute path, nothing else
+treehouse return <path>                      # release it
+```
+
+`--json` on the lease adds the lease id and metadata, all banners go to stderr, and a
+leased worktree is never handed to a later `get` and never removed by `prune` until it
+is returned. `treehouse enter --print-path <name>` prints the path of a worktree
+somebody else already has, without touching pool state.
 
 ## Why it matters here
 

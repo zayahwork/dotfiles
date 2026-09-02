@@ -96,6 +96,21 @@ last. A lookup should cost three short reads and a miss should cost one.
 - **Every level clicks through on GitHub.** The index row links to the topic, and each
   line of a topic's contents block links to its own subject. Keep that true when you add
   a subject, or the level below it stops being reachable.
+- **Track everything. Literally everything.** What we do not write down, we lose, and
+  nothing can be measured or scaled from an impression of how it went. Volume is not the
+  problem the structure has to solve; findability is, and the three levels solve it. When
+  a subject gets fat it splits into another subject, and a topic into another topic.
+  Never write less down to keep a file small.
+- **Two tiers inside every subject.** Tier one is what `library-admin` passed. Tier two,
+  under a `Held back` heading, is what it rejected, kept with its reason and its numbers
+  so far. A claim rejected at n=3 is a claim at n=3, not a lie, and keeping it stops the
+  same claim being proposed again next week. Read tier one, drop to tier two only if
+  tier one did not answer.
+- **The bar for a claim about cause.** Five observations of the same class from five
+  different subjects, all moving the same direction, and the median effect larger than
+  the largest swing over the same window in the population nobody touched. That last one
+  is the check that matters: things drift on their own, so without a control an agent
+  reports the drift as its own result and is sincere about it.
 - If a wall turns up a third time despite being in the library, the entry is not the
   fix. Build the check. `apply` exists because the untracked-file trap was written down
   three times and kept happening anyway.

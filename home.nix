@@ -278,6 +278,16 @@
     [ui]
     agent_panel_sort = "spaces"
 
+    # Dividing lines between panes, but no frame drawn around the outside of
+    # the whole pane area. The outer frame is what made it look boxy.
+    pane_borders = true
+    pane_outer_borders = false
+    pane_gaps = true
+    pane_scrollbars = false
+
+    # Iris, so the lines and the focused pane read clearly against the glass.
+    accent = "#c4a7e7"
+
     # Lines moved per wheel notch. The scroll hotkeys start at one notch, so
     # this is what a tap moves.
     mouse_scroll_lines = 4

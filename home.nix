@@ -50,6 +50,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/herdr-focus-rect" = {
+    source = ./home/bin/herdr-focus-rect;
+    executable = true;
+  };
+
   home.file.".local/bin/herdr-status" = {
     source = ./home/bin/herdr-status;
     executable = true;

@@ -1,39 +1,55 @@
 # media
 
-Media for X and anything else we post. Images, video, audio, thumbnails, the source
-files behind them.
+The drop. Finished media only, ready to grab and post.
+
+Something arrives here when it is **done and we are satisfied with it**. Nothing is
+worked on here, nothing is drafted here, and nothing sits here waiting to be revised.
+The one question a file has to answer to belong on this branch is: would I post this
+right now, as it is?
+
+That is the whole rule. It is what makes the branch useful: anything you find here can
+go straight out without being opened and checked first.
+
+## Where the work happens
+
+Somewhere else. A scratch folder, the editor's own project directory, wherever suits
+the tool. Working files, project files, raw captures and half-finished cuts do not
+belong on this branch, because the moment they are here the rule above stops being
+true and every file needs opening to find out which kind it is.
+
+Export the finished thing, drop it here, commit.
 
 ## This branch is not part of the flow
 
 `development -> staging -> main` is for the config. This branch is not a fourth stage
 in it and never merges into any of them.
 
-It is an **orphan branch**: its own root commit, no history in common with the code.
+It is an **orphan branch**: its own root commit, no history in common with the config.
 That is deliberate. Media is large and binary, and anything committed to a branch stays
 in that branch's history forever. Keeping it on its own root means a clone of the config
 branches never has to carry a single video file.
 
-So there is nothing to promote here. Commit to `media`, push `media`, done.
-
-## Working on it
+There is nothing to promote. Commit to `media`, push `media`, done.
 
     git checkout media          # only media, no nix config in sight
     git checkout development    # back to the config
 
-Because the histories are unrelated, switching swaps the whole working tree. Commit
-before you switch.
+The histories are unrelated, so switching swaps the whole working tree. Commit before
+you switch.
 
 ## Layout
 
 | Path | What goes in it |
 | --- | --- |
-| `x/` | Anything posted to X. |
-| `x/source/` | The editable original: the project file, the raw capture, the full-res export. |
-| `x/out/` | The file actually uploaded, at the size and format X wants. |
+| `x/` | Finished media for X. |
 
-Add a sibling folder per platform as we need one, with the same `source/` and `out/`
-split. The split is the whole point: `out/` is disposable and can always be rebuilt
-from `source/`, so if we ever need to shrink this branch, `out/` is what goes.
+One folder per platform. Add a sibling when we start posting somewhere new.
+
+Name a file so it is obvious what it is without opening it. The date it is for, then
+what it shows:
+
+    x/2026-09-01-herdr-agent-tabs.mp4
+    x/2026-09-01-nix-rebuild.png
 
 ## Two things to know before committing a large file
 

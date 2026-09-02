@@ -34,7 +34,7 @@ costs more than it can return.
 | [`repo.md`](repo.md) | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
 | [`bootstrap.md`](bootstrap.md) | Standing this repo up on a new machine. The nine things that broke doing it on 2026-09-02: the hardcoded username, the 127 that closes WezTerm instantly, the Windows half home-manager never touches. |
 | [`web.md`](web.md) | Fetching from the public internet. How to enumerate a YouTube channel's videos and read a video's title, views and full description with `curl`, and the grep that wrongly reports an empty page. |
-| [`stream.md`](stream.md) | The live stream and its numbers. Titles and descriptions as separate subjects: which title formula does 16K-77K against 5.4K, and the 49,200 subscriber channel with empty descriptions getting 43 views. |
+| [`stream/`](stream/INDEX.md) | The live stream and its numbers, eight subtopics: titles, descriptions, going live, the machine, the overlay, measuring, platforms, credentials. Largest file is 66 lines. |
 | [`tooling/`](tooling/INDEX.md) | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
 
 ---

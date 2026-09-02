@@ -108,10 +108,25 @@ fi
 # already on PATH and is where the herdr config expects it.
 say "cursor-agent"
 if have cursor-agent || [ -x "$HOME/.local/bin/cursor-agent" ]; then
-  echo "already installed"
+  echo "already installed: $("$HOME/.local/bin/cursor-agent" --version 2>/dev/null | head -1)"
 else
-  echo "not installed. It is a third party script, so run it yourself:"
-  echo "    curl https://cursor.com/install -fsS | bash"
+  # Fetched to a file and read before it runs, rather than piped straight into
+  # a shell. What it does: pulls a tarball from downloads.cursor.com, unpacks
+  # it under ~/.local/share/cursor-agent/versions/, and symlinks two names into
+  # ~/.local/bin. No sudo, nothing outside $HOME.
+  echo "installing"
+  if curl -fsSL https://cursor.com/install -o /tmp/cursor-install.sh; then
+    bash /tmp/cursor-install.sh >/dev/null 2>&1 || true
+    rm -f /tmp/cursor-install.sh
+    if [ -x "$HOME/.local/bin/cursor-agent" ]; then
+      echo "installed: $("$HOME/.local/bin/cursor-agent" --version 2>/dev/null | head -1)"
+    else
+      echo "install did not produce ~/.local/bin/cursor-agent; cr will not work" >&2
+    fi
+  else
+    echo "could not reach cursor.com; cr will not work until you run:" >&2
+    echo "    curl https://cursor.com/install -fsS | bash" >&2
+  fi
 fi
 
 # ----------------------------------------------------------- login shell --

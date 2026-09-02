@@ -85,7 +85,16 @@ just stop when it is said.
   how much, what proved it, and where to go look at it.
 - Push to `development` as soon as you commit. Standing yes, given 2026-09-02, because
   the `commit-url` link is how the work gets reviewed and an unpushed commit makes that
-  link a 404. Promoting to `staging` or `main` is still a person's call. Ask.
+  link a 404.
+- **Promote to `main` too, through `staging`, once the work is committed.** Standing yes,
+  given 2026-09-02: what is learned should reach every machine and every agent rather
+  than sitting on a branch. Two merges, both `--no-ff`, never a direct commit to either.
+  This raises the bar on what gets committed rather than lowering the bar on `main`: if
+  it is not true enough for `main`, it is not true enough to commit.
+- **Promote in a `git worktree`, never by switching the shared tree.** Other sessions
+  work in this repo at the same time. Leaving the shared tree on `staging` on 2026-09-02
+  caused another session to commit straight onto `staging`, which the branch rule
+  forbids. A worktree cannot cause that.
 - Committing only part of the tree is normal here. If somebody else's change is sitting
   in the working tree, stage your hunk and leave theirs alone rather than sweeping it in.
 

@@ -185,6 +185,12 @@ installed by hand, which is the thing this repo exists to stop. `~/.local/bin`
 holds one home-manager symlink per file rather than owning the directory, so an
 installer can drop a binary in beside them.
 
-**Fix:** `curl https://cursor.com/install -fsS | bash`, which installs there.
-bootstrap.sh checks for it and prints the command rather than running it,
-because it is a third party script and that is a decision for a person.
+**Fix:** `curl https://cursor.com/install -fsS | bash`. bootstrap.sh does this
+now, fetching the script to a file and running it from there rather than piping
+the network into a shell. Installed 2026.08.31-4057e58 on 2026-09-02 and `cr`
+resolves to `~/.local/bin/cursor-agent`.
+
+The installer is 5668 bytes, pulls a tarball from downloads.cursor.com, unpacks
+it under `~/.local/share/cursor-agent/versions/`, and symlinks `cursor-agent`
+and `agent` into `~/.local/bin`. No sudo and nothing outside `$HOME`, so it
+cannot collide with the home-manager symlinks already in that directory.

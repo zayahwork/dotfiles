@@ -103,6 +103,12 @@
   };
 
   xdg.configFile."herdr/config.toml".text = ''
+    [terminal]
+    # Panes are login shells. herdr's "auto" only does this on macOS, so on
+    # Linux every pane skipped hm-session-vars.sh and never saw ~/.local/bin,
+    # which is where cursor-agent and the corp scripts live.
+    shell_mode = "login"
+
     [theme]
     name = "rose-pine"
 

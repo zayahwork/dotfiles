@@ -9,6 +9,8 @@ Which endpoints exist, which do not, and what gates them.
 - [The first working version is YouTube plus two X accounts, not four platforms](#the-first-working-version-is-youtube-plus-two-x-accounts-not-four-platforms)
 - [Neither X account has ever gone live, so X RTMP ingest is UNCONFIRMED](#neither-x-account-has-ever-gone-live-so-x-rtmp-ingest-is-unconfirmed)
 - [Two framings for two X accounts means a second encode, unless framing means the words](#two-framings-for-two-x-accounts-means-a-second-encode-unless-framing-means-the-words)
+- [The Kick account exists and is not configured](#the-kick-account-exists-and-is-not-configured)
+- [Every account exists; what does not exist is endpoints](#every-account-exists-what-does-not-exist-is-endpoints)
 
 ---
 
@@ -87,3 +89,17 @@ there is no endpoint yet. Twitch is in the same state.
 
 **Fix:** keyboard work on kick.com and twitch.tv. It cannot be done from this machine and
 does not run AFK.
+
+## Every account exists; what does not exist is endpoints
+
+**verified:** 2026-09-02, logins given by Zayah when reviewing the PRD
+**where:** any question about which login owns which platform
+
+YouTube is `@ZayBuilds-b6o` under `zayahnelson97@gmail.com`. X is two accounts, both
+Premium, `zayahwork@gmail.com` and `zayahwork1@gmail.com`. Twitch and Kick are both under
+`zayahwork@gmail.com`. Four platforms, five accounts, and only YouTube has ever
+broadcast.
+
+**Why:** "blocked" on this project has never meant a missing account. It means no stream
+key pulled, no endpoint configured, and in X's case no evidence the ingest exists at all.
+Do not read an existing account as a working endpoint.

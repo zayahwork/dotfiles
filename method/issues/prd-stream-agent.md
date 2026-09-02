@@ -62,10 +62,10 @@ about cause until the record can carry it.
 | Storage | `dataset` | NEW | Append-only rows: streams, per-platform results, VOD changes, admin verdicts |
 | Adapter | `obs` | NEW | Switch scene, set a named text source, start and stop the broadcast. Nothing else |
 | Adapter | `relay` | NEW | One encoded input, N outputs, copy not re-encode; reports per-output state |
-| Adapter | `youtube` | NEW | Set title and description, read impressions, CTR and retention, list VODs |
-| Adapter | `x` | NEW | Set metadata and push RTMP. **Blocked: ingest UNCONFIRMED** |
-| Adapter | `twitch` | NEW | Same shape. **Blocked: no endpoint yet** |
-| Adapter | `kick` | NEW | Same shape. **Blocked: no endpoint yet** |
+| Adapter | `youtube` | NEW | `@ZayBuilds-b6o`, login `zayahnelson97@gmail.com`. Set title and description, read impressions, CTR, retention, list VODs |
+| Adapter | `x` | NEW | Two accounts, `zayahwork@gmail.com` and `zayahwork1@gmail.com`, both Premium. **Blocked: ingest UNCONFIRMED, neither has gone live** |
+| Adapter | `twitch` | NEW | Login `zayahwork@gmail.com`, not Affiliate. **Blocked: account exists, no endpoint** |
+| Adapter | `kick` | NEW | Login `zayahwork@gmail.com`. **Blocked: account exists, unconfigured, no endpoint** |
 | Service | `metadata` | NEW | One source in, one native title and description per platform out, deterministically |
 | Service | `golive` | NEW | Preflight everything, brief the human, press the button on one word |
 | Service | `health` | NEW | Upload before, dropped frames and per-platform connection during |
@@ -76,6 +76,7 @@ about cause until the record can carry it.
 | Wiring | `library-admin` | **exists** | The adversarial gate on every library write. Built 2026-09-02 |
 | Surface | `brief` | NEW | The pre-go-live briefing in the terminal |
 | Surface | `board` | NEW | Overlay task board. A browser source reading a local file. Never shows the repo |
+| Service | `chat` | NEW | Reads every platform's chat, merges into one feed tagged by platform. Read only, never writes |
 | Surface | `page` | NEW | The post-stream report, as a lavish artifact |
 
 ## The journey
@@ -96,6 +97,7 @@ that reads this PRD and the board, not this session's memory.
 | **P8** The experiment loop | One variable per stream, the commitment written down, checked next stream that it was actually run. Claims go to `library-admin`, which mostly rejects them. **Look at:** a rejected claim in the dataset with its reason. | Storage, Service, Wiring | P7 |
 | **P9** Multi-output relay | One encode, two outputs, copy not re-encode, per-output connection state. **Look at:** two endpoints live off one encode, and the CPU cost of doing it. | Adapter, Service | P4, and the X ingest test (human) |
 | **P10** The remaining platforms | Twitch and Kick endpoints, and per-platform native metadata for all four. **Look at:** four platforms live at once from one sentence. | Adapter, Service | P9, and account setup (human) |
+| **P11** Chat, merged and isolated | One feed showing everyone chatting and which platform they are on, read only. YouTube first, then each platform as its endpoint lands. **Look at:** the merged feed on the canvas during a stream, and the stream continuing normally with the chat process killed. | Adapter, Service, Surface | P2 |
 
 P3 and P5 do not block on P2 and can be worked in parallel with it. P6, P7 and P8 are a
 chain. P9 and P10 are gated on humans, not on code.
@@ -141,6 +143,14 @@ Decisions carry the date they were made in the grilling. Full reasoning is in
   the capture card. Scheduled and analytics work runs in Actions. 2026-09-02.
 - **The task board never shows the repo**, and agents push to it only on an issue state
   change. 2026-09-02.
+- **Chat runs always, and is isolated from the go-live path.** Zayah, 2026-09-02: it
+  should always be working. It is, and it is also never a reason a stream fails to start.
+  It runs as its own process, its failure is invisible to `golive`, and the broadcast
+  does not check on it. Read only on all four platforms.
+- **Accounts, confirmed 2026-09-02.** YouTube `@ZayBuilds-b6o` under
+  `zayahnelson97@gmail.com`. X under `zayahwork@gmail.com` and `zayahwork1@gmail.com`.
+  Twitch and Kick both under `zayahwork@gmail.com`. All four accounts exist; what does
+  not exist is endpoints.
 
 ## Testing decisions
 
@@ -158,6 +168,7 @@ The feedback loop per phase, and what a passing run prints.
 | P8 | Feed `library-admin` a claim at n=3 | Verdict REJECT, reason recorded in the dataset, nothing written to `library/` |
 | P9 | Two endpoints from one encode | Both live, CPU measured before and after, frame rate of the game unchanged |
 | P10 | Four endpoints from one sentence | All four live, each with its own native title and description |
+| P11 | Kill the chat process mid-stream | The merged feed stops; the broadcast, the overlay and the health line carry on unaffected |
 
 The regression that matters most is P3's: the failure this whole project exists to stop
 is a broken description going out, and that is the one test that catches it.
@@ -171,9 +182,8 @@ is a broken description going out, and that is the one test that catches it.
 - **Writing into platform chat.** Rejected: needs a bot account per platform with its own
   rules, and it turns commit messages into public broadcasts.
 - **Audio input of any kind.** Rejected outright.
-- **Global merged chat.** In scope for the project, **out of scope for this PRD.** A
-  broken chat websocket must never be a reason the stream does not start. It gets its own
-  PRD after P10.
+- **Writing into chat.** Reading is in scope (P11). Writing is rejected: it needs a bot
+  account per platform with its own rules about automated posting.
 - **Thumbnail generation.** Tracking thumbnails is in scope later; making them is not.
 - **Any claim about what causes what**, until five observations of the same class agree
   and beat the drift in the untouched population.
@@ -185,13 +195,14 @@ Named to the only person who can close them. **Not guessed closed.**
 
 | Question | Who | Why it blocks |
 | --- | --- | --- |
+| Where the merged chat feed sits on the canvas | **Zayah** | Blocks P11's surface. The grill notes the top right slot, which currently holds "Current stack" |
 | Does X RTMP ingest actually work? Neither account has ever gone live. | **Zayah**, one throwaway broadcast | Blocks P9 and the `x` module. Most likely thing to knock a platform off the list |
 | What does "two framings" mean: same picture with different words, a vertical cut, or two compositions? | **Zayah** | Decides whether P9 costs nothing or costs a second encoder. Recommendation on the table: same picture, different words |
 | Does the board replace "Current Goals" on the canvas? | **Zayah** | Blocks P5. The canvas has no free slot |
 | What does the percent bar measure? | **Zayah** | Blocks P5. Recommendation: issues inside the current phase, with a `Phase 3 of 7` label |
 | What feeds the board? | **Zayah** | Blocks P5. Recommendation: `issues/BOARD.md`, because it updates as a side effect of the work |
 | The real character limits for YouTube, X, Twitch and Kick | anyone, by reading | Blocks P10's metadata. To be read, never remembered |
-| Twitch and Kick account setup: profile, customisation, stream key | **Zayah**, at a keyboard | Blocks P10. Cannot be done AFK |
+| Twitch and Kick endpoints: profile, customisation, stream key pulled | **Zayah**, at a keyboard | Blocks P10. Both accounts exist under `zayahwork@gmail.com`; neither has a key. Cannot be done AFK |
 | YouTube Analytics OAuth connection | **Zayah** | Blocks P7. Approved 2026-09-02, not yet done |
 
 ---

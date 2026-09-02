@@ -1,0 +1,4 @@
+# OS and editor droppings, not media.
+.DS_Store
+Thumbs.db
+*.tmp

@@ -1,0 +1,14 @@
+# Media is binary. Do not try to diff it, do not touch line endings.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.svg    text
+*.mp4    binary
+*.mov    binary
+*.webm   binary
+*.mp3    binary
+*.wav    binary
+*.m4a    binary
+*.pdf    binary

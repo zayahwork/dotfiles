@@ -70,6 +70,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/commit-url" = {
+    source = ./home/bin/commit-url;
+    executable = true;
+  };
+
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   # One memory file, every agent reads it.
@@ -218,6 +223,14 @@
     key = "ctrl+alt+shift+r"
     type = "shell"
     command = "/home/pc/.local/bin/agent-tab cursor"
+
+    # Open the commit you are looking at on GitHub, in the Windows browser. Runs
+    # in the focused pane's directory, so it follows whichever repo you are in,
+    # and falls back to this one when the pane is not in a repo at all.
+    [[keys.command]]
+    key = "ctrl+alt+g"
+    type = "shell"
+    command = "/home/pc/.local/bin/commit-url --open"
 
     [theme]
     name = "rose-pine"

@@ -60,8 +60,9 @@ different one, and nothing here assumes its layout.
 - Every message is a subject line naming the change, then a body saying what you ran to
   check it and what that actually printed. Somebody reading `git log -p` should see the
   change and its proof without opening anything else.
-- After committing, show `git show --stat --oneline HEAD` and one line of plain English.
-  That is the whole picture in one screen: what moved, how much, and what proved it.
+- After committing, show `git show --stat --oneline HEAD`, one line of plain English,
+  and the link from `commit-url`. That is the whole picture in one screen: what moved,
+  how much, what proved it, and where to go look at it.
 - Pushing and promoting are a person's call. Ask.
 
 ## The library

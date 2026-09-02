@@ -4,7 +4,7 @@
 #   apply                  check, then home-manager switch
 #   apply --check          say what would block a switch, change nothing
 #   apply --build          build without activating, for a dry check
-#   apply --flake <ref>    a flake other than the default .#pc
+#   apply --flake <ref>    a flake other than the default .#stuck
 #
 # A flake only sees files git tracks. A new file sitting right there in the
 # working directory is invisible, and the switch dies with a derivationStrict
@@ -14,7 +14,7 @@ set -euo pipefail
 export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
 
 repo="$HOME/github/dotfiles"
-flake=".#pc"
+flake=".#stuck"
 mode=switch
 
 while [ $# -gt 0 ]; do
@@ -26,7 +26,7 @@ while [ $# -gt 0 ]; do
     --check) mode=check ;;
     --build) mode=build ;;
     --flake)
-      # `home-manager switch --flake .#pc` routes here through a shell function,
+      # `home-manager switch --flake .#stuck` routes here through a shell function,
       # so the flag people already type has to mean something rather than fail.
       shift
       [ $# -gt 0 ] || { echo "apply: --flake needs a reference" >&2; exit 2; }

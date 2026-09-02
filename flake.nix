@@ -28,7 +28,7 @@
           builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
       };
     in {
-      homeConfigurations."pc" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."stuck" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [ ./home.nix ];
         extraSpecialArgs = { inherit treehouse; };

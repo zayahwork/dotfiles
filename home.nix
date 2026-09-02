@@ -1,8 +1,8 @@
 { pkgs, lib, treehouse, ... }:
 
 {
-  home.username = "pc";
-  home.homeDirectory = "/home/pc";
+  home.username = "stuck";
+  home.homeDirectory = "/home/stuck";
   home.stateVersion = "24.11";
 
   programs.home-manager.enable = true;
@@ -259,27 +259,27 @@
     [[keys.command]]
     key = "ctrl+alt+t"
     type = "shell"
-    command = "/home/pc/.local/bin/stack-tab"
+    command = "/home/stuck/.local/bin/stack-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+n"
     type = "shell"
-    command = "/home/pc/.local/bin/edit-tab"
+    command = "/home/stuck/.local/bin/edit-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+c"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab claude"
+    command = "/home/stuck/.local/bin/agent-tab claude"
 
     [[keys.command]]
     key = "ctrl+alt+shift+x"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab codex"
+    command = "/home/stuck/.local/bin/agent-tab codex"
 
     [[keys.command]]
     key = "ctrl+alt+shift+r"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab cursor"
+    command = "/home/stuck/.local/bin/agent-tab cursor"
 
     # Open the commit you are looking at on GitHub, in the Windows browser. Runs
     # in the focused pane's directory, so it follows whichever repo you are in,
@@ -287,7 +287,7 @@
     [[keys.command]]
     key = "ctrl+alt+g"
     type = "shell"
-    command = "/home/pc/.local/bin/commit-url --open"
+    command = "/home/stuck/.local/bin/commit-url --open"
 
     [theme]
     name = "rose-pine"
@@ -366,7 +366,7 @@
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.
     tab_bar_right = [
-      { type = "command", command = "/home/pc/.local/bin/herdr-status", interval_seconds = 3 },
+      { type = "command", command = "/home/stuck/.local/bin/herdr-status", interval_seconds = 3 },
       { type = "text", text = "  " },
       { type = "datetime", format = "%-I:%M %p" },
     ]

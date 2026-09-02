@@ -116,6 +116,16 @@
   };
 
   xdg.configFile."herdr/config.toml".text = ''
+    [session]
+    # Bring agent panes back into their own conversation after a full server
+    # restart or a reboot, rather than reopening an empty prompt.
+    resume_agents_on_restore = true
+
+    [experimental]
+    # Keep each pane's scrollback across a server restart too, so the text that
+    # was on screen is still there.
+    pane_history = true
+
     [terminal]
     # New panes, tabs and workspaces start in the dotfiles repo rather than in
     # $HOME, so a fresh space is named after the repo instead of "~".

@@ -77,6 +77,14 @@
 
   programs.zsh = {
     enable = true;
+
+    # Every interactive shell, not just login ones. hm-session-vars.sh only
+    # gets sourced by login shells, and herdr panes are not reliably login
+    # shells, so cursor-agent and the corp scripts went missing in new panes.
+    initContent = ''
+      export PATH="$HOME/.local/bin:$PATH"
+    '';
+
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     history.size = 50000;

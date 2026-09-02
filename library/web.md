@@ -7,10 +7,10 @@ return, and where they quietly return nothing.
 
 | Subject | What it says |
 | --- | --- |
-| A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
-| A watch page returns title, views, length, publish date and the full description | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
-| `WebFetch` on a youtube.com URL returns only the site footer | The markdown conversion drops the JSON the page is built from. Use `curl`. |
-| Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
+| [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
+| [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
+| [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
+| [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 
 ---
 

@@ -15,14 +15,14 @@ costs more than it can return.
 
 | Topic | What is in it |
 | --- | --- |
-| `terminal.md` | herdr, WezTerm, the Windows key layer. Which chords reach the terminal and which the OS eats, how panes start, the theme keys. |
-| `nix.md` | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
-| `agents.md` | Claude, Codex, cursor-agent. Where each reads its rules and skills from, what is deployed read-only, what reaches which agent. |
-| `repo.md` | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
-| `bootstrap.md` | Standing this repo up on a new machine. The nine things that broke doing it on 2026-09-02: the hardcoded username, the 127 that closes WezTerm instantly, the Windows half home-manager never touches. |
-| `web.md` | Fetching from the public internet. How to enumerate a YouTube channel's videos and read a video's title, views and full description with `curl`, and the grep that wrongly reports an empty page. |
-| `stream.md` | The live stream and its numbers. Titles and descriptions as separate subjects: which title formula does 16K-77K against 5.4K, and the 49,200 subscriber channel with empty descriptions getting 43 views. |
-| `tooling/` | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
+| [`terminal.md`](terminal.md) | herdr, WezTerm, the Windows key layer. Which chords reach the terminal and which the OS eats, how panes start, the theme keys. |
+| [`nix.md`](nix.md) | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
+| [`agents.md`](agents.md) | Claude, Codex, cursor-agent. Where each reads its rules and skills from, what is deployed read-only, what reaches which agent. |
+| [`repo.md`](repo.md) | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
+| [`bootstrap.md`](bootstrap.md) | Standing this repo up on a new machine. The nine things that broke doing it on 2026-09-02: the hardcoded username, the 127 that closes WezTerm instantly, the Windows half home-manager never touches. |
+| [`web.md`](web.md) | Fetching from the public internet. How to enumerate a YouTube channel's videos and read a video's title, views and full description with `curl`, and the grep that wrongly reports an empty page. |
+| [`stream.md`](stream.md) | The live stream and its numbers. Titles and descriptions as separate subjects: which title formula does 16K-77K against 5.4K, and the 49,200 subscriber channel with empty descriptions getting 43 views. |
+| [`tooling/`](tooling/INDEX.md) | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
 
 ---
 

@@ -14,11 +14,11 @@ tier two only if tier one did not answer the question.
 | Subject | What it says |
 | --- | --- |
 | **Titles** | |
-| A day-counter title formula does 16K-77K views on the same channel where off-formula titles do 5.4K-5.9K | BridgeMind, 7 formula streams against 3 off-formula ones, same weeks, same descriptions. |
-| A model release in the title beat every formula title, 115K against a 16K-77K band | Newsjacking is the spike, formula is the floor. One observation. |
+| [A day-counter title formula does 16K-77K views on the same channel where off-formula titles do 5.4K-5.9K](#a-day-counter-title-formula-does-16k-77k-views-on-the-same-channel-where-off-formula-titles-do-54k-59k) | BridgeMind, 7 formula streams against 3 off-formula ones, same weeks, same descriptions. |
+| [A model release in the title beat every formula title, 115K against a 16K-77K band](#a-model-release-in-the-title-beat-every-formula-title-115k-against-a-16k-77k-band) | Newsjacking is the spike, formula is the floor. One observation. |
 | **Descriptions** | |
-| A 49,200 subscriber channel with zero-character descriptions gets 43-146 views a stream | Carlo2Million. Subscribers are not what is holding live views down. |
-| Our description is BridgeMind's template with the names changed | Same GRIND RULES line, same headings, same block order. Know this before "optimising" it. |
+| [A 49,200 subscriber channel with zero-character descriptions gets 43-146 views a stream](#a-49200-subscriber-channel-with-zero-character-descriptions-gets-43-146-views-a-stream) | Carlo2Million. Subscribers are not what is holding live views down. |
+| [Our description is BridgeMind's template with the names changed](#our-description-is-bridgeminds-template-with-the-names-changed) | Same GRIND RULES line, same headings, same block order. Know this before "optimising" it. |
 
 ---
 

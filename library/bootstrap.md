@@ -9,15 +9,15 @@ repo tells you that until it does not work.
 
 ## Contents
 
-- `home.nix` hardcodes the Linux username. A machine whose user is not that name cannot switch at all.
-- `wsl.exe -d Ubuntu -- zsh` exits 127. WezTerm opens and shuts instantly, with no error on screen.
-- `sudo chsh` prints "invalid shell" as a warning and applies the shell anyway.
-- home-manager deploys nothing on the Windows side. `windows/apply.ps1` is a second step nobody is told to run.
-- The default WSL distro is `docker-desktop`, which has no shell at all. Always pass `-d Ubuntu`.
-- Nothing installs the Nerd Font, so WezTerm silently falls back to Consolas and glyphs render as boxes.
-- winget puts AutoHotkey v2 in `C:\Program Files\AutoHotkey\v2\`, not the path `apply.ps1` prints.
-- `nomouse.ahk` does not start itself on login. The whole key layer is gone after a reboot.
-- `ctrl+alt+g` is bound twice, in AutoHotkey and in herdr. UNCONFIRMED which wins.
+- [`home.nix` hardcodes the Linux username. A machine whose user is not that name cannot switch at all.](#homenix-hardcodes-the-linux-username-so-the-wrong-user-cannot-switch-at-all)
+- [`wsl.exe -d Ubuntu -- zsh` exits 127. WezTerm opens and shuts instantly, with no error on screen.](#wslexe--d-ubuntu----zsh-exits-127-and-the-terminal-window-just-vanishes)
+- [`sudo chsh` prints "invalid shell" as a warning and applies the shell anyway.](#sudo-chsh-prints-invalid-shell-and-changes-the-shell-anyway)
+- [home-manager deploys nothing on the Windows side. `windows/apply.ps1` is a second step nobody is told to run.](#home-manager-deploys-nothing-on-the-windows-side)
+- [The default WSL distro is `docker-desktop`, which has no shell at all. Always pass `-d Ubuntu`.](#the-default-wsl-distro-here-is-docker-desktop-which-has-no-shell)
+- [Nothing installs the Nerd Font, so WezTerm silently falls back to Consolas and glyphs render as boxes.](#nothing-installs-the-nerd-font-and-wezterm-falls-back-without-complaint)
+- [winget puts AutoHotkey v2 in `C:\Program Files\AutoHotkey\v2\`, not the path `apply.ps1` prints.](#winget-puts-autohotkey-v2-somewhere-other-than-the-path-applyps1-prints)
+- [`nomouse.ahk` does not start itself on login. The whole key layer is gone after a reboot.](#nomouseahk-does-not-start-on-login-so-the-key-layer-dies-at-every-reboot)
+- [`ctrl+alt+g` is bound twice, in AutoHotkey and in herdr. UNCONFIRMED which wins.](#ctrlaltg-is-bound-twice-and-only-one-of-them-can-win)
 
 ---
 

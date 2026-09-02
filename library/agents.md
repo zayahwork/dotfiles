@@ -4,8 +4,8 @@ Claude Code, Codex and cursor-agent, and how this repo reaches them.
 
 ## Contents
 
-- One source rules file, `home/AGENTS.md`, deployed to three paths. Never edit the copies.
-- Skills reach Claude only. Codex and cursor-agent see `AGENTS.md` and nothing else.
+- [One source rules file, `home/AGENTS.md`, deployed to three paths. Never edit the copies.](#three-agents-one-rules-file-three-destinations)
+- [Skills reach Claude only. Codex and cursor-agent see `AGENTS.md` and nothing else.](#skills-reach-claude-code-only)
 
 ---
 

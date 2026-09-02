@@ -335,6 +335,11 @@
     [ui]
     agent_panel_sort = "spaces"
 
+    # No sidebar. Just the tab strip at the top and the panes underneath.
+    # ctrl+alt+w still opens the workspace picker when it is needed.
+    sidebar_start_collapsed = true
+    sidebar_collapsed_mode = "hidden"
+
     # A full outline around every pane, gaps between them so each reads as its
     # own box against the wallpaper.
     pane_borders = true

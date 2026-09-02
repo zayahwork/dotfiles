@@ -35,6 +35,11 @@
   ];
 
   # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/agent-tab" = {
+    source = ./home/bin/agent-tab;
+    executable = true;
+  };
+
   home.file.".local/bin/herdr-status" = {
     source = ./home/bin/herdr-status;
     executable = true;
@@ -116,6 +121,22 @@
     # Linux every pane skipped hm-session-vars.sh and never saw ~/.local/bin,
     # which is where cursor-agent and the corp scripts live.
     shell_mode = "login"
+
+    # One keypress opens a named tab with that agent already running in it.
+    [[keys.command]]
+    key = "ctrl+alt+shift+c"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab claude"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+x"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab codex"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+r"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab cursor"
 
     [theme]
     name = "rose-pine"

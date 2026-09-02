@@ -195,6 +195,15 @@
     initContent = ''
       export PATH="$HOME/.local/bin:$PATH"
 
+      # Every shell starts in the repo. A shell that opens in $HOME opened there
+      # by default rather than by choice, and the work is never in $HOME: an
+      # agent launched from there reports it is not in a project and sees none
+      # of the method. Anything started with an explicit --cd keeps its own
+      # directory, because only the $HOME case is rewritten.
+      if [[ "$PWD" == "$HOME" && -d "$HOME/github/dotfiles" ]]; then
+        cd "$HOME/github/dotfiles"
+      fi
+
       # Nobody should have to remember to run the check. A flake cannot see an
       # untracked file, and that trap cost three failed switches before it was
       # caught, so `home-manager switch` routes through apply, which adds any

@@ -89,6 +89,15 @@ just stop when it is said.
 - Committing only part of the tree is normal here. If somebody else's change is sitting
   in the working tree, stage your hunk and leave theirs alone rather than sweeping it in.
 
+## GitHub
+
+`gh-axi`, not `gh`. Same CLI underneath, wrapped in agent sized output: a few fields
+instead of a JSON dump, definite empty states, structured errors, no prompts.
+
+- Do not trust a count from bare `gh-axi`. With no argument it exits 0 and prints
+  `0 open` for issues and PRs it never fetched. The subcommands are honest and exit 1
+  with `AUTH_REQUIRED`, so run one of those before believing a zero.
+
 ## The library
 
 `~/github/dotfiles/library/` is everything we know: this machine, how we work on it, how

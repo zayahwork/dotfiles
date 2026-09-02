@@ -11,6 +11,8 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
+| [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
+| [The agent sandbox allowlists network egress by host for Node: `registry.npmjs.org` is 200, `reddit.com` and `example.com` are `ETIMEDOUT`](#the-agent-sandbox-allowlists-network-egress-by-host-for-node-registrynpmjsorg-is-200-redditcom-and-examplecom-are-etimedout) | `npm install` works, which hides it. Not IPv6, not `fetch`: `node:https` fails the same way. `curl` is not subject to the allowlist. |
 
 ---
 
@@ -67,3 +69,34 @@ JSON blob to parse the way YouTube has, so the YouTube trick does not transfer.
 browser, or an archive snapshot. Do not answer one from memory and do not report a
 policy as checked when only the shell came back.
 
+## Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent
+
+**verified:** 2026-09-02, `curl -sS -o /dev/null -w "%{http_code}" -A "<ua>" https://www.reddit.com/r/smallbusiness/about/rules.json` returned `403` for both a descriptive bot user agent and a Chrome user agent
+**where:** anything reading Reddit without OAuth, and any plan that assumes the `.json` endpoints are open
+
+`/r/<sub>/about/rules.json` and `/r/<sub>.json` are both 403 from this machine, over IPv4
+and by default, and the body is a full HTML theme page rather than JSON, so a caller that
+only checks for a parse failure will report "empty" instead of "blocked".
+`old.reddit.com` answers 302 rather than 403, which is a redirect and not access. The
+long-standing advice that Reddit's public JSON needs no credentials is now false.
+
+**Fix:** treat OAuth as mandatory for reads as well as writes. Register a script app at
+`reddit.com/prefs/apps` and use the client-credentials or password grant against
+`oauth.reddit.com`. In code, parse-fail on a non-JSON body and raise with the first 200
+characters, never return an empty result.
+
+## The agent sandbox allowlists network egress by host for Node: `registry.npmjs.org` is 200, `reddit.com` and `example.com` are `ETIMEDOUT`
+
+**verified:** 2026-09-02, one `node -e` run: `registry.npmjs.org/zod` returned `200` in 1511ms while `example.com`, `www.reddit.com` and `oauth.reddit.com` all threw `ETIMEDOUT` in under 1.3s
+**where:** any Node code an agent session runs that has to reach the internet
+
+`npm install` succeeds, which is what makes this confusing, and the first read of it was
+wrong. It is not Node's `fetch` being broken and it is not IPv6: `--dns-result-order=ipv4first`
+changes nothing, and `node:https` fails identically to `fetch`. It is a per-host
+allowlist that the package registry is on and general hosts are not. `curl` is not subject
+to it, and reached both `example.com` (200) and `reddit.com` (403) in the same session, so
+a green `curl` proves nothing about whether the shipped Node code can reach the same host.
+
+**Fix:** verify Node network paths outside the sandbox, or shell out to `curl`. Never
+report a Node fetch path as working on the strength of a `curl` check, and never conclude
+from a working `npm install` that general egress is available.

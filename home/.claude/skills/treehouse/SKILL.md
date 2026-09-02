@@ -54,5 +54,5 @@ for the existing tools when it does not.
 
 Their flake at `v2.3.0` does not build without `doCheck = false`, because their Go tests
 assert on no-mistakes CI gate output and the nix sandbox has no remote and no pull
-request. That override is in `home.nix` and the detail is in `library/tooling.md`. If a
+request. That override is in `home.nix` and the detail is in `library/tooling/treehouse.md`. If a
 version bump fails a switch, look there first.

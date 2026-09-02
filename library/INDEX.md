@@ -19,15 +19,24 @@ costs more than it can return.
 | `nix.md` | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
 | `agents.md` | Claude, Codex, cursor-agent. Where each reads its rules and skills from, what is deployed read-only, what reaches which agent. |
 | `repo.md` | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
-| `tooling.md` | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, lavish, firstmate. Versions, how each is installed, what fought back. |
+| `tooling/` | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
 
 ---
 
 ## Writing to it
 
-Write when the thing has value past this session: a number, a limit, a version, a rule,
-a measured result, or a failure the next agent would walk straight into. Not a typo, and
-not a thing you worked around without understanding.
+Write generously. The three levels mean nobody reads past a row that does not match, so
+the cost of an entry is not what it costs to read: it is one line in a table. Volume is
+affordable here in a way it never is in an always-on prompt. That is the whole point of
+the shape.
+
+So the bar is not rarity. Write down anything with value past this session: a number, a
+limit, a version, a rule, a measured result, a decision and what it rejected, or a
+failure the next agent would walk straight into. When in doubt, write it.
+
+What is still not worth an entry: a typo, and a thing you worked around without ever
+understanding. The first has no value, and the second is a guess wearing the clothes of
+a fact.
 
 **Descriptions carry the content, not a gesture at it.** A row or a title that says
 "notes on keybindings" is invisible - nobody can match it. Put the actual number, the
@@ -56,10 +65,14 @@ time. An entry nobody can find from the contents block is not in the library.
 A new topic file when the thing has no home on the table. Add its row here, written so a
 stranger could match against it in one read.
 
-A topic file past roughly 150 lines becomes a directory: `terminal/INDEX.md` holding the
-contents block, and one file per subject beside it. That is the third level, and it only
-appears when a topic has earned it. Until then the contents block at the top of the file
-does the same job for free.
+A topic file past roughly 150 lines becomes a directory: `tooling/INDEX.md` holding the
+table, and one file per subject beside it. `tooling/` is the worked example, split at 213
+lines. That is the third level, and it only appears when a topic has earned it. Until
+then the contents block at the top of the file does the same job for free.
+
+Splitting is maintenance, not a favour. A topic nobody splits stops being three cheap
+reads and becomes one expensive one, which is the failure this whole shape exists to
+avoid. If you notice a topic over the line, split it then, in that session.
 
 ## Two rules about the contents
 

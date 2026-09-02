@@ -49,10 +49,10 @@ carry that label.
 `HERDR_ENV=1` is in the environment and `fm_backend_detect` auto-selects the
 experimental herdr backend before it ever reaches a default. Only `TMUX` being set
 outranks it. Pass `--backend tmux`, or write `tmux` into `$FM_HOME/config/backend`, to
-get the backend the docs are written for. See `library/tooling.md`.
+get the backend the docs are written for. See `library/tooling/firstmate.md`.
 
 **It needs `gh`.** Authenticated on this machine as zayahwork, scopes `gist`,
-`read:org`, `repo`. See `library/tooling.md`.
+`read:org`, `repo`. See `library/tooling/installing.md`.
 
 ## Current guidance lives in the repo
 

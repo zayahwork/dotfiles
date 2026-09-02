@@ -7,13 +7,13 @@ this file is the bug.
 
 ## Contents
 
-- Branches move `development -> staging -> main`, one direction, no direct commits to the last two.
-- Promote with `git merge --no-ff`, never a reset or a cherry-pick.
-- `media` is an orphan branch with no shared history. It joins nothing.
-- One task, roughly 100K tokens. Clear context, do not compact it.
-- This repo is private, so a commit link 404s for anyone not signed in as zayahwork.
-- `metrics` reads sessions, git and gnhf notes live. Nothing keeps a ledger.
-- Anything in `home/bin/` is held to the `agent-cli` skill, nine checks, adapted from AXI.
+- [Branches move `development -> staging -> main`, one direction, no direct commits to the last two.](#never-commit-directly-to-staging-or-main)
+- [Promote with `git merge --no-ff`, never a reset or a cherry-pick.](#never-commit-directly-to-staging-or-main)
+- [`media` is an orphan branch with no shared history. It joins nothing.](#media-is-an-orphan-branch-and-never-merges)
+- [One task, roughly 100K tokens. Clear context, do not compact it.](#one-task-roughly-100k-tokens-then-clear)
+- [This repo is private, so a commit link 404s for anyone not signed in as zayahwork.](#the-repo-is-private-so-commit-links-404-unless-you-are-signed-in)
+- [`metrics` reads sessions, git and gnhf notes live. Nothing keeps a ledger.](#every-metric-comes-from-a-source-already-on-disk-never-from-a-ledger)
+- [Anything in `home/bin/` is held to the `agent-cli` skill, nine checks, adapted from AXI.](#scripts-in-homebin-are-held-to-the-agent-cli-skill)
 
 ---
 

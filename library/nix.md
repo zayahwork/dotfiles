@@ -4,9 +4,9 @@ Nix flakes, home-manager and the WSL side of the box.
 
 ## Contents
 
-- A file another program writes cannot be a store symlink. Merge the keys you own.
-- Everything deployed into `$HOME` is read-only until the next `home-manager switch`.
-- A flake cannot see an untracked file. `home-manager switch` routes through `apply`, which fixes it.
+- [A file another program writes cannot be a store symlink. Merge the keys you own.](#a-config-file-another-program-writes-cannot-be-deployed-as-a-store-symlink)
+- [Everything deployed into `$HOME` is read-only until the next `home-manager switch`.](#anything-deployed-into-home-is-read-only-and-stale-until-the-next-switch)
+- [A flake cannot see an untracked file. `home-manager switch` routes through `apply`, which fixes it.](#a-flake-cannot-see-a-file-git-does-not-track)
 
 ---
 

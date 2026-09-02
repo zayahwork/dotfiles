@@ -17,6 +17,26 @@ different one, and nothing here assumes its layout.
 - Times are 12 hour Pacific. `7:50 pm`, never `19:50`.
 - Absolute dates, never "yesterday" or "last week".
 
+## Replies
+
+Zayah has ADHD. A wall of text is not read, so a correct answer buried in one is a wrong
+answer. Structure is not decoration here, it is whether the reply works at all.
+
+- **The answer first.** Line one says what happened or what you decided. Never open with
+  setup, context, or what you are about to do.
+- **A bold header per thing.** More than one topic means headers. Someone skimming only
+  the headers should get the whole reply.
+- **One idea per paragraph, three or four lines.** A longer paragraph is two paragraphs.
+- **Bold the load-bearing phrase** in a paragraph, so the eye lands on it first.
+- **Numbers and names on the surface**, never buried mid-sentence.
+- **What you need from them goes last, alone, and is one line.** If there is nothing,
+  say so and stop.
+- **Cut the recap.** Do not restate the question, do not summarise what you just said,
+  do not close with a paragraph about what you might do next.
+
+Short is the goal, but not at the cost of the thing being true. Say the whole answer,
+just stop when it is said.
+
 ## Truth
 
 - Read the machine before claiming something exists or does not exist.
@@ -63,14 +83,29 @@ different one, and nothing here assumes its layout.
 - After committing, show `git show --stat --oneline HEAD`, one line of plain English,
   and the link from `commit-url`. That is the whole picture in one screen: what moved,
   how much, what proved it, and where to go look at it.
-- Pushing and promoting are a person's call. Ask.
+- Push to `development` as soon as you commit. Standing yes, given 2026-09-02, because
+  the `commit-url` link is how the work gets reviewed and an unpushed commit makes that
+  link a 404. Promoting to `staging` or `main` is still a person's call. Ask.
+- Committing only part of the tree is normal here. If somebody else's change is sitting
+  in the working tree, stage your hunk and leave theirs alone rather than sweeping it in.
+
+## GitHub
+
+`gh-axi`, not `gh`. Same CLI underneath, wrapped in agent sized output: a few fields
+instead of a JSON dump, definite empty states, structured errors, no prompts.
+
+- Do not trust a count from bare `gh-axi`. With no argument it exits 0 and prints
+  `0 open` for issues and PRs it never fetched. The subcommands are honest and exit 1
+  with `AUTH_REQUIRED`, so run one of those before believing a zero.
 
 ## The library
 
-`~/github/dotfiles/library/` is what we know about this machine and how we work on it.
-Three levels: `INDEX.md` is a table of topics, each topic file opens with a contents
-block of its subjects, and the subject holds the detail. Read one line of each until the
-last. A lookup should cost three short reads and a miss should cost one.
+`~/github/dotfiles/library/` is everything we know: this machine, how we work on it, how
+we learn, how we build, and what made a build faster. Not three fixed levels but as many
+as the system has grown. `INDEX.md` is a table of general topics, a topic lists its
+subtopics, a subtopic lists its subjects, and the subject holds the detail. Read one line
+of each until the last. A lookup costs one short read per level and a miss costs one read
+total, which is what lets it hold everything without costing everything to read.
 
 - Read the index whenever a row might match what you are about to do. It is one small
   table and checking costs almost nothing, while being wrong about this machine costs a
@@ -89,9 +124,42 @@ last. A lookup should cost three short reads and a miss should cost one.
   string, a `verified:` line naming what proves it, a `where:`, at most five sentences,
   then `Why:` and `Fix:`. The format is at the bottom of the index. An entry that skips
   the structure is not findable, and an entry nobody finds was never written.
+- **Every level clicks through on GitHub.** The index row links to the topic, and each
+  line of a topic's contents block links to its own subject. Keep that true when you add
+  a subject, or the level below it stops being reachable.
+- **Split rather than write less.** A topic is one file with a contents block until it
+  gets fat, then its groups become files and its contents block becomes an `INDEX.md` in
+  a directory of its own. `tooling/` already did this. Depth costs one line per level, so
+  going deeper is always cheaper than leaving something out.
+- **Track everything. Literally everything.** What we do not write down, we lose, and
+  nothing can be measured or scaled from an impression of how it went. Volume is not the
+  problem the structure has to solve; findability is, and the three levels solve it. When
+  a subject gets fat it splits into another subject, and a topic into another topic.
+  Never write less down to keep a file small.
+- **Two tiers inside every subject.** Tier one is what `library-admin` passed. Tier two,
+  under a `Held back` heading, is what it rejected, kept with its reason and its numbers
+  so far. A claim rejected at n=3 is a claim at n=3, not a lie, and keeping it stops the
+  same claim being proposed again next week. Read tier one, drop to tier two only if
+  tier one did not answer.
+- **The bar for a claim about cause.** Five observations of the same class from five
+  different subjects, all moving the same direction, and the median effect larger than
+  the largest swing over the same window in the population nobody touched. That last one
+  is the check that matters: things drift on their own, so without a control an agent
+  reports the drift as its own result and is sincere about it.
 - If a wall turns up a third time despite being in the library, the entry is not the
   fix. Build the check. `apply` exists because the untracked-file trap was written down
   three times and kept happening anyway.
+
+## Agents
+
+`home/.claude/agents/` holds a file per subagent, deployed to `~/.claude/agents/` by
+`home.nix` the same way skills are. A definition there is the only place an agent is
+written down, so an agent nobody can read is an agent nobody can fix. Same limit as
+skills: this reaches Claude Code and not Codex or cursor-agent.
+
+- **`library-admin` is the only thing that writes to `library/`.** Do not edit a library
+  file yourself. Hand it the claim, the rows behind it, and the topic it would live
+  under. Its job is to refute and its default verdict is reject, which is the point.
 
 ## Applying the config
 

@@ -4,11 +4,11 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 
 ## Contents
 
-- Ctrl+Alt+digit never arrives on Windows, because that chord is AltGr. Letters do.
-- herdr panes are not login shells on Linux, so `~/.local/bin` is empty in a new pane.
-- `panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.
-- A full screen view cannot draw through an agent's pipe. Split the pane and run it there.
-- `ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.
+- [Ctrl+Alt+digit never arrives on Windows, because that chord is AltGr. Letters do.](#ctrlaltdigit-never-reaches-herdr-on-windows-ctrlaltletter-always-does)
+- [herdr panes are not login shells on Linux, so `~/.local/bin` is empty in a new pane.](#herdr-panes-are-not-login-shells-on-linux-so-localbin-is-missing)
+- [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
+- [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
+- [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 
 ---
 

@@ -1,8 +1,11 @@
-{ pkgs, lib, treehouse, ... }:
+{ pkgs, lib, config, treehouse, username, ... }:
 
 {
-  home.username = "pc";
-  home.homeDirectory = "/home/pc";
+  # Passed in from flake.nix, one value per machine. Hardcoding it meant a box
+  # whose user was not that name could not activate at all: home-manager refuses
+  # to run when home.username disagrees with whoever is running it.
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "24.11";
 
   programs.home-manager.enable = true;
@@ -98,6 +101,13 @@
     executable = true;
   };
 
+  # Agent ergonomic GitHub reads, so an agent does not pay for `gh`'s human
+  # sized output on every turn.
+  home.file.".local/bin/gh-axi" = {
+    source = ./home/bin/gh-axi;
+    executable = true;
+  };
+
   # One word for the overnight run, so its objective is never retyped.
   home.file.".local/bin/goodnight" = {
     source = ./home/bin/goodnight;
@@ -107,6 +117,12 @@
   # What we spent and what came out of it, read from what is already on disk.
   home.file.".local/bin/metrics" = {
     source = ./home/bin/metrics;
+    executable = true;
+  };
+
+  # One key back to work: the repo, with the last conversation in it reopened.
+  home.file.".local/bin/pickup" = {
+    source = ./home/bin/pickup;
     executable = true;
   };
 
@@ -127,6 +143,10 @@
   # The method skills, pulled by any project rather than copied into each one.
   # The scaffolding they refer to is in method/.
   home.file.".claude/skills".source = ./home/.claude/skills;
+
+  # Subagents, same deal. A definition here is the only place an agent is
+  # written down, and library-admin is the gate on library/ itself.
+  home.file.".claude/agents".source = ./home/.claude/agents;
 
   # A context bar under the prompt: how full the window is, and the percent.
   #
@@ -191,6 +211,15 @@
     # shells, so cursor-agent and the corp scripts went missing in new panes.
     initContent = ''
       export PATH="$HOME/.local/bin:$PATH"
+
+      # Every shell starts in the repo. A shell that opens in $HOME opened there
+      # by default rather than by choice, and the work is never in $HOME: an
+      # agent launched from there reports it is not in a project and sees none
+      # of the method. Anything started with an explicit --cd keeps its own
+      # directory, because only the $HOME case is rewritten.
+      if [[ "$PWD" == "$HOME" && -d "$HOME/github/dotfiles" ]]; then
+        cd "$HOME/github/dotfiles"
+      fi
 
       # Nobody should have to remember to run the check. A flake cannot see an
       # untracked file, and that trap cost three failed switches before it was
@@ -259,27 +288,27 @@
     [[keys.command]]
     key = "ctrl+alt+t"
     type = "shell"
-    command = "/home/pc/.local/bin/stack-tab"
+    command = "${config.home.homeDirectory}/.local/bin/stack-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+n"
     type = "shell"
-    command = "/home/pc/.local/bin/edit-tab"
+    command = "${config.home.homeDirectory}/.local/bin/edit-tab"
 
     [[keys.command]]
     key = "ctrl+alt+shift+c"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab claude"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab claude"
 
     [[keys.command]]
     key = "ctrl+alt+shift+x"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab codex"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab codex"
 
     [[keys.command]]
     key = "ctrl+alt+shift+r"
     type = "shell"
-    command = "/home/pc/.local/bin/agent-tab cursor"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab cursor"
 
     # Open the commit you are looking at on GitHub, in the Windows browser. Runs
     # in the focused pane's directory, so it follows whichever repo you are in,
@@ -287,7 +316,15 @@
     [[keys.command]]
     key = "ctrl+alt+g"
     type = "shell"
-    command = "/home/pc/.local/bin/commit-url --open"
+    command = "${config.home.homeDirectory}/.local/bin/commit-url --open"
+
+    # Back to work in one chord. When the session survived, herdr has already
+    # restored the panes and this only focuses one. When it did not, this is
+    # what rebuilds it.
+    [[keys.command]]
+    key = "ctrl+alt+r"
+    type = "shell"
+    command = "${config.home.homeDirectory}/.local/bin/pickup"
 
     [theme]
     name = "rose-pine"
@@ -316,8 +353,32 @@
     # The line selector. Direct chord rather than behind the prefix, because
     # this is the thing used to read back and copy from scrollback.
     copy_mode        = "ctrl+alt+y"
+
+    # Name the pane you are in. Panes are how the work is split up, and an
+    # unnamed one is a rectangle you have to read to identify. Verified as a
+    # real binding with `herdr config check`, which rejects unknown key names.
+    rename_pane      = "ctrl+alt+m"
+
+    # Name the tab, paired with the pane one above. Was on prefix+shift+t,
+    # which needs F12, which needs the Caps Lock remap on the Windows side.
+    rename_tab       = "ctrl+alt+shift+m"
+
+    # A plain new tab. ctrl+alt+t is stack-tab, which comes up already split,
+    # and there was no binding at all for just wanting another tab. On b
+    # because t is taken and Ctrl+Alt+digit is AltGr on Windows.
+    new_tab          = "ctrl+alt+b"
+
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
+
+    # The key list itself is an everyday action, not a rare one. Behind the
+    # prefix it was unreachable: F12 needs the Fn layer on a 60% board, and
+    # the Caps Lock remap that stands in for it lives on the Windows side.
+    #
+    # A letter, not the obvious ctrl+alt+/. Ctrl+Alt is AltGr on Windows and
+    # only letters survive it, which the block below already says about
+    # digits. Tried / first anyway and it never reached herdr.
+    help             = "ctrl+alt+i"
 
     # The rare ones stay behind the prefix, out of the way.
     # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
@@ -325,7 +386,6 @@
     switch_tab      = "prefix+1..9"
     goto            = "prefix+g"
     detach          = "prefix+q"
-    help            = "prefix+?"
     settings        = "prefix+s"
     reload_config   = "prefix+shift+r"
     toggle_sidebar  = "prefix+b"
@@ -333,7 +393,6 @@
     close_tab       = "prefix+shift+x"
     new_workspace   = "prefix+shift+n"
     new_worktree    = "prefix+shift+g"
-    rename_tab      = "prefix+shift+t"
 
     [ui]
     agent_panel_sort = "spaces"
@@ -366,7 +425,7 @@
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.
     tab_bar_right = [
-      { type = "command", command = "/home/pc/.local/bin/herdr-status", interval_seconds = 3 },
+      { type = "command", command = "${config.home.homeDirectory}/.local/bin/herdr-status", interval_seconds = 3 },
       { type = "text", text = "  " },
       { type = "datetime", format = "%-I:%M %p" },
     ]

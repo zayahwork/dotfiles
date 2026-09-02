@@ -18,7 +18,8 @@ Software Design. Credit there; mistakes here.
 5. Split it into a board of blocking issues, cut as vertical slices, each tagged AFK or
    human.
 6. Let the agent work the AFK backlog while you are away.
-7. Test first, review in a fresh context, QA by hand.
+7. Test first, review in a fresh context, gate every strip through `/no-mistakes`, let
+   `gnhf` attack the finished build, then QA by hand.
 8. Feed everything QA finds back onto the board.
 9. Keep the modules deep, because the shape of the code is the ceiling on the agent.
 
@@ -47,6 +48,14 @@ implement      <- one issue per session, then CLEAR. AFK issues run unattended.
 review         <- fresh context, standards pushed in
   |
   v
+no-mistakes    <- /no-mistakes, once per vertical strip, as each strip finishes.
+  |               Not at the end. A strip that has not passed the gate is not
+  |               done, and the next strip does not start on top of it.
+  v
+gnhf           <- /gnhf, once, when the whole build is finished. An agent uses
+  |               the thing as a new user would and hunts for what breaks.
+  |               Its output is issues, not a pass.
+  v
 QA             <- human. This is where taste enters.
   |
   +--> new issues go back on the board
@@ -54,6 +63,13 @@ QA             <- human. This is where taste enters.
 
 Everything above the board is human. Everything below implement is where the human
 comes back. The middle is the only part that runs unattended.
+
+**Two gates, and they are at different scales.** `/no-mistakes` runs per vertical strip,
+the moment that strip is finished, because a strip that has not passed is not done and
+the next one must not be built on top of it. `gnhf` runs once, at the end, against the
+whole thing, because the bugs it is looking for only exist where strips meet. Running
+`gnhf` per strip finds nothing the strip's own tests did not, and running `/no-mistakes`
+only at the end means finding a broken foundation after four things were built on it.
 
 ---
 
@@ -79,6 +95,8 @@ this one.
 | `implement` | Working one issue, one session. |
 | `review` | Fresh context, never the session that wrote the code. |
 | `qa` | A person using the thing. Output is new issues, not a pass or fail. |
+| `no-mistakes` | Per vertical strip, as it finishes. Review, tests, lint, docs, CI. A strip that has not passed is not done. |
+| `gnhf` | Once, on the finished build. An agent spins the thing up as a new user and finds what breaks. |
 
 ---
 

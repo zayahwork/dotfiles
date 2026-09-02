@@ -98,6 +98,15 @@
   };
 
   xdg.configFile."herdr/config.toml".text = ''
+    [theme]
+    name = "rose-pine"
+
+    [theme.custom]
+    # Let the terminal's own background show through the pane area. Without
+    # this herdr paints an opaque block over it, so the sidebar looks like
+    # frosted glass while the panes look like a solid black rectangle.
+    panel_bg = "reset"
+
     [keys]
     # Prefix is Caps Lock, remapped to F12 by PowerToys on the Windows side.
     prefix = "f12"

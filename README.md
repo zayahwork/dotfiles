@@ -57,9 +57,11 @@ Then push the branch you promoted into. Go back to `development` to keep working
 
     media        (its own root, joins nothing)
 
-Media for X and anything else we post lives on a `media` branch. It is an **orphan
-branch** with its own root commit and no history in common with the three above, so it
-is not a fourth stage and never merges into one. Commit to it, push it, done.
+`media` is the drop for finished media: a thing lands there once it is done and we are
+satisfied with it, ready to grab and post. No drafts, no project files, no working
+copies. It is an **orphan branch** with its own root commit and no history in common
+with the three above, so it is not a fourth stage and never merges into one. Commit to
+it, push it, done.
 
 The reason it is separate: media is large and binary, and anything committed to a
 branch stays in that branch's history forever. On its own root, a clone of the config

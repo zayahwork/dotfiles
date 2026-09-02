@@ -137,6 +137,10 @@
   # The scaffolding they refer to is in method/.
   home.file.".claude/skills".source = ./home/.claude/skills;
 
+  # Subagents, same deal. A definition here is the only place an agent is
+  # written down, and library-admin is the gate on library/ itself.
+  home.file.".claude/agents".source = ./home/.claude/agents;
+
   # A context bar under the prompt: how full the window is, and the percent.
   #
   # Claude and cursor both run a command and pipe it the session state as JSON, and

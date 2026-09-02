@@ -18,6 +18,7 @@ repo tells you that until it does not work.
 - [winget puts AutoHotkey v2 in `C:\Program Files\AutoHotkey\v2\`, not the path `apply.ps1` prints.](#winget-puts-autohotkey-v2-somewhere-other-than-the-path-applyps1-prints)
 - [`nomouse.ahk` does not start itself on login. The whole key layer is gone after a reboot.](#nomouseahk-does-not-start-on-login-so-the-key-layer-dies-at-every-reboot)
 - [`ctrl+alt+g` is bound twice, in AutoHotkey and in herdr. UNCONFIRMED which wins.](#ctrlaltg-is-bound-twice-and-only-one-of-them-can-win)
+- [`cr` is an alias for cursor-agent, which nothing installs and which is not in nixpkgs.](#the-cr-alias-points-at-cursor-agent-which-nothing-in-this-repo-installs)
 
 ---
 
@@ -167,3 +168,23 @@ is running. UNCONFIRMED: not tested by pressing it. `ctrl+alt+a` in the same blo
 `C:\Corp-builder\agents.ps1`, which does not exist on this machine.
 
 **Fix:** none applied. One of the two needs a different chord.
+
+---
+
+## The cr alias points at cursor-agent, which nothing in this repo installs
+
+**verified:** 2026-09-02, `cr` in a fresh pane printed
+`zsh: command not found: cursor-agent`; `nix eval nixpkgs#cursor-agent` errored
+with no such attribute
+**where:** `programs.zsh.shellAliases` in `home.nix`, and the `[terminal]`
+comment in the herdr block that says cursor-agent lives in `~/.local/bin`
+
+It is not in `home.packages`, and it is not in nixpkgs, so no switch has ever
+put it on a machine. The alias worked only on the box where it had been
+installed by hand, which is the thing this repo exists to stop. `~/.local/bin`
+holds one home-manager symlink per file rather than owning the directory, so an
+installer can drop a binary in beside them.
+
+**Fix:** `curl https://cursor.com/install -fsS | bash`, which installs there.
+bootstrap.sh checks for it and prints the command rather than running it,
+because it is a third party script and that is a decision for a person.

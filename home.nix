@@ -353,13 +353,32 @@
     # The line selector. Direct chord rather than behind the prefix, because
     # this is the thing used to read back and copy from scrollback.
     copy_mode        = "ctrl+alt+y"
+
+    # Name the pane you are in. Panes are how the work is split up, and an
+    # unnamed one is a rectangle you have to read to identify. Verified as a
+    # real binding with `herdr config check`, which rejects unknown key names.
+    rename_pane      = "ctrl+alt+m"
+
+    # Name the tab, paired with the pane one above. Was on prefix+shift+t,
+    # which needs F12, which needs the Caps Lock remap on the Windows side.
+    rename_tab       = "ctrl+alt+shift+m"
+
+    # A plain new tab. ctrl+alt+t is stack-tab, which comes up already split,
+    # and there was no binding at all for just wanting another tab. On b
+    # because t is taken and Ctrl+Alt+digit is AltGr on Windows.
+    new_tab          = "ctrl+alt+b"
+
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
 
     # The key list itself is an everyday action, not a rare one. Behind the
     # prefix it was unreachable: F12 needs the Fn layer on a 60% board, and
     # the Caps Lock remap that stands in for it lives on the Windows side.
-    help             = "ctrl+alt+/"
+    #
+    # A letter, not the obvious ctrl+alt+/. Ctrl+Alt is AltGr on Windows and
+    # only letters survive it, which the block below already says about
+    # digits. Tried / first anyway and it never reached herdr.
+    help             = "ctrl+alt+i"
 
     # The rare ones stay behind the prefix, out of the way.
     # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
@@ -374,7 +393,6 @@
     close_tab       = "prefix+shift+x"
     new_workspace   = "prefix+shift+n"
     new_worktree    = "prefix+shift+g"
-    rename_tab      = "prefix+shift+t"
 
     [ui]
     agent_panel_sort = "spaces"

@@ -101,6 +101,19 @@ else
   nix run home-manager/master -- switch --flake ".#$user"
 fi
 
+# --------------------------------------------------------- cursor-agent --
+# home.nix aliases cr to cursor-agent, and nothing installs it: it is not in
+# home.packages and not in nixpkgs at all. On a fresh machine `cr` has always
+# been "command not found". Its own installer puts it in ~/.local/bin, which is
+# already on PATH and is where the herdr config expects it.
+say "cursor-agent"
+if have cursor-agent || [ -x "$HOME/.local/bin/cursor-agent" ]; then
+  echo "already installed"
+else
+  echo "not installed. It is a third party script, so run it yourself:"
+  echo "    curl https://cursor.com/install -fsS | bash"
+fi
+
 # ----------------------------------------------------------- login shell --
 say "login shell"
 zsh_path="$HOME/.nix-profile/bin/zsh"

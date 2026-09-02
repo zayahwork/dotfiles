@@ -30,13 +30,26 @@ implement, review, QA, with the human in the loop at the top and bottom. firstma
 its own lifecycle: intake, ship or scout tasks, supervision, escalation, and a merge
 authority per project. Running both means running two answers to the same question.
 
-**It is read-only over your projects by default.** The first mate itself does not edit
-your repos; crewmates do, each in its own treehouse worktree, behind the configured
-merge authority.
+**It works on its own clones, not on yours.** A project is cloned to
+`$FM_HOME/projects/<name>`, which is `~/github/firstmate/projects/<name>` unless you set
+`FM_HOME`. Your existing checkout is never touched. The first mate is read-only over
+that clone and crewmates do the editing, each in its own treehouse worktree, behind that
+project's mode: `no-mistakes` (pipeline, PR, merge authority), `direct-PR` (push and PR,
+no pipeline) or `local-only` (local branch, no remote), with an orthogonal `+yolo` that
+lets it merge green without asking. Read-only is a default, not an absolute: hard rule 1
+carves out project init, fleet sync, secondmate sync, self-update, approved `local-only`
+merges, and one concrete operation you approve in the moment.
 
-**Every crewmate is visible.** Each gets its own tmux window, herdr tab, cmux workspace
-or Orca terminal you can watch or type into. herdr is supported, which is why it is
-worth trying here, though tmux is the hard default and the backend it is best tested on.
+**Every crewmate is visible.** Each gets its own tmux window, herdr or zellij tab, cmux
+workspace or Orca terminal you can watch or type into. tmux is the hard default and the
+only backend its own docs do not mark experimental; herdr, zellij, cmux and Orca all
+carry that label.
+
+**On this machine it picks herdr, not tmux.** Our shell runs inside herdr, so
+`HERDR_ENV=1` is in the environment and `fm_backend_detect` auto-selects the
+experimental herdr backend before it ever reaches a default. Only `TMUX` being set
+outranks it. Pass `--backend tmux`, or write `tmux` into `$FM_HOME/config/backend`, to
+get the backend the docs are written for. See `library/tooling.md`.
 
 **It needs `gh`.** Authenticated on this machine as zayahwork, scopes `gist`,
 `read:org`, `repo`. See `library/tooling.md`.

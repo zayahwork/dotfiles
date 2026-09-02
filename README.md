@@ -21,6 +21,10 @@ After the first switch:
 - `home/.claude/skills/` are the method skills, deployed to `~/.claude/skills/`
 - `method/` is the build workflow: vocabulary, templates and an empty board.
   `method/README.md` explains it. Copy its pieces into a new project to start one.
+- `lessons/` is what has already gone wrong here. `lessons/INDEX.md` is a table of one
+  line per topic, and that line is all an agent reads unless it matches the problem in
+  front of it. It lives in the working tree rather than in `home/` because agents append
+  to it, and anything deployed into `$HOME` is a read-only store symlink.
 
 ## Branches
 

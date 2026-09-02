@@ -34,3 +34,11 @@ One file, loaded by every agent. Claude, Codex, opencode all read this.
 - Do the thing asked. Do not quietly widen or narrow it.
 - If a second problem turns up, say so and let the human choose.
 - Nothing sends, publishes or posts without a person saying yes.
+
+## Lessons
+
+- `~/github/dotfiles/lessons/INDEX.md` is a table of what has already gone wrong on this
+  machine. When something breaks, read that table and open the one file whose line
+  matches. Never the directory whole, and never before you have something to look up.
+- When you solve something that cost real time, append an entry to the file it belongs
+  in. The format is at the bottom of the index.

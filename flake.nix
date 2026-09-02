@@ -42,6 +42,7 @@
         in {
           "pc" = mkHome "pc";
           "stuck" = mkHome "stuck";
+          # BOOTSTRAP-INSERTS-MACHINES-HERE
         };
     };
 }

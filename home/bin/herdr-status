@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# One thin line for herdr's tab bar: which agents are alive and what they are
+# doing. Prints nothing when no agent is running, so the bar stays quiet.
+set -uo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+out=$(timeout 2 herdr agent list 2>/dev/null) || exit 0
+[ -n "$out" ] || exit 0
+
+echo "$out" | timeout 2 jq -r '
+  (.result.agents // [])
+  | map(
+      .agent
+      + " "
+      + ( .agent_status
+          | if . == "working" then "*"
+            elif . == "blocked" then "!"
+            elif . == "done"    then "+"
+            else "-" end )
+    )
+  | join("  ")
+' 2>/dev/null || true

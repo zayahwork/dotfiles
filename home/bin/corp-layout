@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Build one herdr workspace per git worktree, so the whole Corp tree is laid out
+# the way the Windows Terminal four pane layout used to be, but inside herdr.
+set -euo pipefail
+
+make_space() {
+  local path="$1" label="$2"
+  if [ ! -d "$path" ]; then
+    echo "skip $label - $path not found"
+    return
+  fi
+  herdr workspace create --cwd "$path" --label "$label" --no-focus >/dev/null
+  echo "created $label  ($path)"
+}
+
+make_space /mnt/c/Corp-builder  builder
+make_space /mnt/c/Corp-debugger debugger
+make_space /mnt/c/Corp-ceo      ceo
+make_space /mnt/c/Corp-runner   runner
+make_space /mnt/c/Corp-cursor   cursor
+make_space /mnt/c/Brain         main
+
+echo
+echo "Workspace picker is ctrl+alt+w."

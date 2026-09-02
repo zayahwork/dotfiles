@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Print the focused pane's rectangle in terminal cells, plus the total grid
+# size, as six space separated numbers:
+#
+#   x y width height total_cols total_rows
+#
+# Used by the AutoHotkey scroll hotkeys to aim a mouse wheel event at the pane
+# you are actually focused on, rather than at the middle of the window.
+set -uo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+out=$(timeout 2 herdr pane layout 2>/dev/null) || exit 0
+[ -n "$out" ] || exit 0
+
+printf '%s' "$out" | timeout 2 jq -r '
+  .result.layout as $l
+  | ($l.panes[] | select(.focused) | .rect) as $r
+  | "\($r.x) \($r.y) \($r.width) \($r.height) \($l.area.x + $l.area.width) \($l.area.y + $l.area.height)"
+' 2>/dev/null || true

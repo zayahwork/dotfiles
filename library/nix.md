@@ -6,7 +6,7 @@ Nix flakes, home-manager and the WSL side of the box.
 
 - A file another program writes cannot be a store symlink. Merge the keys you own.
 - Everything deployed into `$HOME` is read-only until the next `home-manager switch`.
-- A flake cannot see an untracked file. `git add` it before the switch, or the build dies.
+- A flake cannot see an untracked file. Use `apply`, which checks before it switches.
 
 ---
 
@@ -58,6 +58,11 @@ tracked by Git.
 
 **Why:** a flake build only sees the git tree, so a brand new file is invisible no
 matter that it sits right there in the working directory.
-**Fix:** `git add` the file, or `git add -N` it if you are not ready to stage the
-contents, then switch. When a switch fails on a file you just created, this is why, and
-reading past the stack trace to the last error line is faster than debugging the nix.
+**Fix:** `apply` instead of `home-manager switch`. It lists what git does not track,
+adds it with `git add -N` so the path is known without staging its contents, and only
+then switches. `apply --check` reports without touching anything.
+
+**Why a command and not this entry:** this was written down after the first failure and
+happened twice more anyway, on 2026-09-01 and 2026-09-02. A trap that repeats past being
+documented needs a check, not a better entry. That is the general rule now, and it is in
+`home/AGENTS.md`.

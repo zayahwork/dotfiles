@@ -8,9 +8,14 @@ Nix installed 2026-09-01 with the Determinate Systems installer.
     cd ~/github/dotfiles
     nix run home-manager/master -- switch --flake .#pc
 
-After the first switch:
+After the first switch, use `apply` rather than home-manager directly:
 
-    home-manager switch --flake .#pc
+    apply
+
+It checks that git tracks every file the flake needs before switching, because a flake
+cannot see an untracked file and fails with a stack trace that buries the real reason.
+`apply --check` reports without changing anything, `apply --build` builds without
+activating.
 
 ## Layout
 

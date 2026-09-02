@@ -110,6 +110,13 @@
     executable = true;
   };
 
+  # Switch, but check first that the flake can see every file. A flake only
+  # sees what git tracks, and that trap has cost three failed switches.
+  home.file.".local/bin/apply" = {
+    source = ./home/bin/apply;
+    executable = true;
+  };
+
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   # One memory file, every agent reads it.

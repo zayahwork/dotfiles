@@ -80,8 +80,24 @@ last. A lookup should cost three short reads and a miss should cost one.
   decision and what it rejected, a failure and its real fix. The index is what keeps
   volume cheap, so the bar is that an entry be true and findable, not that it be rare.
   When in doubt, write it. What we do not write down, we lose.
-- The format is at the bottom of the index, and the entry title carries the number
-  rather than pointing at it.
+- **Every wall gets written down.** A command that failed, an error you had to read
+  twice, a flag that did not exist, a tool that behaved differently than its own docs
+  say: that is an entry, in the session you hit it, before you move on. It cost you
+  time once and the whole point is that it cannot cost anyone time twice. Write it even
+  when the fix turned out to be small, because the search was the expensive part.
+- Same structure every time, no exceptions: a title carrying the actual number or exact
+  string, a `verified:` line naming what proves it, a `where:`, at most five sentences,
+  then `Why:` and `Fix:`. The format is at the bottom of the index. An entry that skips
+  the structure is not findable, and an entry nobody finds was never written.
+- If a wall turns up a third time despite being in the library, the entry is not the
+  fix. Build the check. `apply` exists because the untracked-file trap was written down
+  three times and kept happening anyway.
+
+## Applying the config
+
+`apply` instead of `home-manager switch`. It refuses to hand the flake a file git does
+not track, which is invisible to a flake and dies in a stack trace whose real line is
+thirty down. `apply --check` says what would block a switch and changes nothing.
 
 ## Measuring
 

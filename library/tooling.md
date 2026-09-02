@@ -8,7 +8,8 @@ MIT. How each one is installed here and what it cost to get in.
 - treehouse v2.3.0, from their flake, with `doCheck = false` because their tests fail in the sandbox.
 - no-mistakes v1.60.2, built by `nix/no-mistakes.nix`, since it is neither in nixpkgs nor a flake.
 - gnhf 0.1.47 and lavish-axi, npm tools reached through npx, never `npm -g`.
-- firstmate is a cloned distro at `~/github/firstmate`, not a package. Needs `gh auth login`.
+- firstmate is a cloned distro at `~/github/firstmate`, not a package.
+- gh is authenticated as zayahwork with `gist`, `read:org`, `repo`. No `workflow` scope.
 - axi is not installed at all. It is a spec, and it lives in the `agent-cli` skill.
 
 ---
@@ -81,12 +82,19 @@ lifecycle, which is not the same as the one in `method/`.
 
 ---
 
-## gh is not authenticated, and two of these need it
+## gh is authenticated, with three of the four scopes
 
-**verified:** 2026-09-01, `gh auth status` prints "You are not logged into any GitHub
-hosts"
+**verified:** 2026-09-01, `gh auth status` reports account zayahwork, a `gho_` token,
+scopes `gist`, `read:org`, `repo`
 **where:** `no-mistakes init`, and any firstmate session
 
-Both open pull requests through the GitHub CLI. `gh auth login` is interactive, so no
-agent can do it. Until a person runs it, both are installed and neither can complete a
-run.
+Both open pull requests through the GitHub CLI, so both were dead until this was done.
+
+`gh auth login` is interactive: it prints a device code and waits on
+<https://github.com/login/device>, so no agent can finish it. A person runs it, and the
+`!` prefix in a Claude Code prompt is the way to run it where the output is visible.
+Handing the URL to `explorer.exe` opens it on the Windows side.
+
+**Missing:** the `workflow` scope, which is only needed to push a change to a file under
+`.github/workflows`. Add it with `gh auth refresh -s workflow` if a pipeline ever needs
+to, rather than pre-granting it.

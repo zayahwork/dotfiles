@@ -11,6 +11,20 @@ branch of clean commits and a log of everything that happened.
 
 Installed as a pinned wrapper at `~/.local/bin/gnhf`, which execs `npx -y gnhf@0.1.47`.
 
+## Invoked as /gnhf, run this and nothing else
+
+```sh
+goodnight
+```
+
+One command, no arguments. It carries the standing objective and the guards, and because
+an agent's stdout is not a terminal it splits the herdr pane and runs there, so the full
+screen view lands beside the conversation where a person can watch it. Report the pane it
+names and stop. Do not run `gnhf` directly from an agent shell: the view renders into a
+pipe as escape codes and the user sees nothing at all.
+
+If the user gave an objective with the invocation, pass it: `goodnight "the objective"`.
+
 ## Current guidance lives in the CLI
 
 `gnhf --help` is the source of truth for flags. What follows is how we run it here, not

@@ -3,10 +3,13 @@
 #
 #   goodnight              audit every skill against the tool it drives
 #   goodnight "objective"  run that objective instead
+#   goodnight --here       run in this shell, drawing wherever it can
 #   goodnight --dry-run    print the gnhf command and exit
 #
-# Run it in a real terminal. gnhf draws a full screen view, so through an agent
-# or a pipe it renders into a file as escape codes and you see nothing.
+# gnhf draws a full screen view, which needs a terminal. In one it runs here.
+# Called from an agent or a pipe there is nowhere to draw, so it splits the
+# herdr pane it was called from and runs there instead: same terminal, beside
+# the conversation, where you can watch it.
 #
 # Wraps gnhf with the guards an unattended run needs: its own worktree, a token
 # ceiling, and a usage limit that pauses the run instead of killing it. Never
@@ -32,15 +35,17 @@ Do not push. Do not touch staging or main. Follow ~/.claude/CLAUDE.md.
 OBJECTIVE
 
 dry_run=0
+here=0
 objective=""
 
 for arg in "$@"; do
   case "$arg" in
     -h|--help)
-      sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     --dry-run) dry_run=1 ;;
+    --here) here=1 ;;
     -*)
       echo "goodnight: unknown flag $arg" >&2
       echo "try: goodnight --help" >&2
@@ -50,13 +55,52 @@ for arg in "$@"; do
   esac
 done
 
-[ -n "$objective" ] || objective="$audit"
-
 if ! command -v gnhf >/dev/null 2>&1; then
   echo "goodnight: gnhf is not on PATH" >&2
   echo "it is deployed by home-manager switch, from home/bin/gnhf" >&2
   exit 1
 fi
+
+# gnhf draws a full screen view, which needs a terminal to draw on. Called from
+# an agent there is not one, and the view renders into a pipe as escape codes
+# nobody sees. So split the herdr pane we were called from and run there:
+# same terminal, beside the conversation, where it can be watched.
+if [ "$here" = 0 ] && [ "$dry_run" = 0 ] && [ ! -t 1 ]; then
+  for tool in herdr jq; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      echo "goodnight: no $tool, so there is nowhere to draw the view" >&2
+      echo "run it in a terminal, or pass --here to run it blind" >&2
+      exit 1
+    fi
+  done
+
+  current=$(herdr pane current 2>/dev/null | jq -r '.result.pane.pane_id // empty')
+  if [ -z "$current" ]; then
+    echo "goodnight: not inside a herdr pane, so there is nothing to split" >&2
+    echo "run it in a terminal, or pass --here to run it blind" >&2
+    exit 1
+  fi
+
+  split=$(herdr pane split "$current" --direction down 2>/dev/null \
+    | jq -r '.result.pane.pane_id // empty')
+  if [ -z "$split" ]; then
+    echo "goodnight: herdr would not split pane $current" >&2
+    exit 1
+  fi
+
+  if [ -n "$objective" ]; then
+    herdr pane run "$split" "$0" --here "$objective" >/dev/null
+  else
+    herdr pane run "$split" "$0" --here >/dev/null
+  fi
+
+  echo "goodnight: running in pane $split, below this one"
+  echo "  watch it   it is on screen now, ctrl+alt+k and ctrl+alt+j move between panes"
+  echo "  stop it    ctrl+c in that pane, then goodnight again to resume"
+  exit 0
+fi
+
+[ -n "$objective" ] || objective="$audit"
 
 # The standing objective is about this repo, so run there unless a caller gave
 # its own objective and its own directory to run it in.

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   home.username = "pc";
@@ -55,6 +55,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/claude-context-bar" = {
+    source = ./home/bin/claude-context-bar;
+    executable = true;
+  };
+
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   # One memory file, every agent reads it.
@@ -65,6 +70,32 @@
   # The method skills, pulled by any project rather than copied into each one.
   # The scaffolding they refer to is in method/.
   home.file.".claude/skills".source = ./home/.claude/skills;
+
+  # A context bar under Claude's prompt: how full the window is, and the percent.
+  #
+  # Merged into settings.json rather than symlinked from the store, because Claude
+  # writes that file itself - /config, theme changes - and a read-only symlink
+  # would break those. jq rewrites just the statusLine key and leaves the rest.
+  home.activation.claudeStatusLine =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      settings="$HOME/.claude/settings.json"
+      mkdir -p "$HOME/.claude"
+
+      # A missing or empty file is not valid JSON, so seed it before merging.
+      if [ ! -s "$settings" ] || ! ${pkgs.jq}/bin/jq -e . "$settings" >/dev/null 2>&1; then
+        echo '{}' > "$settings"
+      fi
+
+      # Merge into a temp file first, so a failed jq or a dry run cannot leave
+      # settings.json truncated.
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq \
+        --arg cmd "$HOME/.local/bin/claude-context-bar" \
+        '.statusLine = { type: "command", command: $cmd }' \
+        "$settings" > "$tmp"
+
+      $DRY_RUN_CMD mv $VERBOSE_ARG "$tmp" "$settings"
+    '';
 
   # Neovim config lives in the repo, not hand edited in place.
   xdg.configFile."nvim/init.lua".source = ./home/.config/nvim/init.lua;

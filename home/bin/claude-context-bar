@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Claude Code statusline: how full the context window is, as a bar and a percent.
+#
+# Claude hands us the session state as JSON on stdin. context_window.used_percentage
+# is in there too, but total_input_tokens over context_window_size is unambiguous, so
+# the number on screen is one that can be checked against /context.
+
+set -uo pipefail
+
+WIDTH=20
+
+FILLED_CHAR='█'
+EMPTY_CHAR='░'
+
+# rose-pine, the same palette herdr uses.
+MUTED=$'\033[38;2;110;106;134m'
+PINE=$'\033[38;2;62;143;176m'
+GOLD=$'\033[38;2;246;193;119m'
+LOVE=$'\033[38;2;235;111;146m'
+RESET=$'\033[0m'
+
+# jq does the token formatting as well as the parsing, so this needs nothing on
+# PATH but jq itself. A malformed or empty payload falls through to the zero case.
+fields=$(jq -r '
+  def human:
+    if . >= 1000000 then (. / 1000000) as $v
+      | if $v == ($v | floor) then "\($v | floor)M" else "\(($v * 10 | round) / 10)M" end
+    elif . >= 1000 then (. / 1000) as $v
+      | if $v == ($v | floor) then "\($v | floor)k" else "\(($v * 10 | round) / 10)k" end
+    else "\(.)"
+    end;
+
+  (.context_window // {}) as $c
+  | (($c.total_input_tokens // 0) | floor) as $used
+  | (($c.context_window_size // 0) | floor) as $total
+  | [$used, $total, ($used | human), ($total | human)]
+  | @tsv
+' 2>/dev/null) || fields=""
+
+IFS=$'\t' read -r used total used_h total_h <<<"$fields"
+[[ ${used:-}  =~ ^[0-9]+$ ]] || used=0
+[[ ${total:-} =~ ^[0-9]+$ ]] || total=0
+
+if [ "$total" -le 0 ]; then
+  # Before the first turn there is no window size yet, so there is nothing to be
+  # a fraction of. An empty bar, and no counts, rather than "0/0".
+  pct=0
+  counts=""
+else
+  # Round to nearest, so this agrees with what /context reports.
+  pct=$(( (used * 200 + total) / (total * 2) ))
+  [ "$pct" -gt 100 ] && pct=100
+  counts=$(printf ' %s%s/%s%s' "$MUTED" "$used_h" "$total_h" "$RESET")
+fi
+
+if [ "$pct" -ge 80 ]; then
+  colour=$LOVE
+elif [ "$pct" -ge 60 ]; then
+  colour=$GOLD
+else
+  colour=$PINE
+fi
+
+# Round the fill up, so any context worth a whole percent lights a cell.
+filled=$(( (pct * WIDTH + 99) / 100 ))
+[ "$filled" -gt "$WIDTH" ] && filled=$WIDTH
+
+bar=""
+i=0
+while [ "$i" -lt "$filled" ]; do bar="$bar$FILLED_CHAR"; i=$(( i + 1 )); done
+rest=""
+while [ "$i" -lt "$WIDTH" ]; do rest="$rest$EMPTY_CHAR"; i=$(( i + 1 )); done
+
+printf '%s%s%s%s%s %s%d%%%s%s\n' \
+  "$colour" "$bar" "$MUTED" "$rest" "$RESET" \
+  "$colour" "$pct" "$RESET" \
+  "$counts"

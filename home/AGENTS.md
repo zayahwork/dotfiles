@@ -72,9 +72,24 @@ Three levels: `INDEX.md` is a table of topics, each topic file opens with a cont
 block of its subjects, and the subject holds the detail. Read one line of each until the
 last. A lookup should cost three short reads and a miss should cost one.
 
-- Open it when being wrong would cost something: a build or environment problem, a
-  number you are about to state, a rule about this repo. Not for ordinary work. Stop at
-  the level that answers the question, and stop entirely if no row matches.
-- Write to it when you learn something worth more than this session: a number, a rule, a
-  failure and its real fix, or a decision and what it rejected. The format is at the
-  bottom of the index, and the entry title carries the number rather than pointing at it.
+- Read the index whenever a row might match what you are about to do. It is one small
+  table and checking costs almost nothing, while being wrong about this machine costs a
+  build. Stop at the level that answers the question, and stop entirely if no row
+  matches.
+- Write to it generously. A number, a limit, a version, a rule, a measured result, a
+  decision and what it rejected, a failure and its real fix. The index is what keeps
+  volume cheap, so the bar is that an entry be true and findable, not that it be rare.
+  When in doubt, write it. What we do not write down, we lose.
+- The format is at the bottom of the index, and the entry title carries the number
+  rather than pointing at it.
+
+## Measuring
+
+`metrics` reads what is already on disk and reports it: sessions, turns, tokens,
+thinking, cache, commits, lines, and output tokens per commit. Nothing has to remember
+to log, so nothing can drift.
+
+- Run it before saying how a stretch of work went. The numbers come from the transcripts
+  and from git, never from your impression of the session.
+- `metrics --json` when something downstream needs the figures, `--days N` for a window,
+  `--all-repos` for the whole machine.

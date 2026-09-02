@@ -104,6 +104,12 @@
     executable = true;
   };
 
+  # What we spent and what came out of it, read from what is already on disk.
+  home.file.".local/bin/metrics" = {
+    source = ./home/bin/metrics;
+    executable = true;
+  };
+
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   # One memory file, every agent reads it.

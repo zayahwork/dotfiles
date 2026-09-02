@@ -12,6 +12,7 @@ this file is the bug.
 - `media` is an orphan branch with no shared history. It joins nothing.
 - One task, roughly 100K tokens. Clear context, do not compact it.
 - This repo is private, so a commit link 404s for anyone not signed in as zayahwork.
+- `metrics` reads sessions, git and gnhf notes live. Nothing keeps a ledger.
 - Anything in `home/bin/` is held to the `agent-cli` skill, nine checks, adapted from AXI.
 
 ---
@@ -87,3 +88,28 @@ Signed in as the owner it resolves.
 **Fix:** when a link comes back dead, check `git ls-remote origin <branch>` rather than
 the HTTP status. The usual real cause is that the commit was never pushed, which is what
 `commit-url` warns about on stderr.
+
+---
+
+## Every metric comes from a source already on disk, never from a ledger
+
+**verified:** 2026-09-02, `metrics --days 2` reported 7 sessions, 1010 turns, 689K output
+tokens, 56 commits, 12K output tokens per commit, all read live
+**where:** `home/bin/metrics`
+
+Three sources, none of which anything has to remember to write:
+
+- **sessions** from `~/.claude/projects/<slug>/*.jsonl`, one file per agent session, each
+  assistant record carrying `message.usage` with output, thinking, cache write and cache
+  read tokens, plus `gitBranch` and a timestamp. The slug is the working directory with
+  every `/` and `.` turned into `-`.
+- **shipped** from `git log --since`, so commits, files and lines need no recording.
+- **loops** from `.gnhf/runs/*/notes.md` inside a gnhf worktree, which is the one source
+  that disappears: the worktree is thrown away when the branch is done.
+
+**Why it is read rather than logged:** a ledger has to be written by something that
+remembers to write it, and an agent that forgets leaves a gap that looks like idleness.
+Reading the sources cannot drift and cannot be forgotten.
+
+**The one thing that does need catching:** a gnhf run's notes die with its worktree. Read
+`metrics` before `git worktree remove`, or that run's iteration count is gone.

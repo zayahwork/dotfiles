@@ -35,6 +35,11 @@
   ];
 
   # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/stack-tab" = {
+    source = ./home/bin/stack-tab;
+    executable = true;
+  };
+
   home.file.".local/bin/agent-tab" = {
     source = ./home/bin/agent-tab;
     executable = true;
@@ -138,6 +143,11 @@
 
     # One keypress opens a named tab with that agent already running in it.
     [[keys.command]]
+    key = "ctrl+alt+t"
+    type = "shell"
+    command = "/home/pc/.local/bin/stack-tab"
+
+    [[keys.command]]
     key = "ctrl+alt+shift+c"
     type = "shell"
     command = "/home/pc/.local/bin/agent-tab claude"
@@ -170,7 +180,6 @@
     focus_pane_down  = "ctrl+alt+j"
     focus_pane_up    = "ctrl+alt+k"
     focus_pane_right = "ctrl+alt+l"
-    new_tab          = "ctrl+alt+t"
     split_vertical   = "ctrl+alt+v"
     split_horizontal = "ctrl+alt+s"
     zoom             = "ctrl+alt+z"

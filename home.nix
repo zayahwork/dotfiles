@@ -162,6 +162,11 @@
   };
 
   xdg.configFile."herdr/config.toml".text = ''
+    # Direct number shortcuts. The switch_tab range form validates but does not
+    # fire as a direct chord; this indexed table is the documented way.
+    [keys.indexed]
+    tabs = "ctrl+alt"
+
     [session]
     # Bring agent panes back into their own conversation after a full server
     # restart or a reboot, rather than reopening an empty prompt.
@@ -228,7 +233,6 @@
     workspace_picker = "ctrl+alt+w"
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
-    switch_tab       = "ctrl+alt+1..9"
 
     # The rare ones stay behind the prefix, out of the way.
     copy_mode       = "prefix+y"

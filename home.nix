@@ -35,6 +35,11 @@
   ];
 
   # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/herdr-status" = {
+    source = ./home/bin/herdr-status;
+    executable = true;
+  };
+
   home.file.".local/bin/corp-layout" = {
     source = ./home/bin/corp-layout;
     executable = true;
@@ -142,6 +147,15 @@
 
     [ui]
     agent_panel_sort = "spaces"
+
+    # A thin context strip on the right of the tab bar. herdr-status prints the
+    # live agents and their state, and stays empty when none are running.
+    tab_bar_right = [
+      { type = "command", command = "/home/pc/.local/bin/herdr-status", interval_seconds = 3 },
+      { type = "text", text = "  " },
+      { type = "datetime", format = "%-I:%M %p" },
+    ]
+    tab_bar_right_separator = "  "
   '';
 
   programs.zoxide = {

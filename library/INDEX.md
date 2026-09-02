@@ -19,6 +19,8 @@ costs more than it can return.
 | `nix.md` | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
 | `agents.md` | Claude, Codex, cursor-agent. Where each reads its rules and skills from, what is deployed read-only, what reaches which agent. |
 | `repo.md` | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
+| `bootstrap.md` | Standing this repo up on a new machine. The nine things that broke doing it on 2026-09-02: the hardcoded username, the 127 that closes WezTerm instantly, the Windows half home-manager never touches. |
+| `web.md` | Fetching from the public internet. Why a YouTube channel listing comes back empty every way, and the watch-page field that actually holds a description. |
 | `tooling/` | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
 
 ---

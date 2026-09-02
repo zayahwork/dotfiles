@@ -189,6 +189,59 @@ is a broken description going out, and that is the one test that catches it.
   and beat the drift in the untouched population.
 - **Clips and VOD editing.** A different project entirely.
 
+## Endpoint setup, the human half
+
+**No agent can do this part.** Every step needs a logged-in browser session, and the
+library entry on headless Edge says why that line is not crossed: reaching a page behind
+the user's own login needs their real browser profile, which puts any secret on that page
+into the session transcript. A stream key is exactly such a secret.
+
+So this section exists to make the human half as short as possible: what to click, in
+what order, and where each value goes. **The agent's half is already done: the key names
+below are fixed, so pasting a value is the whole remaining step.**
+
+### What `secrets` will look for
+
+Fixed names. `secrets` refuses to start and names the missing one, so a typo here is
+loud rather than silent.
+
+| Key | Where it comes from | Needed for |
+| --- | --- | --- |
+| `YOUTUBE_STREAM_KEY` | YouTube Studio, Go Live, Stream settings | P2 |
+| `YOUTUBE_OAUTH_CLIENT_ID` | Google Cloud console, OAuth client | P7 |
+| `YOUTUBE_OAUTH_CLIENT_SECRET` | same | P7 |
+| `YOUTUBE_OAUTH_REFRESH_TOKEN` | the one-time consent flow, run once by hand | P7 |
+| `X_STREAM_KEY_MAIN` | X Media Studio, Producer | P9 |
+| `X_STREAM_KEY_ALT` | same, second account | P9 |
+| `TWITCH_STREAM_KEY` | Twitch Creator Dashboard, Settings, Stream | P10 |
+| `KICK_STREAM_KEY` | Kick Creator Dashboard, Stream settings | P10 |
+
+Each platform also gives an **ingest URL** alongside the key. Both are needed. Name them
+`<PLATFORM>_INGEST_URL` with the same suffixes.
+
+### The order to do them in
+
+**1. YouTube first, and only YouTube, until P2 passes.** It is the one platform already
+working, so it is the one that proves the whole path. Copy the stream key from YouTube
+Studio into `YOUTUBE_STREAM_KEY` and stop there. The OAuth values are not needed until
+P7 and are a separate, longer job.
+
+**2. X second, and as a test rather than a setup.** Before pulling any key, answer the
+open question: go live once from either account, however badly, and see whether the
+option exists at all. **If X has no RTMP ingest for a Premium account, three phases
+change shape**, so this is ten minutes that could save a lot of design.
+
+**3. Twitch and Kick last.** Both accounts exist under `zayahwork@gmail.com` and neither
+has an endpoint. Neither blocks anything before P10.
+
+### What is still needed from Zayah
+
+The logins are known; the **handles** are not. `x.com/CorppAI` is the only one recorded
+anywhere, from the working description. The second X handle, the Twitch handle and the
+Kick handle have never been written down, and the agent needs them to build the links
+block, the funnel in decision 31, and the per-platform metadata in P10.
+
+
 ## Open, and who can close it
 
 Named to the only person who can close them. **Not guessed closed.**

@@ -1,7 +1,7 @@
 # Stream
 
 The live stream and its numbers, and the stream agent that runs it. The full plan with
-its reasoning is `stream-agent.md` at the repo root; this is the lookup, so an agent can
+its reasoning is `method/issues/prd-stream-agent.md`; this is the lookup, so an agent can
 check one fact without reading the plan whole.
 
 One line per subtopic below. Open the one file you need, not this whole subtree.

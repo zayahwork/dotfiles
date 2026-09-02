@@ -63,7 +63,7 @@ Until that passes, the first working version is YouTube alone.
 
 ## Two framings for two X accounts means a second encode, unless framing means the words
 
-**verified:** 2026-09-02, decision 38 against decision 3 in `stream-agent.md`
+**verified:** 2026-09-02, decision 38 against decision 3 in `method/issues/prd-stream-agent.md`
 **where:** designing the relay's outputs
 
 Decision 3 is cheap because it copies one encode rather than re-encoding. Two different

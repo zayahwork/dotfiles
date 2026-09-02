@@ -34,6 +34,14 @@
     unzip
   ];
 
+  # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/corp-layout" = {
+    source = ./home/bin/corp-layout;
+    executable = true;
+  };
+
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   # One memory file, every agent reads it.
   home.file.".claude/CLAUDE.md".source = ./home/AGENTS.md;
   home.file.".codex/AGENTS.md".source = ./home/AGENTS.md;
@@ -76,8 +84,16 @@
       gs = "git status";
       gd = "git diff";
       gl = "git log --oneline -20";
+      cc = "claude";
+      cx = "codex";
+      cr = "cursor-agent";
+
       brain = "cd /mnt/c/Brain";
       builder = "cd /mnt/c/Corp-builder";
+      debugger = "cd /mnt/c/Corp-debugger";
+      ceo = "cd /mnt/c/Corp-ceo";
+      runner = "cd /mnt/c/Corp-runner";
+      corp = "corp-layout";
     };
   };
 

@@ -16,10 +16,22 @@ if [ ! -d "$repo" ]; then
   exit 1
 fi
 
+# Every herdr subcommand talks to a server over a socket and exits 1 when that
+# server is not running. Bound to a key inside herdr that cannot happen, but
+# run from a plain shell it can, and with set -e the script then died on its
+# first real line with nothing on screen, which reads exactly like a keybind
+# that was never registered. Check once and say it plainly.
+if ! herdr status 2>/dev/null | grep -q "status: running"; then
+  echo "pickup: no herdr server is running. Press ctrl+alt+g first, or run herdr." >&2
+  exit 1
+fi
+
+# No match is an empty result, not a failure, so do not let a status code from
+# anywhere in this pipeline take the script with it.
 existing=$(herdr agent list 2>/dev/null \
   | jq -r --arg cwd "$repo" \
       '.result.agents[]? | select(.agent == "claude" and .cwd == $cwd) | .tab_id' \
-  | head -1)
+  | head -1 || true)
 
 if [ -n "$existing" ]; then
   herdr tab focus "$existing" >/dev/null

@@ -265,6 +265,10 @@
     [ui]
     agent_panel_sort = "spaces"
 
+    # Lines moved per wheel notch. The scroll hotkeys start at one notch, so
+    # this is what a tap moves.
+    mouse_scroll_lines = 4
+
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.
     tab_bar_right = [

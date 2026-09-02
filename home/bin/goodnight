@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# One word for the overnight run, so a long objective never has to be retyped.
+#
+#   goodnight              audit every skill against the tool it drives
+#   goodnight "objective"  run that objective instead
+#   goodnight --dry-run    print the gnhf command and exit
+#
+# Wraps gnhf with the guards an unattended run needs: its own worktree, a token
+# ceiling, and a usage limit that pauses the run instead of killing it. Never
+# passes --push, so every commit waits for a person.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+repo="$HOME/github/dotfiles"
+agent=claude
+max_tokens=4000000
+rate_limit_wait=2h
+
+# The standing objective: prove each new skill matches the tool it describes.
+read -r -d '' audit <<'OBJECTIVE' || true
+Test every skill in ~/.claude/skills end to end and fix what is broken. For each
+of firstmate, gnhf, treehouse, no-mistakes, lavish, agent-cli and library: run
+the real tool, confirm the skill's instructions match what the CLI actually
+does, and correct the SKILL.md under ~/github/dotfiles/home/.claude/skills/
+wherever they disagree. A skill that names a command or flag the tool does not
+have is a defect. Record every failure and its real fix in
+~/github/dotfiles/library/, in the format at the bottom of library/INDEX.md.
+Do not push. Do not touch staging or main. Follow ~/.claude/CLAUDE.md.
+OBJECTIVE
+
+dry_run=0
+objective=""
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    --dry-run) dry_run=1 ;;
+    -*)
+      echo "goodnight: unknown flag $arg" >&2
+      echo "try: goodnight --help" >&2
+      exit 2
+      ;;
+    *) objective="$arg" ;;
+  esac
+done
+
+[ -n "$objective" ] || objective="$audit"
+
+if ! command -v gnhf >/dev/null 2>&1; then
+  echo "goodnight: gnhf is not on PATH" >&2
+  echo "it is deployed by home-manager switch, from home/bin/gnhf" >&2
+  exit 1
+fi
+
+# The standing objective is about this repo, so run there unless a caller gave
+# its own objective and its own directory to run it in.
+if [ "$objective" = "$audit" ]; then
+  if [ ! -d "$repo/.git" ]; then
+    echo "goodnight: $repo is not a git repository" >&2
+    exit 1
+  fi
+  cd "$repo"
+fi
+
+set -- gnhf \
+  --agent "$agent" \
+  --worktree \
+  --max-tokens "$max_tokens" \
+  --max-rate-limit-wait "$rate_limit_wait" \
+  "$objective"
+
+if [ "$dry_run" = 1 ]; then
+  printf '%q ' "$@"
+  printf '\n'
+  exit 0
+fi
+
+echo "goodnight: $(pwd)"
+echo "  agent      $agent"
+echo "  worktree   yes, so nothing collides with your open tree"
+echo "  ceiling    $max_tokens tokens, $rate_limit_wait of usage-limit wait"
+echo "  push       no, every commit waits for you"
+echo
+echo "  review it with: git log --oneline --stat, then treehouse status"
+echo
+
+exec "$@"

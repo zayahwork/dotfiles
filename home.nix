@@ -98,6 +98,12 @@
     executable = true;
   };
 
+  # One word for the overnight run, so its objective is never retyped.
+  home.file.".local/bin/goodnight" = {
+    source = ./home/bin/goodnight;
+    executable = true;
+  };
+
   home.sessionPath = [ "$HOME/.local/bin" ];
 
   # One memory file, every agent reads it.

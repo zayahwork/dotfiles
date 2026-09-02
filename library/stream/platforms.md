@@ -11,6 +11,7 @@ Which endpoints exist, which do not, and what gates them.
 - [Two framings for two X accounts means a second encode, unless framing means the words](#two-framings-for-two-x-accounts-means-a-second-encode-unless-framing-means-the-words)
 - [The Kick account exists and is not configured](#the-kick-account-exists-and-is-not-configured)
 - [Every account exists; what does not exist is endpoints](#every-account-exists-what-does-not-exist-is-endpoints)
+- [Kick is `corpai` with one p, X is `CorppAI` with two, and deriving one from the other is a 404](#kick-is-corpai-with-one-p-x-is-corppai-with-two-and-deriving-one-from-the-other-is-a-404)
 
 ---
 
@@ -97,11 +98,24 @@ does not run AFK.
 
 YouTube is `@ZayBuilds-b6o` under `zayahnelson97@gmail.com`. X is `@CorppAI` under
 `zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`, both Premium.
-Twitch is `twitch.tv/zaysterfps`, id 1518390698, verified against Twitch GQL. Kick is
-unresolved between `kick.com/zaysterr` (74 followers) and `kick.com/zayster` (3): the
-`zayster7` given three times does not exist in Kick's search index, which lists fourteen
-`zayster*` channels and not that one. Both under `zayahwork@gmail.com`. Four platforms, five accounts, and only YouTube has ever broadcast.
+Twitch is `twitch.tv/zaysterfps`, id 1518390698, verified against Twitch GQL with a fake
+control returning null. Kick is `kick.com/corpai`, API 200, user `CorpAI`. Both under
+`zayahwork@gmail.com`. **Kick is one `p` and X is two**: `kick.com/corppai` is a 404. Four platforms, five accounts, and only YouTube has ever broadcast.
 
 **Why:** "blocked" on this project has never meant a missing account. It means no stream
 key pulled, no endpoint configured, and in X's case no evidence the ingest exists at all.
 Do not read an existing account as a working endpoint.
+
+## Kick is `corpai` with one p, X is `CorppAI` with two, and deriving one from the other is a 404
+
+**verified:** 2026-09-02, `kick.com/api/v2/channels/corpai` returns 200 and `corppai` returns 404
+**where:** generating the links block, or any per-platform handle
+
+The brand handle is spelled differently on the two platforms and the difference is one
+character. `kick.com/corpai` is user `CorpAI` with 5 followers. `x.com/CorppAI` has two.
+A generator that builds one handle from the other, or from the brand name, produces a
+dead link on a live stream.
+
+**Fix:** handles are data, never derived. Store all five explicitly and check each one
+resolves before it goes in a description. This is the same failure class the 2026-09-02
+description shipped, with two dead links in it.

@@ -65,7 +65,7 @@ about cause until the record can carry it.
 | Adapter | `youtube` | NEW | `@ZayBuilds-b6o`, login `zayahnelson97@gmail.com`. Set title and description, read impressions, CTR, retention, list VODs |
 | Adapter | `x` | NEW | `@CorppAI` (`zayahwork@`) and `@ZayahNelson0` (`zayahwork1@`), both Premium. **Blocked: ingest UNCONFIRMED, neither has gone live** |
 | Adapter | `twitch` | NEW | `twitch.tv/zaysterfps`, id 1518390698, login `zayahwork@gmail.com`, not Affiliate. **Blocked: no endpoint** |
-| Adapter | `kick` | NEW | `kick.com/zaysterr` or `kick.com/zayster`, UNRESOLVED. Login `zayahwork@gmail.com`. **Blocked: no endpoint** |
+| Adapter | `kick` | NEW | `kick.com/corpai`, **one p**, verified. Login `zayahwork@gmail.com`. **Blocked: no endpoint** |
 | Service | `metadata` | NEW | One source in, one native title and description per platform out, deterministically |
 | Service | `golive` | NEW | Preflight everything, brief the human, press the button on one word |
 | Service | `health` | NEW | Upload before, dropped frames and per-platform connection during |
@@ -149,7 +149,7 @@ Decisions carry the date they were made in the grilling. Full reasoning is in
   does not check on it. Read only on all four platforms.
 - **Accounts, confirmed 2026-09-02.** YouTube `@ZayBuilds-b6o` under
   `zayahnelson97@gmail.com`. X is `@CorppAI` under `zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`.
-  Twitch is `twitch.tv/zaysterfps`, verified. Kick is `zaysterr` or `zayster`, unresolved. Both under `zayahwork@gmail.com`. All four accounts exist; what does
+  Twitch is `twitch.tv/zaysterfps` and Kick is `kick.com/corpai`, both verified, both under `zayahwork@gmail.com`. All four accounts exist; what does
   not exist is endpoints.
 
 ## Testing decisions
@@ -238,17 +238,25 @@ has an endpoint. Neither blocks anything before P10.
 
 Both X handles are known: `@CorppAI` and `@ZayahNelson0`, given 2026-09-02.
 
-**Twitch is `twitch.tv/zaysterfps`**, verified 2026-09-02 against Twitch's public GQL:
-id `1518390698`, created 2026-07-06, 0 followers. A deliberately fake handle returned
-`null` in the same run, so the check discriminates.
+**All five handles are known and four are verified against the platform itself.**
 
-**Kick is unresolved between two channels.** `kick.com/zayster7` was given three times and
-does not exist: curl 404s, Kick's API returns `Channel not found`, and a real headless Edge
-from the Windows side rendered 683,980 bytes titled "Channel Not Found - Kick Streaming"
-while `kick.com/zayster` rendered 772,011 bytes titled "Zayster Stream". Kick's own search
-index lists **fourteen** `zayster*` channels and no `zayster7`. The two candidates are
-`kick.com/zaysterr` (74 followers, two r's) and `kick.com/zayster` (3 followers).
-**Only Zayah can say which, from his own address bar.**
+| Platform | Handle | How it was verified |
+| --- | --- | --- |
+| YouTube | `@ZayBuilds-b6o` | 9 streams enumerated off `/streams` |
+| X | `@CorppAI` | stated by the owner; x.com serves a JS shell to any slug |
+| X | `@ZayahNelson0` | stated by the owner |
+| Twitch | `twitch.tv/zaysterfps` | GQL, id `1518390698`, created 2026-07-06. A fake control returned `null` |
+| Kick | `kick.com/corpai` | API 200, user `CorpAI`, 5 followers |
+
+**The trap: Kick is one `p`, X is two.** `kick.com/corpai` and `x.com/CorppAI`.
+`kick.com/corppai` returns 404. The two brand handles differ by a single character, and
+the links block carries both, so the generator must never derive one from the other.
+This is exactly the class of error the 2026-09-02 description shipped twice.
+
+`kick.com/zayster7` was given three times and does not exist. Ruled out four ways: curl
+404, Kick's API `Channel not found`, a real headless Edge from the Windows side rendering
+683,980 bytes titled "Channel Not Found", and Kick's search index listing fourteen
+`zayster*` channels without it.
 
 **Why a hedged handle is not good enough here.** A wrong handle in the links block is a
 dead link on a live stream, which is precisely the failure this project exists to stop:

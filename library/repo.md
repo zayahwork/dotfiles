@@ -11,6 +11,7 @@ this file is the bug.
 - Promote with `git merge --no-ff`, never a reset or a cherry-pick.
 - `media` is an orphan branch with no shared history. It joins nothing.
 - One task, roughly 100K tokens. Clear context, do not compact it.
+- This repo is private, so a commit link 404s for anyone not signed in as zayahwork.
 - Anything in `home/bin/` is held to the `agent-cli` skill, nine checks, adapted from AXI.
 
 ---
@@ -70,3 +71,19 @@ you are writing one.
 honest one. Also rejected: installing the upstream AXI skill, which is 15KB written for
 published npm CLIs, three of whose ten principles do not apply to a shell script
 deployed by home-manager.
+
+---
+
+## The repo is private, so commit links 404 unless you are signed in
+
+**verified:** 2026-09-01, the repo page returns HTTP 404 to an unauthenticated request
+and HTTP 200 with the stored credential; the API reports `private: true`
+**where:** every link `commit-url` prints
+
+A logged out fetch of `https://github.com/zayahwork/dotfiles/commit/<sha>` gets a 404
+whether or not the commit exists, so a 404 says nothing about whether the push worked.
+Signed in as the owner it resolves.
+
+**Fix:** when a link comes back dead, check `git ls-remote origin <branch>` rather than
+the HTTP status. The usual real cause is that the commit was never pushed, which is what
+`commit-url` warns about on stderr.

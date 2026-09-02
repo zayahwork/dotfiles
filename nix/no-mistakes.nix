@@ -19,6 +19,19 @@ buildGoModule rec {
 
   vendorHash = "sha256-NZOYxNYvt4192uqKBdKRxdgrKFvWx3585psdCnRdPSM=";
 
+  # Only the tool. A plain build also produces fakeagent, genskill and
+  # recordfixture, which are their test harness and not ours to install.
+  subPackages = [ "cmd/no-mistakes" ];
+
+  # Their Makefile stamps these. Without them the binary reports "dev
+  # (unknown)". The two telemetry vars are deliberately left unset, which is
+  # what an empty TelemetryHost means: nothing to report to.
+  ldflags = [
+    "-s"
+    "-w"
+    "-X github.com/kunchenguid/no-mistakes/internal/buildinfo.Version=v${version}"
+  ];
+
   # The test suite reaches for git remotes and a configured agent, neither of
   # which exists in the build sandbox.
   doCheck = false;

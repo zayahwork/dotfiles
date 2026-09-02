@@ -19,6 +19,7 @@ costs more than it can return.
 | `nix.md` | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
 | `agents.md` | Claude, Codex, cursor-agent. Where each reads its rules and skills from, what is deployed read-only, what reaches which agent. |
 | `repo.md` | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |
+| `tooling.md` | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, lavish, firstmate. Versions, how each is installed, what fought back. |
 
 ---
 

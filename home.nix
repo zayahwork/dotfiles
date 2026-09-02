@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, treehouse, ... }:
 
 {
   home.username = "pc";
@@ -36,6 +36,20 @@
     curl
     wget
     unzip
+
+    # A pool of reusable worktrees, so an agent gets an isolated tree
+    # instantly instead of paying for a clone every session.
+    #
+    # Their own flake at v2.3.0 does not build: its test suite asserts on
+    # no-mistakes CI gate output and fails in the nix sandbox, which has no
+    # git remote and no PR. The code is fine, the check is not ours to run.
+    (treehouse.packages.${pkgs.system}.default.overrideAttrs (_: {
+      doCheck = false;
+    }))
+
+    # Gates a push behind an agent-run validation pipeline before the branch
+    # reaches the real remote. Built here: not in nixpkgs, and ships no flake.
+    (pkgs.callPackage ./nix/no-mistakes.nix { })
   ];
 
   # corp-layout builds a herdr workspace per worktree.
@@ -76,6 +90,11 @@
 
   home.file.".local/bin/commit-url" = {
     source = ./home/bin/commit-url;
+    executable = true;
+  };
+
+  home.file.".local/bin/gnhf" = {
+    source = ./home/bin/gnhf;
     executable = true;
   };
 

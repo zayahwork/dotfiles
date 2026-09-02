@@ -17,6 +17,26 @@ different one, and nothing here assumes its layout.
 - Times are 12 hour Pacific. `7:50 pm`, never `19:50`.
 - Absolute dates, never "yesterday" or "last week".
 
+## Replies
+
+Zayah has ADHD. A wall of text is not read, so a correct answer buried in one is a wrong
+answer. Structure is not decoration here, it is whether the reply works at all.
+
+- **The answer first.** Line one says what happened or what you decided. Never open with
+  setup, context, or what you are about to do.
+- **A bold header per thing.** More than one topic means headers. Someone skimming only
+  the headers should get the whole reply.
+- **One idea per paragraph, three or four lines.** A longer paragraph is two paragraphs.
+- **Bold the load-bearing phrase** in a paragraph, so the eye lands on it first.
+- **Numbers and names on the surface**, never buried mid-sentence.
+- **What you need from them goes last, alone, and is one line.** If there is nothing,
+  say so and stop.
+- **Cut the recap.** Do not restate the question, do not summarise what you just said,
+  do not close with a paragraph about what you might do next.
+
+Short is the goal, but not at the cost of the thing being true. Say the whole answer,
+just stop when it is said.
+
 ## Truth
 
 - Read the machine before claiming something exists or does not exist.

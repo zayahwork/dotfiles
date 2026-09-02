@@ -16,7 +16,7 @@ One line per subtopic below. Open the one file you need, not this whole subtree.
 | [`machine.md`](machine.md) | The live path is a terminal on the Acer. GitHub Actions cannot reach obs-websocket, and takes the scheduled work instead. |
 | [`overlay.md`](overlay.md) | The task board never shows the repo, and an agent may push to it only when an issue changes state. |
 | [`measuring.md`](measuring.md) | Impressions and CTR are owner-only. A live broadcast cannot be split-tested. Five observations against the untouched drift, or no claim. |
-| [`platforms.md`](platforms.md) | The channel is `@ZayBuilds-b6o`, not `@CorpAI`. Twitch rules bind Affiliates only. First version is YouTube plus two X accounts. |
+| [`platforms.md`](platforms.md) | The channel is `@ZayBuilds-b6o`, not `@CorpAI`. X has never gone live so ingest is UNCONFIRMED. Two framings costs a second encode. Kick and Twitch exist, unconfigured. |
 | [`credentials.md`](credentials.md) | Stream keys may live in this private repo, approved 2026-09-02, and what that costs in git history and Actions logs. |
 
 ---

@@ -7,6 +7,8 @@ Which endpoints exist, which do not, and what gates them.
 - [The channel is @ZayBuilds-b6o, and @CorpAI is a music channel with no streams on it](#the-channel-is-zaybuilds-b6o-and-corpai-is-a-music-channel-with-no-streams-on-it)
 - [Twitch simulcasting rules bind Affiliates and Partners, and this account is neither](#twitch-simulcasting-rules-bind-affiliates-and-partners-and-this-account-is-neither)
 - [The first working version is YouTube plus two X accounts, not four platforms](#the-first-working-version-is-youtube-plus-two-x-accounts-not-four-platforms)
+- [Neither X account has ever gone live, so X RTMP ingest is UNCONFIRMED](#neither-x-account-has-ever-gone-live-so-x-rtmp-ingest-is-unconfirmed)
+- [Two framings for two X accounts means a second encode, unless framing means the words](#two-framings-for-two-x-accounts-means-a-second-encode-unless-framing-means-the-words)
 
 ---
 
@@ -45,3 +47,43 @@ neither. Account creation is human work and cannot be done AFK.
 
 **Why:** Whether X RTMP ingest actually works on either account is UNCONFIRMED and is the
 most likely thing to knock a platform off the list.
+
+## Neither X account has ever gone live, so X RTMP ingest is UNCONFIRMED
+
+**verified:** 2026-09-02, stated by Zayah when asked directly
+**where:** planning any X endpoint
+
+Both accounts have Premium and both can be set up on request, but neither has ever
+broadcast. That confirms nobody has tried, not that it works. X RTMP ingest has
+historically been gated, so this stays the most likely thing to knock a platform off the
+list.
+
+**Fix:** one throwaway broadcast to one account, before anything is designed around X.
+Until that passes, the first working version is YouTube alone.
+
+## Two framings for two X accounts means a second encode, unless framing means the words
+
+**verified:** 2026-09-02, decision 38 against decision 3 in `stream-agent.md`
+**where:** designing the relay's outputs
+
+Decision 3 is cheap because it copies one encode rather than re-encoding. Two different
+pictures cannot come out of one encode, so two genuinely different framings is a second
+encoder on a laptop already running a game and an OBS composite. Three readings at three
+prices: same picture with different titles, descriptions and pinned posts costs nothing;
+a 9:16 vertical cut costs one encode and one scale; two full compositions cost that plus
+scene work the agent is not allowed to do.
+
+**Fix:** same picture, different words. It gets both accounts reading as distinct and
+funnelling into each other without spending a frame of the game, and the measurement to
+justify a real second encode will exist by the time it is worth having.
+
+## The Kick account exists and is not configured
+
+**verified:** 2026-09-02, created by Zayah under the `zayahwork@gmail.com` login
+**where:** the Kick endpoint
+
+The account exists. There is no profile, no customisation and no stream key pulled, so
+there is no endpoint yet. Twitch is in the same state.
+
+**Fix:** keyboard work on kick.com and twitch.tv. It cannot be done from this machine and
+does not run AFK.

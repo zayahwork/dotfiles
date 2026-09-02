@@ -258,6 +258,30 @@ this machine, this Nix setup, or this shell.
     stream.
 
 
+38. **The two X accounts get two framings, not one broadcast mirrored.** Decided by
+    Zayah 2026-09-02: two framings grow both accounts, and both funnel into everything
+    else, so the distribution compounds instead of one account carrying the other.
+
+    **This collides with decision 3 and the collision is real.** Decision 3 buys its
+    cheapness by copying one encode rather than re-encoding. Two framings are two
+    different pictures, and two pictures cannot come out of one encode. That is a second
+    encoder running on a laptop that is already running a game, which is the exact cost
+    decision 3 rejected when it turned down a prettier YouTube feed.
+
+    So "framing" has to be pinned down before the relay is designed, and there are three
+    versions of it at three very different prices. See "Two framings, three meanings"
+    below. **Unresolved.**
+
+39. **Neither X account has ever gone live.** Zayah, 2026-09-02. Both have Premium and
+    both can be set up on request. This does not confirm that X RTMP ingest works, it
+    confirms that nobody has tried, so the question stays UNCONFIRMED and stays the most
+    likely thing to knock a platform off the list. The cheap test is one throwaway
+    broadcast to one account before any of this is built around it.
+
+40. **The Kick account exists**, created 2026-09-02 under the `zayahwork@gmail.com`
+    login. Not configured, no profile, no stream key pulled. Configuring it is work at a
+    keyboard on kick.com and cannot be done from here.
+
 ---
 
 ## The machine
@@ -613,6 +637,37 @@ week, and again the week after, forever.
 the dataset and in the library, which is the point of both.
 
 
+## Two framings, three meanings
+
+Decision 38 says two framings for the two X accounts. What "framing" means decides
+whether this costs nothing or costs a second encoder, so it has to be settled first.
+
+**1. Same picture, different words. Free.** One encode, copied to both accounts, but each
+account gets its own title, its own description, its own pinned post and its own reply
+style. The accounts read as different because the framing around the video differs, not
+the video. Costs nothing in CPU, nothing in bandwidth beyond the copy that was already
+planned, and it keeps decision 3 exactly as it is.
+
+**2. Same source, different crop. Costs one encode.** One account gets the 16:9 feed, the
+other gets a 9:16 vertical cut for X's mobile surface. That is a genuinely different
+picture, so it is a second encode and a second scale, on a laptop already running a game
+and an OBS composite. Real CPU, and the first thing to suffer is the frame rate of the
+thing being streamed.
+
+**3. Two different compositions. Costs one encode and a second scene.** Different layouts,
+different overlays, different emphasis. Everything in option 2 plus scene work the agent
+is not allowed to do (decision 2), so a person builds and maintains both.
+
+**Recommendation: option 1 now, option 2 later if the numbers ask for it.** It gets the
+whole growth argument, two accounts that read as distinct and funnel into each other,
+without spending a single frame of the game. And if X vertical turns out to matter, the
+measurement to justify option 2 will exist by then, which is the entire point of the
+recorder.
+
+**Blocked behind decision 39 either way.** No version of this is worth designing until
+one throwaway broadcast proves X RTMP ingest works at all.
+
+
 ## Hosting
 
 Recommendation: **the live path runs in a terminal on the Acer, and nothing about it is
@@ -683,12 +738,18 @@ Pick up here.
 2d. **Where the agent runs.** Terminal on the Acer, or hosted somewhere. Recommendation
    below in "Hosting". Open until Zayah picks.
 
-3. **X live video.** Two Premium accounts, but has either ever actually gone live?
-   RTMP ingest on X has historically been gated. UNCONFIRMED, and the most likely thing
-   to knock a platform off the list. Verify before designing around it.
-4. **Two X accounts at once** - is that one broadcast mirrored to both, or two different
-   framings? It changes whether the relay has four outputs or five.
-5. **Twitch and Kick account creation** - who does it and when. Blocks their endpoints.
+3. **X live video.** Answered halfway: neither account has ever gone live (decision 39),
+   so whether X RTMP ingest works for a Premium account is still UNCONFIRMED and nothing
+   should be designed around it. The cheap test is one throwaway broadcast to one
+   account. Until that passes, X is a maybe and the first working version is YouTube
+   alone.
+4. **What "two framings" means for the two X accounts.** Decided in principle
+   (decision 38), unresolved in cost. Three readings at three prices, in "Two framings,
+   three meanings". Recommendation is option 1, same picture and different words, which
+   is free and keeps decision 3 intact.
+5. **Kick and Twitch setup.** Both accounts now exist under `zayahwork@gmail.com`.
+   Neither is configured: no profile, no stream key pulled, no endpoint. This is
+   keyboard work on kick.com and twitch.tv and cannot be done from this machine.
 6. **The bitrate ceiling.** X's real limit decides the number every platform gets.
    Verify it, do not trust memory.
 7. **What the daily brief says.** "Here's the title, here's what worked yesterday" needs

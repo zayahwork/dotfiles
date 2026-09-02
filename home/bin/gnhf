@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# gnhf runs an autonomous agent loop: one small committed change per iteration
+# towards an objective, committed on success and rolled back on failure.
+#
+#   gnhf "reduce complexity without changing behaviour"
+#   gnhf --worktree "add tests for the parser"
+#
+# It ships on npm and runs through npx rather than npm -g, because a nix node
+# has a read-only global prefix and a mutable one would drift from this repo.
+# Pinned, so an upstream release cannot quietly change what a switch installs.
+# Bump the version here and nowhere else.
+#
+# Everything past this wrapper is gnhf's own interface, --help included.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+exec npx -y gnhf@0.1.47 "$@"

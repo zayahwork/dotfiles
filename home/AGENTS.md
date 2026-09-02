@@ -2,9 +2,17 @@
 
 One file, loaded by every agent. Claude, Codex, opencode all read this.
 
+Read it on boot and read nothing else. Do not scan the repo, do not open its README,
+do not index anything until a task actually asks for it. These rules and the library
+live in `~/github/dotfiles`, which is its own repo. Whatever you are working in is a
+different one, and nothing here assumes its layout.
+
 ## Writing
 
-- No em dashes and no en dashes. Use a plain hyphen or rewrite the sentence.
+- No em dashes and no en dashes. A plain hyphen, or rewrite the sentence.
+- Sound like a person, not a press release. Correct, not stiff. No comma dropped in
+  after every opening word, no short dramatic sentences stacked for effect, no line you
+  would not say out loud. Plain beats polished.
 - Plain sentences. No filler, no throat clearing, no restating the question.
 - Times are 12 hour Pacific. `7:50 pm`, never `19:50`.
 - Absolute dates, never "yesterday" or "last week".
@@ -44,6 +52,19 @@ One file, loaded by every agent. Claude, Codex, opencode all read this.
 - If a second problem turns up, say so and let the human choose.
 - Nothing sends, publishes or posts without a person saying yes.
 
+## Git
+
+- `development -> staging -> main`, one direction. Never commit directly to `staging` or
+  `main`. Promote with `git merge --no-ff`, so the history says where a change came from.
+- One finished change, one commit. Not a batch of unrelated ones.
+- Every message is a subject line naming the change, then a body saying what you ran to
+  check it and what that actually printed. Somebody reading `git log -p` should see the
+  change and its proof without opening anything else.
+- After committing, show `git show --stat --oneline HEAD`, one line of plain English,
+  and the link from `commit-url`. That is the whole picture in one screen: what moved,
+  how much, what proved it, and where to go look at it.
+- Pushing and promoting are a person's call. Ask.
+
 ## The library
 
 `~/github/dotfiles/library/` is what we know about this machine and how we work on it.
@@ -51,9 +72,44 @@ Three levels: `INDEX.md` is a table of topics, each topic file opens with a cont
 block of its subjects, and the subject holds the detail. Read one line of each until the
 last. A lookup should cost three short reads and a miss should cost one.
 
-- Open it when being wrong would cost something: a build or environment problem, a
-  number you are about to state, a rule about this repo. Not for ordinary work. Stop at
-  the level that answers the question, and stop entirely if no row matches.
-- Write to it when you learn something worth more than this session: a number, a rule, a
-  failure and its real fix, or a decision and what it rejected. The format is at the
-  bottom of the index, and the entry title carries the number rather than pointing at it.
+- Read the index whenever a row might match what you are about to do. It is one small
+  table and checking costs almost nothing, while being wrong about this machine costs a
+  build. Stop at the level that answers the question, and stop entirely if no row
+  matches.
+- Write to it generously. A number, a limit, a version, a rule, a measured result, a
+  decision and what it rejected, a failure and its real fix. The index is what keeps
+  volume cheap, so the bar is that an entry be true and findable, not that it be rare.
+  When in doubt, write it. What we do not write down, we lose.
+- **Every wall gets written down.** A command that failed, an error you had to read
+  twice, a flag that did not exist, a tool that behaved differently than its own docs
+  say: that is an entry, in the session you hit it, before you move on. It cost you
+  time once and the whole point is that it cannot cost anyone time twice. Write it even
+  when the fix turned out to be small, because the search was the expensive part.
+- Same structure every time, no exceptions: a title carrying the actual number or exact
+  string, a `verified:` line naming what proves it, a `where:`, at most five sentences,
+  then `Why:` and `Fix:`. The format is at the bottom of the index. An entry that skips
+  the structure is not findable, and an entry nobody finds was never written.
+- If a wall turns up a third time despite being in the library, the entry is not the
+  fix. Build the check. `apply` exists because the untracked-file trap was written down
+  three times and kept happening anyway.
+
+## Applying the config
+
+`apply`. It adds anything git does not track with `git add -N` first, because a flake
+cannot see an untracked file and dies in a stack trace whose real line is thirty down.
+`apply --check` reports without changing anything.
+
+Nothing to remember: `home-manager switch` is a shell function that routes through
+`apply`, so the check runs either way. Every other home-manager subcommand passes
+straight through.
+
+## Measuring
+
+`metrics` reads what is already on disk and reports it: sessions, turns, tokens,
+thinking, cache, commits, lines, and output tokens per commit. Nothing has to remember
+to log, so nothing can drift.
+
+- Run it before saying how a stretch of work went. The numbers come from the transcripts
+  and from git, never from your impression of the session.
+- `metrics --json` when something downstream needs the figures, `--days N` for a window,
+  `--all-repos` for the whole machine.

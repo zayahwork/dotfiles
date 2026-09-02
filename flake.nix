@@ -7,9 +7,17 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # A pool of reusable worktrees, so an agent gets an isolated tree without
+    # paying for a clone. Pinned to a release tag rather than HEAD, because it
+    # is somebody else's repo and a surprise there should not break a switch.
+    treehouse = {
+      url = "github:kunchenguid/treehouse/v2.3.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
+  outputs = { nixpkgs, home-manager, treehouse, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -23,6 +31,7 @@
       homeConfigurations."pc" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [ ./home.nix ];
+        extraSpecialArgs = { inherit treehouse; };
       };
     };
 }

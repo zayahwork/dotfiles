@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+# One word for the overnight run, so a long objective never has to be retyped.
+#
+#   goodnight              audit every skill against the tool it drives
+#   goodnight "objective"  run that objective instead
+#   goodnight --here       run in this shell, drawing wherever it can
+#   goodnight --dry-run    print the gnhf command and exit
+#
+# gnhf draws a full screen view, which needs a terminal. In one it runs here.
+# Called from an agent or a pipe there is nowhere to draw, so it splits the
+# herdr pane it was called from and runs there instead: same terminal, beside
+# the conversation, where you can watch it.
+#
+# Wraps gnhf with the guards an unattended run needs: its own worktree, a token
+# ceiling, and a usage limit that pauses the run instead of killing it. Never
+# passes --push, so every commit waits for a person.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+repo="$HOME/github/dotfiles"
+agent=claude
+max_tokens=4000000
+rate_limit_wait=2h
+
+# The standing objective: prove each new skill matches the tool it describes.
+read -r -d '' audit <<'OBJECTIVE' || true
+Test every skill in ~/.claude/skills end to end and fix what is broken. For each
+of firstmate, gnhf, treehouse, no-mistakes, lavish, agent-cli and library: run
+the real tool, confirm the skill's instructions match what the CLI actually
+does, and correct the SKILL.md under ~/github/dotfiles/home/.claude/skills/
+wherever they disagree. A skill that names a command or flag the tool does not
+have is a defect. Record every failure and its real fix in
+~/github/dotfiles/library/, in the format at the bottom of library/INDEX.md.
+Do not push. Do not touch staging or main. Follow ~/.claude/CLAUDE.md.
+OBJECTIVE
+
+dry_run=0
+here=0
+objective=""
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    --dry-run) dry_run=1 ;;
+    --here) here=1 ;;
+    -*)
+      echo "goodnight: unknown flag $arg" >&2
+      echo "try: goodnight --help" >&2
+      exit 2
+      ;;
+    *)
+      # A second positional argument means something split the objective on the
+      # way in. Fail loudly rather than silently keeping the last word: a run
+      # once spent an iteration on the objective "/home/pc/.claude/CLAUDE.md."
+      # because that was the final word of the sentence somebody meant to pass.
+      if [ -n "$objective" ]; then
+        echo "goodnight: two objectives, [$objective] then [$arg]" >&2
+        echo "the objective has to arrive as one argument, so quote it" >&2
+        exit 2
+      fi
+      objective="$arg"
+      ;;
+  esac
+done
+
+if ! command -v gnhf >/dev/null 2>&1; then
+  echo "goodnight: gnhf is not on PATH" >&2
+  echo "it is deployed by home-manager switch, from home/bin/gnhf" >&2
+  exit 1
+fi
+
+# gnhf draws a full screen view, which needs a terminal to draw on. Called from
+# an agent there is not one, and the view renders into a pipe as escape codes
+# nobody sees. So split the herdr pane we were called from and run there:
+# same terminal, beside the conversation, where it can be watched.
+if [ "$here" = 0 ] && [ "$dry_run" = 0 ] && [ ! -t 1 ]; then
+  for tool in herdr jq; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      echo "goodnight: no $tool, so there is nowhere to draw the view" >&2
+      echo "run it in a terminal, or pass --here to run it blind" >&2
+      exit 1
+    fi
+  done
+
+  current=$(herdr pane current 2>/dev/null | jq -r '.result.pane.pane_id // empty')
+  if [ -z "$current" ]; then
+    echo "goodnight: not inside a herdr pane, so there is nothing to split" >&2
+    echo "run it in a terminal, or pass --here to run it blind" >&2
+    exit 1
+  fi
+
+  split=$(herdr pane split "$current" --direction down 2>/dev/null \
+    | jq -r '.result.pane.pane_id // empty')
+  if [ -z "$split" ]; then
+    echo "goodnight: herdr would not split pane $current" >&2
+    exit 1
+  fi
+
+  # herdr pane run joins its arguments into one command line and the pane's
+  # shell splits that again on whitespace, so an objective with a space in it
+  # arrives as many arguments instead of one. Hand over a single pre-quoted
+  # string so the objective survives the round trip intact.
+  if [ -n "$objective" ]; then
+    herdr pane run "$split" "$(printf '%q %q %q' "$0" --here "$objective")" >/dev/null
+  else
+    herdr pane run "$split" "$(printf '%q %q' "$0" --here)" >/dev/null
+  fi
+
+  echo "goodnight: running in pane $split, below this one"
+  echo "  watch it   it is on screen now, ctrl+alt+k and ctrl+alt+j move between panes"
+  echo "  stop it    ctrl+c in that pane, then goodnight again to resume"
+  exit 0
+fi
+
+[ -n "$objective" ] || objective="$audit"
+
+# The standing objective is about this repo, so run there unless a caller gave
+# its own objective and its own directory to run it in.
+if [ "$objective" = "$audit" ]; then
+  if [ ! -d "$repo/.git" ]; then
+    echo "goodnight: $repo is not a git repository" >&2
+    exit 1
+  fi
+  cd "$repo"
+fi
+
+set -- gnhf \
+  --agent "$agent" \
+  --worktree \
+  --max-tokens "$max_tokens" \
+  --max-rate-limit-wait "$rate_limit_wait" \
+  "$objective"
+
+if [ "$dry_run" = 1 ]; then
+  printf '%q ' "$@"
+  printf '\n'
+  exit 0
+fi
+
+# The launch card. gnhf takes the alternate screen the moment it starts, so
+# this is what you see on the way in and what is still there when it exits.
+#
+# Colour only when stdout is a terminal that wants it, so a redirect to a file
+# or a pipe into a log gets clean text. Values stay ASCII on purpose: the
+# padding counts characters, and a locale that is not UTF-8 counts bytes, which
+# would knock the right hand border out of line.
+dim=''; bold=''; off=''
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ] && [ "${TERM:-dumb}" != dumb ]; then
+  dim=$'\033[2m'; bold=$'\033[1m'; off=$'\033[0m'
+fi
+
+W=62
+
+# Not `printf %*s | tr ' ' '─'`. tr works on bytes, and the box character is
+# three of them, so that prints a row of mojibake instead of a line.
+rule() { printf '─%.0s' $(seq 1 "$W"); }
+
+edge() { printf '  %s%s%s%s%s\n' "$dim" "$1" "$(rule)" "$2" "$off"; }
+
+# One labelled line. The label is padded before the colour goes on, so the
+# escape codes never count towards the width.
+kv() {
+  local pad=$(( W - 12 - ${#2} ))
+  [ "$pad" -lt 0 ] && pad=0
+  printf '  %s│%s %s%-10s%s%s%*s %s│%s\n' \
+    "$dim" "$off" "$bold" "$1" "$off" "$2" "$pad" '' "$dim" "$off"
+}
+
+# The title sits above the box rather than inside it. It carries a moon, and
+# terminals disagree about whether an emoji is one column or two, so anything
+# padded to a border beside one lines up in some terminals and not others.
+# Outside the box there is no border to miss.
+echo
+printf '  🌙 %s%s%s\n' "$bold" 'g o o d n i g h t' "$off"
+printf '     %s%s%s\n' "$dim" 'the agents work, you do not' "$off"
+echo
+edge '╭' '╮'
+kv 'repo'     "$(pwd)"
+kv 'agent'    "$agent"
+kv 'worktree' 'its own, nothing collides with your open tree'
+kv 'ceiling'  "$(( max_tokens / 1000000 ))M tokens, $rate_limit_wait of usage-limit wait"
+kv 'push'     'never, every commit waits for you'
+edge '├' '┤'
+kv 'morning'  'git log --oneline --stat, treehouse status'
+edge '╰' '╯'
+echo
+
+exec "$@"

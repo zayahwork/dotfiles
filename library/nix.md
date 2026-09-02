@@ -6,6 +6,7 @@ Nix flakes, home-manager and the WSL side of the box.
 
 - A file another program writes cannot be a store symlink. Merge the keys you own.
 - Everything deployed into `$HOME` is read-only until the next `home-manager switch`.
+- A flake cannot see an untracked file. `home-manager switch` routes through `apply`, which fixes it.
 
 ---
 
@@ -39,3 +40,30 @@ itself, not its contents.
 **Fix:** anything an agent writes during a session lives in the repo working tree and is
 read by path. That is why `library/` sits at the repo root: an entry can be appended and
 committed with no rebuild.
+
+---
+
+## A flake cannot see a file git does not track
+
+**verified:** 2026-09-01, `home-manager switch` failed on a new `home/bin/commit-url`
+**where:** any new file referenced from `home.nix`
+
+The error is buried under a `derivationStrict` stack trace, and the real line is near
+the bottom:
+
+```
+error: Path 'home/bin/commit-url' in the repository "/home/pc/github/dotfiles" is not
+tracked by Git.
+```
+
+**Why:** a flake build only sees the git tree, so a brand new file is invisible no
+matter that it sits right there in the working directory.
+**Fix:** `apply`, and nothing to remember: a zsh function routes `home-manager switch`
+through it, so the check runs whichever command gets typed. It lists what git does not track,
+adds it with `git add -N` so the path is known without staging its contents, and only
+then switches. `apply --check` reports without touching anything.
+
+**Why a command and not this entry:** this was written down after the first failure and
+happened twice more anyway, on 2026-09-01 and 2026-09-02. A trap that repeats past being
+documented needs a check, not a better entry. That is the general rule now, and it is in
+`home/AGENTS.md`.

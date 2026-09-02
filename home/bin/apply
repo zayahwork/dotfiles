@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Apply the config, after making sure the flake can actually see it.
+#
+#   apply                  check, then home-manager switch
+#   apply --check          say what would block a switch, change nothing
+#   apply --build          build without activating, for a dry check
+#   apply --flake <ref>    a flake other than the default .#pc
+#
+# A flake only sees files git tracks. A new file sitting right there in the
+# working directory is invisible, and the switch dies with a derivationStrict
+# stack trace whose real line is thirty lines down. That has cost this repo
+# three failed switches, so it gets checked before every one.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+repo="$HOME/github/dotfiles"
+flake=".#pc"
+mode=switch
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    --check) mode=check ;;
+    --build) mode=build ;;
+    --flake)
+      # `home-manager switch --flake .#pc` routes here through a shell function,
+      # so the flag people already type has to mean something rather than fail.
+      shift
+      [ $# -gt 0 ] || { echo "apply: --flake needs a reference" >&2; exit 2; }
+      flake="$1"
+      ;;
+    --flake=*) flake="${1#--flake=}" ;;
+    *)
+      echo "apply: unknown argument $1" >&2
+      echo "try: apply --help" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+cd "$repo" || { echo "apply: no repo at $repo" >&2; exit 1; }
+
+# Untracked and not ignored. These are the ones a flake cannot see.
+mapfile -t hidden < <(git ls-files --others --exclude-standard)
+
+if [ "${#hidden[@]}" -gt 0 ]; then
+  echo "apply: ${#hidden[@]} file(s) the flake cannot see, because git does not track them:"
+  printf '  %s\n' "${hidden[@]}"
+
+  if [ "$mode" = check ]; then
+    echo
+    echo "apply: run 'apply' to add them with git add -N and switch"
+    exit 1
+  fi
+
+  # -N records the path without staging its contents, which is exactly what
+  # nix's own error message tells you to do. It leaves the diff for a person.
+  git add -N -- "${hidden[@]}"
+  echo "apply: added with git add -N, contents still unstaged"
+  echo
+fi
+
+if [ "$mode" = check ]; then
+  echo "apply: nothing hidden from the flake, a switch would not fail on this"
+  exit 0
+fi
+
+if [ "$mode" = build ]; then
+  echo "apply: building $flake without activating"
+  exec home-manager build --flake "$flake"
+fi
+
+echo "apply: switching $flake"
+exec home-manager switch --flake "$flake"

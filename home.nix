@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, treehouse, ... }:
 
 {
   home.username = "pc";
@@ -18,6 +18,10 @@
     claude-code
     codex
     herdr
+    # lavish-axi and the other AXI tools run through npx, and they need >=22.
+    # Without this, npx resolves to the Windows install under /mnt/c and hands
+    # WSL paths to a Windows node, which cannot read them.
+    nodejs
     lazygit
     ripgrep
     fd
@@ -32,6 +36,20 @@
     curl
     wget
     unzip
+
+    # A pool of reusable worktrees, so an agent gets an isolated tree
+    # instantly instead of paying for a clone every session.
+    #
+    # Their own flake at v2.3.0 does not build: its test suite asserts on
+    # no-mistakes CI gate output and fails in the nix sandbox, which has no
+    # git remote and no PR. The code is fine, the check is not ours to run.
+    (treehouse.packages.${pkgs.system}.default.overrideAttrs (_: {
+      doCheck = false;
+    }))
+
+    # Gates a push behind an agent-run validation pipeline before the branch
+    # reaches the real remote. Built here: not in nixpkgs, and ships no flake.
+    (pkgs.callPackage ./nix/no-mistakes.nix { })
   ];
 
   # corp-layout builds a herdr workspace per worktree.
@@ -67,6 +85,35 @@
 
   home.file.".local/bin/context-bar" = {
     source = ./home/bin/context-bar;
+    executable = true;
+  };
+
+  home.file.".local/bin/commit-url" = {
+    source = ./home/bin/commit-url;
+    executable = true;
+  };
+
+  home.file.".local/bin/gnhf" = {
+    source = ./home/bin/gnhf;
+    executable = true;
+  };
+
+  # One word for the overnight run, so its objective is never retyped.
+  home.file.".local/bin/goodnight" = {
+    source = ./home/bin/goodnight;
+    executable = true;
+  };
+
+  # What we spent and what came out of it, read from what is already on disk.
+  home.file.".local/bin/metrics" = {
+    source = ./home/bin/metrics;
+    executable = true;
+  };
+
+  # Switch, but check first that the flake can see every file. A flake only
+  # sees what git tracks, and that trap has cost three failed switches.
+  home.file.".local/bin/apply" = {
+    source = ./home/bin/apply;
     executable = true;
   };
 
@@ -144,6 +191,21 @@
     # shells, so cursor-agent and the corp scripts went missing in new panes.
     initContent = ''
       export PATH="$HOME/.local/bin:$PATH"
+
+      # Nobody should have to remember to run the check. A flake cannot see an
+      # untracked file, and that trap cost three failed switches before it was
+      # caught, so `home-manager switch` routes through apply, which adds any
+      # untracked path with git add -N first. Every other subcommand is passed
+      # straight through. apply is a bash script, so it calls the real binary
+      # rather than recursing into this function.
+      home-manager() {
+        if [ "$1" = "switch" ]; then
+          shift
+          command apply "$@"
+        else
+          command home-manager "$@"
+        fi
+      }
     '';
 
     autosuggestion.enable = true;
@@ -219,6 +281,14 @@
     type = "shell"
     command = "/home/pc/.local/bin/agent-tab cursor"
 
+    # Open the commit you are looking at on GitHub, in the Windows browser. Runs
+    # in the focused pane's directory, so it follows whichever repo you are in,
+    # and falls back to this one when the pane is not in a repo at all.
+    [[keys.command]]
+    key = "ctrl+alt+g"
+    type = "shell"
+    command = "/home/pc/.local/bin/commit-url --open"
+
     [theme]
     name = "rose-pine"
 
@@ -242,11 +312,14 @@
     zoom             = "ctrl+alt+z"
     close_pane       = "ctrl+alt+x"
     workspace_picker = "ctrl+alt+w"
+
+    # The line selector. Direct chord rather than behind the prefix, because
+    # this is the thing used to read back and copy from scrollback.
+    copy_mode        = "ctrl+alt+y"
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
 
     # The rare ones stay behind the prefix, out of the way.
-    copy_mode       = "prefix+y"
     # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
     # Letters work, digits do not. Tab numbers live behind the prefix instead.
     switch_tab      = "prefix+1..9"
@@ -264,6 +337,31 @@
 
     [ui]
     agent_panel_sort = "spaces"
+
+    # No sidebar. Just the tab strip at the top and the panes underneath.
+    # ctrl+alt+w still opens the workspace picker when it is needed.
+    sidebar_start_collapsed = true
+    sidebar_collapsed_mode = "hidden"
+
+    # A full outline around every pane, gaps between them so each reads as its
+    # own box against the wallpaper.
+    pane_borders = true
+    pane_outer_borders = true
+    pane_gaps = true
+    pane_scrollbars = false
+
+    # Near white, the brightest token in rose-pine, so the outlines read as
+    # deliberate frames rather than faint terminal rules.
+    accent = "#e0def4"
+
+    # Let the terminal see plain clicks, so URLs in scrollback are clickable.
+    # herdr's own mouse UI goes away with this, which is fine when everything
+    # is driven from the keyboard anyway.
+    mouse_capture = false
+
+    # One line per notch. The scroll hotkeys send a steady stream of single
+    # notches, so the smoothness comes from the rate, not the step size.
+    mouse_scroll_lines = 1
 
     # A thin context strip on the right of the tab bar. herdr-status prints the
     # live agents and their state, and stays empty when none are running.

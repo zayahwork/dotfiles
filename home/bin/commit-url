@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Print the web URL for a commit, and optionally open it on the Windows side.
+#
+#   commit-url                 the URL for HEAD
+#   commit-url a78f738         a specific ref
+#   commit-url --open          HEAD, opened in the browser
+#   commit-url --open a78f738  both
+#
+# Bound to ctrl+alt+g in herdr, which runs it with --open in the focused pane's
+# directory. Works in any repo with an origin remote, not just this one.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+open=0
+ref=HEAD
+
+for arg in "$@"; do
+  case "$arg" in
+    --open) open=1 ;;
+    -*)
+      echo "usage: commit-url [--open] [ref]" >&2
+      exit 1
+      ;;
+    *) ref="$arg" ;;
+  esac
+done
+
+# A keybind can fire from a pane that is not in a repo at all, and silence is a
+# bad answer to a keypress, so fall back to the dotfiles repo rather than dying.
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [ -d "$HOME/github/dotfiles/.git" ]; then
+    echo "$PWD is not a repo, using ~/github/dotfiles" >&2
+    cd "$HOME/github/dotfiles"
+  else
+    echo "not inside a git repository: $PWD" >&2
+    exit 1
+  fi
+fi
+
+sha=$(git rev-parse --verify "$ref^{commit}")
+
+if ! remote=$(git remote get-url origin 2>/dev/null); then
+  echo "no origin remote, so there is nothing to link to" >&2
+  exit 1
+fi
+
+# git@host:owner/repo.git, ssh://git@host/owner/repo and the https form all
+# become https://host/owner/repo.
+web=$(printf '%s' "$remote" | sed -E '
+  s#^ssh://git@#https://#
+  s#^git@([^:]+):#https://\1/#
+  s#\.git$##
+')
+
+url="$web/commit/$sha"
+printf '%s\n' "$url"
+
+if [ -z "$(git branch -r --contains "$sha" 2>/dev/null)" ]; then
+  echo "not pushed yet, so that link 404s until it is" >&2
+fi
+
+if [ "$open" = 1 ]; then
+  # explorer.exe hands the URL to the default Windows browser. It exits non-zero
+  # even when it worked, so its status says nothing and is discarded.
+  explorer.exe "$url" >/dev/null 2>&1 || true
+fi

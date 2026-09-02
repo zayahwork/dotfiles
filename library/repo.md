@@ -11,6 +11,7 @@ this file is the bug.
 - Promote with `git merge --no-ff`, never a reset or a cherry-pick.
 - `media` is an orphan branch with no shared history. It joins nothing.
 - One task, roughly 100K tokens. Clear context, do not compact it.
+- Anything in `home/bin/` is held to the `agent-cli` skill, nine checks, adapted from AXI.
 
 ---
 
@@ -50,3 +51,22 @@ have to carry a video file.
 Clear context rather than compacting it, and keep the always-on prompt small.
 `home/AGENTS.md` is sent on every single turn, so anything only sometimes relevant goes
 behind a skill description or into this library instead.
+
+---
+
+## Scripts in home/bin are held to the agent-cli skill
+
+**verified:** 2026-09-01, decided after reading <https://github.com/kunchenguid/axi>
+**where:** `home/bin/`, and anything an agent shells out to
+
+Our scripts are read by agents and status bars more than by a person, so the bar is
+agent ergonomics: say the least that answers, empty is a result rather than silence,
+errors are structured and exit non-zero, no interactive prompts. The nine checks are in
+the `agent-cli` skill, which is where they belong, because they are only relevant when
+you are writing one.
+
+**Rejected:** putting the principles in this library. Every entry here carries a
+`verified:` line meaning it was seen on this machine, and an external design spec has no
+honest one. Also rejected: installing the upstream AXI skill, which is 15KB written for
+published npm CLIs, three of whose ten principles do not apply to a shell script
+deployed by home-manager.

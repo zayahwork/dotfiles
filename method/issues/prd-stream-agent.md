@@ -65,7 +65,7 @@ about cause until the record can carry it.
 | Adapter | `youtube` | NEW | `@ZayBuilds-b6o`, login `zayahnelson97@gmail.com`. Set title and description, read impressions, CTR, retention, list VODs |
 | Adapter | `x` | NEW | `@CorppAI` (`zayahwork@`) and `@ZayahNelson0` (`zayahwork1@`), both Premium. **Blocked: ingest UNCONFIRMED, neither has gone live** |
 | Adapter | `twitch` | NEW | Login `zayahwork@gmail.com`, not Affiliate. **Blocked: account exists, no endpoint** |
-| Adapter | `kick` | NEW | Login `zayahwork@gmail.com`. **Blocked: account exists, unconfigured, no endpoint** |
+| Adapter | `kick` | NEW | `kick.com/zayster` UNCONFIRMED, login `zayahwork@gmail.com`. **Blocked: no endpoint** |
 | Service | `metadata` | NEW | One source in, one native title and description per platform out, deterministically |
 | Service | `golive` | NEW | Preflight everything, brief the human, press the button on one word |
 | Service | `health` | NEW | Upload before, dropped frames and per-platform connection during |
@@ -149,7 +149,7 @@ Decisions carry the date they were made in the grilling. Full reasoning is in
   does not check on it. Read only on all four platforms.
 - **Accounts, confirmed 2026-09-02.** YouTube `@ZayBuilds-b6o` under
   `zayahnelson97@gmail.com`. X is `@CorppAI` under `zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`.
-  Twitch and Kick both under `zayahwork@gmail.com`. All four accounts exist; what does
+  Twitch and Kick both under `zayahwork@gmail.com`; Kick is `kick.com/zayster`, UNCONFIRMED. All four accounts exist; what does
   not exist is endpoints.
 
 ## Testing decisions
@@ -236,9 +236,21 @@ has an endpoint. Neither blocks anything before P10.
 
 ### What is still needed from Zayah
 
-Both X handles are known: `@CorppAI` and `@ZayahNelson0`, given 2026-09-02. **The Twitch
-and Kick handles are still not written down anywhere**, and the agent needs them for the
-links block, the funnel in decision 31, and the per-platform metadata in P10.
+Both X handles are known: `@CorppAI` and `@ZayahNelson0`, given 2026-09-02.
+
+**Kick is `kick.com/zayster`, UNCONFIRMED.** `kick.com/zayster7` was given first and does
+not exist: Kick's own page titles it "Channel Not Found" and its API returns 404, checked
+against `xqc` and `trainwreckstv` which both return 200, so that is the channel missing
+rather than the API refusing us. `kick.com/zayster` does exist with 3 followers, no bio
+and no past streams, which matches a freshly made account, and Zayah thinks it is his but
+is not certain. **One look at the address bar while logged into Kick settles it.**
+
+**The Twitch handle is still not written down anywhere.** It is the last unknown, and it
+is needed for the links block, the funnel in decision 31, and P10's metadata.
+
+**Why a hedged handle is not good enough here.** A wrong handle in the links block is a
+dead link on a live stream, which is precisely the failure this project exists to stop:
+the 2026-09-02 description went out with two of them.
 
 The links block also grows a fifth line, because decision 38 gives the second X account
 its own identity rather than mirroring the first. Its exact wording waits on the framing

@@ -18,6 +18,10 @@
     claude-code
     codex
     herdr
+    # lavish-axi and the other AXI tools run through npx, and they need >=22.
+    # Without this, npx resolves to the Windows install under /mnt/c and hands
+    # WSL paths to a Windows node, which cannot read them.
+    nodejs
     lazygit
     ripgrep
     fd

@@ -38,3 +38,25 @@ exclude file rather than to a tracked `.gitignore`. The pattern is `.gnhf/runs/`
 is why a run inside a worktree writes into the main checkout's `.git/info/exclude`.
 
 ---
+
+---
+
+## `goodnight "objective"` ran the last word of the objective, not the objective
+
+**verified:** 2026-09-02, a run launched with a 180 word objective showed up in
+`pgrep -af gnhf` as `gnhf --agent claude --worktree --max-tokens 4000000 --max-rate-limit-wait 2h /home/pc/.claude/CLAUDE.md.`
+**where:** `home/bin/goodnight`, every objective passed from an agent shell
+
+`herdr pane run <pane> <command>...` joins its arguments into one command line and the
+pane's shell splits that again on whitespace, so `goodnight` handing over
+`"$0" --here "$objective"` delivered one word per argument. Its parser is
+`for arg in "$@"` with `*) objective="$arg"`, which overwrites on every pass and keeps
+only the last word. Proved with a script that dumps `"$@"` to a file: unquoted gave
+`argc=7`, `printf '%q'` quoted gave `argc=2` with the sentence intact. Only the
+agent-shell path was affected, because in a real terminal `goodnight` never round trips
+through herdr, and the default objective is a heredoc rather than an argument.
+
+**Fix:** hand `herdr pane run` a single pre-quoted string,
+`"$(printf '%q %q %q' "$0" --here "$objective")"`. And because a wrong objective is
+silent for as long as the run lasts, `goodnight` now exits 2 on a second positional
+argument instead of keeping the last one.

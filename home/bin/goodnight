@@ -51,7 +51,18 @@ for arg in "$@"; do
       echo "try: goodnight --help" >&2
       exit 2
       ;;
-    *) objective="$arg" ;;
+    *)
+      # A second positional argument means something split the objective on the
+      # way in. Fail loudly rather than silently keeping the last word: a run
+      # once spent an iteration on the objective "/home/pc/.claude/CLAUDE.md."
+      # because that was the final word of the sentence somebody meant to pass.
+      if [ -n "$objective" ]; then
+        echo "goodnight: two objectives, [$objective] then [$arg]" >&2
+        echo "the objective has to arrive as one argument, so quote it" >&2
+        exit 2
+      fi
+      objective="$arg"
+      ;;
   esac
 done
 
@@ -88,10 +99,14 @@ if [ "$here" = 0 ] && [ "$dry_run" = 0 ] && [ ! -t 1 ]; then
     exit 1
   fi
 
+  # herdr pane run joins its arguments into one command line and the pane's
+  # shell splits that again on whitespace, so an objective with a space in it
+  # arrives as many arguments instead of one. Hand over a single pre-quoted
+  # string so the objective survives the round trip intact.
   if [ -n "$objective" ]; then
-    herdr pane run "$split" "$0" --here "$objective" >/dev/null
+    herdr pane run "$split" "$(printf '%q %q %q' "$0" --here "$objective")" >/dev/null
   else
-    herdr pane run "$split" "$0" --here >/dev/null
+    herdr pane run "$split" "$(printf '%q %q' "$0" --here)" >/dev/null
   fi
 
   echo "goodnight: running in pane $split, below this one"

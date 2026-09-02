@@ -282,10 +282,10 @@
     [ui]
     agent_panel_sort = "spaces"
 
-    # Dividing lines between panes, but no frame drawn around the outside of
-    # the whole pane area. The outer frame is what made it look boxy.
+    # A full outline around every pane, gaps between them so each reads as its
+    # own box against the wallpaper.
     pane_borders = true
-    pane_outer_borders = false
+    pane_outer_borders = true
     pane_gaps = true
     pane_scrollbars = false
 

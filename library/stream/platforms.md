@@ -97,9 +97,10 @@ does not run AFK.
 
 YouTube is `@ZayBuilds-b6o` under `zayahnelson97@gmail.com`. X is `@CorppAI` under
 `zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`, both Premium.
-Twitch and Kick are both under `zayahwork@gmail.com`. Kick is `kick.com/zayster`,
-UNCONFIRMED: `zayster7` was given first and Kick titles that page "Channel Not Found".
-The Twitch handle is still not written down. Four platforms, five accounts, and only YouTube has ever broadcast.
+Twitch is `twitch.tv/zaysterfps`, id 1518390698, verified against Twitch GQL. Kick is
+unresolved between `kick.com/zaysterr` (74 followers) and `kick.com/zayster` (3): the
+`zayster7` given three times does not exist in Kick's search index, which lists fourteen
+`zayster*` channels and not that one. Both under `zayahwork@gmail.com`. Four platforms, five accounts, and only YouTube has ever broadcast.
 
 **Why:** "blocked" on this project has never meant a missing account. It means no stream
 key pulled, no endpoint configured, and in X's case no evidence the ingest exists at all.

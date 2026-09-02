@@ -117,6 +117,10 @@
 
   xdg.configFile."herdr/config.toml".text = ''
     [terminal]
+    # New panes, tabs and workspaces start in the dotfiles repo rather than in
+    # $HOME, so a fresh space is named after the repo instead of "~".
+    new_cwd = "~/github/dotfiles"
+
     # Panes are login shells. herdr's "auto" only does this on macOS, so on
     # Linux every pane skipped hm-session-vars.sh and never saw ~/.local/bin,
     # which is where cursor-agent and the corp scripts live.

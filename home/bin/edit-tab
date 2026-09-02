@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Open a herdr tab running neovim. Optional argument is a path to open.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+target="${1:-}"
+
+created=$(herdr tab create --label nvim --focus)
+pane=$(printf '%s' "$created" | jq -r '.result.root_pane.pane_id // empty')
+
+if [ -z "$pane" ]; then
+  echo "could not read the new pane id from herdr" >&2
+  printf '%s\n' "$created" >&2
+  exit 1
+fi
+
+if [ -n "$target" ]; then
+  herdr pane run "$pane" nvim "$target" >/dev/null
+else
+  herdr pane run "$pane" nvim >/dev/null
+fi
+
+echo "nvim ready in $pane"

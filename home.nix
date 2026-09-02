@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   home.username = "pc";
@@ -34,6 +34,44 @@
     unzip
   ];
 
+  # corp-layout builds a herdr workspace per worktree.
+  home.file.".local/bin/edit-tab" = {
+    source = ./home/bin/edit-tab;
+    executable = true;
+  };
+
+  home.file.".local/bin/stack-tab" = {
+    source = ./home/bin/stack-tab;
+    executable = true;
+  };
+
+  home.file.".local/bin/agent-tab" = {
+    source = ./home/bin/agent-tab;
+    executable = true;
+  };
+
+  home.file.".local/bin/herdr-focus-rect" = {
+    source = ./home/bin/herdr-focus-rect;
+    executable = true;
+  };
+
+  home.file.".local/bin/herdr-status" = {
+    source = ./home/bin/herdr-status;
+    executable = true;
+  };
+
+  home.file.".local/bin/corp-layout" = {
+    source = ./home/bin/corp-layout;
+    executable = true;
+  };
+
+  home.file.".local/bin/context-bar" = {
+    source = ./home/bin/context-bar;
+    executable = true;
+  };
+
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   # One memory file, every agent reads it.
   home.file.".claude/CLAUDE.md".source = ./home/AGENTS.md;
   home.file.".codex/AGENTS.md".source = ./home/AGENTS.md;
@@ -42,6 +80,42 @@
   # The method skills, pulled by any project rather than copied into each one.
   # The scaffolding they refer to is in method/.
   home.file.".claude/skills".source = ./home/.claude/skills;
+
+  # A context bar under the prompt: how full the window is, and the percent.
+  #
+  # Claude and cursor both run a command and pipe it the session state as JSON, and
+  # the two payloads agree down to the key names, so one script drives both.
+  #
+  # Merged into their config files rather than symlinked from the store, because both
+  # agents write those files themselves - /config, theme changes, cursor's own
+  # settings - and a read-only symlink would break that. jq rewrites just the
+  # statusLine key and leaves the rest of the file alone.
+  home.activation.agentContextBar =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      bar="$HOME/.local/bin/context-bar"
+
+      for settings in "$HOME/.claude/settings.json" "$HOME/.cursor/cli-config.json"; do
+        mkdir -p "$(dirname "$settings")"
+
+        # A missing or empty file is not valid JSON, so seed it before merging.
+        if [ ! -s "$settings" ] || ! ${pkgs.jq}/bin/jq -e . "$settings" >/dev/null 2>&1; then
+          echo '{}' > "$settings"
+        fi
+
+        # Merge into a temp file first, so a failed jq or a dry run cannot leave
+        # the config truncated.
+        tmp=$(mktemp)
+        ${pkgs.jq}/bin/jq --arg cmd "$bar" \
+          '.statusLine = { type: "command", command: $cmd }' \
+          "$settings" > "$tmp"
+
+        $DRY_RUN_CMD mv $VERBOSE_ARG "$tmp" "$settings"
+      done
+    '';
+
+  # codex needs nothing here. It already prints "N% context left" under its
+  # composer by default, and it could not draw the bar anyway: its status line
+  # takes a fixed set of built-in items and has no "run this command" item.
 
   # Neovim config lives in the repo, not hand edited in place.
   xdg.configFile."nvim/init.lua".source = ./home/.config/nvim/init.lua;
@@ -64,6 +138,14 @@
 
   programs.zsh = {
     enable = true;
+
+    # Every interactive shell, not just login ones. hm-session-vars.sh only
+    # gets sourced by login shells, and herdr panes are not reliably login
+    # shells, so cursor-agent and the corp scripts went missing in new panes.
+    initContent = ''
+      export PATH="$HOME/.local/bin:$PATH"
+    '';
+
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     history.size = 50000;
@@ -76,12 +158,76 @@
       gs = "git status";
       gd = "git diff";
       gl = "git log --oneline -20";
+      v = "nvim";
+      cc = "claude";
+      cx = "codex";
+      cr = "cursor-agent";
+
       brain = "cd /mnt/c/Brain";
       builder = "cd /mnt/c/Corp-builder";
+      debugger = "cd /mnt/c/Corp-debugger";
+      ceo = "cd /mnt/c/Corp-ceo";
+      runner = "cd /mnt/c/Corp-runner";
+      corp = "corp-layout";
     };
   };
 
   xdg.configFile."herdr/config.toml".text = ''
+    [session]
+    # Bring agent panes back into their own conversation after a full server
+    # restart or a reboot, rather than reopening an empty prompt.
+    resume_agents_on_restore = true
+
+    [experimental]
+    # Keep each pane's scrollback across a server restart too, so the text that
+    # was on screen is still there.
+    pane_history = true
+
+    [terminal]
+    # New panes, tabs and workspaces start in the dotfiles repo rather than in
+    # $HOME, so a fresh space is named after the repo instead of "~".
+    new_cwd = "~/github/dotfiles"
+
+    # Panes are login shells. herdr's "auto" only does this on macOS, so on
+    # Linux every pane skipped hm-session-vars.sh and never saw ~/.local/bin,
+    # which is where cursor-agent and the corp scripts live.
+    shell_mode = "login"
+
+    # One keypress opens a named tab with that agent already running in it.
+    [[keys.command]]
+    key = "ctrl+alt+t"
+    type = "shell"
+    command = "/home/pc/.local/bin/stack-tab"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+n"
+    type = "shell"
+    command = "/home/pc/.local/bin/edit-tab"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+c"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab claude"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+x"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab codex"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+r"
+    type = "shell"
+    command = "/home/pc/.local/bin/agent-tab cursor"
+
+    [theme]
+    name = "rose-pine"
+
+    [theme.custom]
+    # Let the terminal's own background show through the pane area. Without
+    # this herdr paints an opaque block over it, so the sidebar looks like
+    # frosted glass while the panes look like a solid black rectangle.
+    panel_bg = "reset"
+
     [keys]
     # Prefix is Caps Lock, remapped to F12 by PowerToys on the Windows side.
     prefix = "f12"
@@ -91,7 +237,6 @@
     focus_pane_down  = "ctrl+alt+j"
     focus_pane_up    = "ctrl+alt+k"
     focus_pane_right = "ctrl+alt+l"
-    new_tab          = "ctrl+alt+t"
     split_vertical   = "ctrl+alt+v"
     split_horizontal = "ctrl+alt+s"
     zoom             = "ctrl+alt+z"
@@ -99,10 +244,12 @@
     workspace_picker = "ctrl+alt+w"
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
-    switch_tab       = "ctrl+alt+1..9"
 
     # The rare ones stay behind the prefix, out of the way.
     copy_mode       = "prefix+y"
+    # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
+    # Letters work, digits do not. Tab numbers live behind the prefix instead.
+    switch_tab      = "prefix+1..9"
     goto            = "prefix+g"
     detach          = "prefix+q"
     help            = "prefix+?"
@@ -117,6 +264,15 @@
 
     [ui]
     agent_panel_sort = "spaces"
+
+    # A thin context strip on the right of the tab bar. herdr-status prints the
+    # live agents and their state, and stays empty when none are running.
+    tab_bar_right = [
+      { type = "command", command = "/home/pc/.local/bin/herdr-status", interval_seconds = 3 },
+      { type = "text", text = "  " },
+      { type = "datetime", format = "%-I:%M %p" },
+    ]
+    tab_bar_right_separator = "  "
   '';
 
   programs.zoxide = {

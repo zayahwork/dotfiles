@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Open a herdr tab named after an agent, with that agent already running in it.
+#
+#   agent-tab claude          in the current directory
+#   agent-tab codex /mnt/c/Corp-ceo
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+kind="${1:-}"
+case "$kind" in
+  claude|codex|cursor) ;;
+  *)
+    echo "usage: agent-tab <claude|codex|cursor> [cwd]" >&2
+    exit 1
+    ;;
+esac
+
+cwd="${2:-$PWD}"
+
+created=$(herdr tab create --label "$kind" --cwd "$cwd" --focus)
+pane=$(printf '%s' "$created" | jq -r '.result.root_pane.pane_id // empty')
+
+if [ -z "$pane" ]; then
+  echo "could not read the new pane id from herdr" >&2
+  printf '%s\n' "$created" >&2
+  exit 1
+fi
+
+# The pane has to reach its shell prompt before the agent can be started in it.
+herdr agent start "$kind" --kind "$kind" --pane "$pane" >/dev/null
+echo "$kind ready in $pane"

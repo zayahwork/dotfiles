@@ -95,10 +95,10 @@ does not run AFK.
 **verified:** 2026-09-02, logins given by Zayah when reviewing the PRD
 **where:** any question about which login owns which platform
 
-YouTube is `@ZayBuilds-b6o` under `zayahnelson97@gmail.com`. X is two accounts, both
-Premium, `zayahwork@gmail.com` and `zayahwork1@gmail.com`. Twitch and Kick are both under
-`zayahwork@gmail.com`. Four platforms, five accounts, and only YouTube has ever
-broadcast.
+YouTube is `@ZayBuilds-b6o` under `zayahnelson97@gmail.com`. X is `@CorppAI` under
+`zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`, both Premium.
+Twitch and Kick are both under `zayahwork@gmail.com` and their handles are still not
+written down. Four platforms, five accounts, and only YouTube has ever broadcast.
 
 **Why:** "blocked" on this project has never meant a missing account. It means no stream
 key pulled, no endpoint configured, and in X's case no evidence the ingest exists at all.

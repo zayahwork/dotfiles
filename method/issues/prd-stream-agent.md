@@ -63,7 +63,7 @@ about cause until the record can carry it.
 | Adapter | `obs` | NEW | Switch scene, set a named text source, start and stop the broadcast. Nothing else |
 | Adapter | `relay` | NEW | One encoded input, N outputs, copy not re-encode; reports per-output state |
 | Adapter | `youtube` | NEW | `@ZayBuilds-b6o`, login `zayahnelson97@gmail.com`. Set title and description, read impressions, CTR, retention, list VODs |
-| Adapter | `x` | NEW | Two accounts, `zayahwork@gmail.com` and `zayahwork1@gmail.com`, both Premium. **Blocked: ingest UNCONFIRMED, neither has gone live** |
+| Adapter | `x` | NEW | `@CorppAI` (`zayahwork@`) and `@ZayahNelson0` (`zayahwork1@`), both Premium. **Blocked: ingest UNCONFIRMED, neither has gone live** |
 | Adapter | `twitch` | NEW | Login `zayahwork@gmail.com`, not Affiliate. **Blocked: account exists, no endpoint** |
 | Adapter | `kick` | NEW | Login `zayahwork@gmail.com`. **Blocked: account exists, unconfigured, no endpoint** |
 | Service | `metadata` | NEW | One source in, one native title and description per platform out, deterministically |
@@ -148,7 +148,7 @@ Decisions carry the date they were made in the grilling. Full reasoning is in
   It runs as its own process, its failure is invisible to `golive`, and the broadcast
   does not check on it. Read only on all four platforms.
 - **Accounts, confirmed 2026-09-02.** YouTube `@ZayBuilds-b6o` under
-  `zayahnelson97@gmail.com`. X under `zayahwork@gmail.com` and `zayahwork1@gmail.com`.
+  `zayahnelson97@gmail.com`. X is `@CorppAI` under `zayahwork@gmail.com` and `@ZayahNelson0` under `zayahwork1@gmail.com`.
   Twitch and Kick both under `zayahwork@gmail.com`. All four accounts exist; what does
   not exist is endpoints.
 
@@ -236,10 +236,13 @@ has an endpoint. Neither blocks anything before P10.
 
 ### What is still needed from Zayah
 
-The logins are known; the **handles** are not. `x.com/CorppAI` is the only one recorded
-anywhere, from the working description. The second X handle, the Twitch handle and the
-Kick handle have never been written down, and the agent needs them to build the links
-block, the funnel in decision 31, and the per-platform metadata in P10.
+Both X handles are known: `@CorppAI` and `@ZayahNelson0`, given 2026-09-02. **The Twitch
+and Kick handles are still not written down anywhere**, and the agent needs them for the
+links block, the funnel in decision 31, and the per-platform metadata in P10.
+
+The links block also grows a fifth line, because decision 38 gives the second X account
+its own identity rather than mirroring the first. Its exact wording waits on the framing
+question.
 
 
 ## Open, and who can close it

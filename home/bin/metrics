@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+# What we spent and what came out of it. Reads the sources rather than keeping a
+# ledger, so nothing has to remember to log and nothing can drift out of date.
+#
+#   metrics                 the last 7 days, this repo
+#   metrics --days 30       a longer window
+#   metrics --all-repos     every project, not just this one
+#   metrics --json          the same numbers as JSON, for anything downstream
+#
+# Sources, all of them already on disk:
+#   sessions  ~/.claude/projects/<slug>/*.jsonl, one file per agent session
+#   shipped   git log of the repo you run it in
+#   loops     .gnhf/runs/*/notes.md in any gnhf worktree
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+days=7
+all_repos=0
+as_json=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    --days)
+      shift
+      [ $# -gt 0 ] || { echo "metrics: --days needs a number" >&2; exit 2; }
+      case "$1" in ''|*[!0-9]*) echo "metrics: --days takes a number, got $1" >&2; exit 2;; esac
+      days="$1"
+      ;;
+    --all-repos) all_repos=1 ;;
+    --json) as_json=1 ;;
+    *)
+      echo "metrics: unknown argument $1" >&2
+      echo "try: metrics --help" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+projects="$HOME/.claude/projects"
+if [ ! -d "$projects" ]; then
+  echo "metrics: no $projects, so there are no sessions to read" >&2
+  exit 1
+fi
+
+if [ "$all_repos" = 1 ]; then
+  scope=all
+  slug=""
+else
+  scope=repo
+  # Claude Code names a project directory after its path, with every slash and
+  # dot turned into a hyphen.
+  slug=$(printf '%s' "$PWD" | sed 's#[/.]#-#g')
+  if [ ! -d "$projects/$slug" ]; then
+    echo "metrics: no sessions recorded for $PWD" >&2
+    echo "try: metrics --all-repos" >&2
+    exit 1
+  fi
+fi
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+
+DAYS="$days" SCOPE="$scope" SLUG="$slug" PROJECTS="$projects" \
+REPO="$repo_root" AS_JSON="$as_json" python3 <<'PY'
+import json, os, subprocess, sys, glob
+from datetime import datetime, timezone, timedelta
+
+days = int(os.environ["DAYS"])
+projects = os.environ["PROJECTS"]
+scope = os.environ["SCOPE"]
+slug = os.environ["SLUG"]
+repo = os.environ["REPO"]
+as_json = os.environ["AS_JSON"] == "1"
+
+since = datetime.now(timezone.utc) - timedelta(days=days)
+
+pattern = f"{projects}/{slug}/*.jsonl" if scope == "repo" else f"{projects}/*/*.jsonl"
+
+sessions = {}
+for path in glob.glob(pattern):
+    with open(path, errors="replace") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or '"usage"' not in line:
+                continue
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            ts = rec.get("timestamp")
+            if not ts:
+                continue
+            try:
+                when = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            if when < since:
+                continue
+            usage = (rec.get("message") or {}).get("usage") or {}
+            sid = rec.get("sessionId") or os.path.basename(path)
+            s = sessions.setdefault(sid, {
+                "turns": 0, "out": 0, "cache_write": 0, "cache_read": 0,
+                "thinking": 0, "models": set(), "first": when, "last": when,
+                "branches": set(),
+            })
+            s["turns"] += 1
+            s["out"] += usage.get("output_tokens", 0)
+            s["cache_write"] += usage.get("cache_creation_input_tokens", 0)
+            s["cache_read"] += usage.get("cache_read_input_tokens", 0)
+            s["thinking"] += (usage.get("output_tokens_details") or {}).get("thinking_tokens", 0)
+            model = (rec.get("message") or {}).get("model")
+            if model:
+                s["models"].add(model)
+            if rec.get("gitBranch"):
+                s["branches"].add(rec["gitBranch"])
+            s["first"] = min(s["first"], when)
+            s["last"] = max(s["last"], when)
+
+def git(*args):
+    if not repo:
+        return ""
+    try:
+        return subprocess.run(("git", "-C", repo) + args, capture_output=True,
+                              text=True, timeout=20).stdout.strip()
+    except Exception:
+        return ""
+
+since_arg = f"--since={days}.days"
+commits = [c for c in git("log", since_arg, "--pretty=%h").splitlines() if c]
+shortstat = git("log", since_arg, "--shortstat", "--pretty=")
+added = removed = files = 0
+for line in shortstat.splitlines():
+    for part in line.split(","):
+        part = part.strip()
+        n = part.split(" ")[0]
+        if not n.isdigit():
+            continue
+        if "insertion" in part:
+            added += int(n)
+        elif "deletion" in part:
+            removed += int(n)
+        elif "file" in part:
+            files += int(n)
+
+# gnhf keeps its iteration log inside the worktree it ran in, which is thrown
+# away when the branch is done, so read it while it is still there.
+loops = []
+for notes in glob.glob(f"{os.path.dirname(repo)}/*gnhf-worktrees/*/.gnhf/runs/*/notes.md") if repo else []:
+    text = open(notes, errors="replace").read()
+    iterations = text.count("### Iteration ")
+    loops.append({
+        "run": os.path.basename(os.path.dirname(notes)),
+        "iterations_logged": iterations,
+    })
+
+total_out = sum(s["out"] for s in sessions.values())
+total_think = sum(s["thinking"] for s in sessions.values())
+total_write = sum(s["cache_write"] for s in sessions.values())
+total_read = sum(s["cache_read"] for s in sessions.values())
+turns = sum(s["turns"] for s in sessions.values())
+
+hours = 0.0
+for s in sessions.values():
+    hours += (s["last"] - s["first"]).total_seconds() / 3600.0
+
+out = {
+    "window_days": days,
+    "scope": "all repos" if scope == "all" else repo or os.getcwd(),
+    "sessions": len(sessions),
+    "turns": turns,
+    "output_tokens": total_out,
+    "thinking_tokens": total_think,
+    "cache_write_tokens": total_write,
+    "cache_read_tokens": total_read,
+    "session_hours": round(hours, 1),
+    "commits": len(commits),
+    "files_changed": files,
+    "lines_added": added,
+    "lines_removed": removed,
+    "output_tokens_per_commit": round(total_out / len(commits)) if commits else None,
+    "gnhf_runs": loops,
+}
+
+if as_json:
+    print(json.dumps(out, indent=2))
+    sys.exit(0)
+
+def n(v):
+    if v is None:
+        return "-"
+    if v >= 1_000_000:
+        return f"{v/1_000_000:.1f}M"
+    if v >= 1_000:
+        return f"{v/1_000:.0f}K"
+    return str(v)
+
+tty = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+dim = "\033[2m" if tty else ""
+bold = "\033[1m" if tty else ""
+off = "\033[0m" if tty else ""
+
+W = 62
+rule = "─" * W
+
+def kv(k, v):
+    pad = max(0, W - 12 - len(v))
+    print(f"  {dim}│{off} {bold}{k:<10}{off}{v}{' ' * pad} {dim}│{off}")
+
+print()
+print(f"  📈 {bold}m e t r i c s{off}")
+print(f"     {dim}last {days} days{off}")
+print()
+print(f"  {dim}╭{rule}╮{off}")
+kv("scope", out["scope"])
+kv("sessions", f"{out['sessions']}, {out['turns']} turns, {out['session_hours']}h wall clock")
+print(f"  {dim}├{rule}┤{off}")
+kv("output", f"{n(out['output_tokens'])} tokens, {n(out['thinking_tokens'])} of it thinking")
+kv("cache", f"{n(out['cache_write_tokens'])} written, {n(out['cache_read_tokens'])} read back")
+print(f"  {dim}├{rule}┤{off}")
+kv("shipped", f"{out['commits']} commits, {out['files_changed']} files touched")
+kv("lines", f"{n(out['lines_added'])} added, {n(out['lines_removed'])} removed")
+kv("cost", f"{n(out['output_tokens_per_commit'])} output tokens per commit")
+if out["gnhf_runs"]:
+    print(f"  {dim}├{rule}┤{off}")
+    for r in out["gnhf_runs"]:
+        kv("loop", f"{r['run']}, {r['iterations_logged']} iterations logged")
+print(f"  {dim}╰{rule}╯{off}")
+print()
+
+if out["sessions"] == 0:
+    print("  0 sessions in this window. Nothing was run, or the window is too short.")
+    print()
+PY

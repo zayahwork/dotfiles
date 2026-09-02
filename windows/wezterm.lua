@@ -11,7 +11,13 @@ local config = wezterm.config_builder()
 -- Through a login shell on purpose. Running "wsl.exe -- herdr" directly exits
 -- 127, because a non-login shell never sources Nix's PATH and herdr lives in
 -- ~/.nix-profile/bin. exec replaces the shell so closing herdr closes the tab.
-config.default_prog = { "wsl.exe", "-d", "Ubuntu", "--cd", "~/github/dotfiles", "--", "zsh", "-lic", "exec herdr" }
+--
+-- zsh is spelled out by path for the same reason. "-- zsh" exits 127 too: the
+-- shell wsl.exe runs the command in has not sourced hm-session-vars either, so
+-- it cannot find zsh any more than it could find herdr. Naming one of them by
+-- path is enough, because that zsh is a login shell and sets the PATH the rest
+-- of the line needs. Caught when ctrl+alt+g opened a window that shut instantly.
+config.default_prog = { "wsl.exe", "-d", "Ubuntu", "--cd", "~/github/dotfiles", "--", "~/.nix-profile/bin/zsh", "-lic", "exec herdr" }
 config.default_cwd = wezterm.home_dir
 
 -- A plain shell, for when herdr itself is the thing you need to fix.

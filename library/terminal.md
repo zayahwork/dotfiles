@@ -4,9 +4,11 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 
 ## Contents
 
-- Ctrl+Alt+digit never arrives on Windows, because that chord is AltGr. Letters do.
-- herdr panes are not login shells on Linux, so `~/.local/bin` is empty in a new pane.
-- `panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.
+- [Ctrl+Alt+digit never arrives on Windows, because that chord is AltGr. Letters do.](#ctrlaltdigit-never-reaches-herdr-on-windows-ctrlaltletter-always-does)
+- [herdr panes are not login shells on Linux, so `~/.local/bin` is empty in a new pane.](#herdr-panes-are-not-login-shells-on-linux-so-localbin-is-missing)
+- [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
+- [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
+- [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 
 ---
 
@@ -50,3 +52,47 @@ Transparency worked on the sidebar and not in the pane area, so the sidebar look
 frosted glass and the panes looked like a solid black rectangle.
 
 **Fix:** `panel_bg = "reset"`, which lets the terminal's own background through.
+
+---
+
+## A full screen view renders into an agent's pipe as escape codes nobody sees
+
+**verified:** 2026-09-01, `goodnight` run through an agent wrote 70k of escape codes to a
+capture file and showed nothing; the same command in a pane drew normally
+**where:** any TUI an agent starts, gnhf being the one that caught us
+
+A program that takes the alternate screen needs a terminal to take. Started by an agent
+its stdout is a pipe, so it draws happily into a file and the person watching sees an
+empty screen, or worse, waits.
+
+**Why:** the agent's own pane is already owned by the agent, so there is nothing to hand
+over even when a terminal exists somewhere.
+
+**Fix:** split the pane the agent was called from and run there. Same terminal, beside
+the conversation, and the person can watch it:
+
+```sh
+current=$(herdr pane current | jq -r '.result.pane.pane_id')
+split=$(herdr pane split "$current" --direction down | jq -r '.result.pane.pane_id')
+herdr pane run "$split" <command>
+```
+
+`home/bin/goodnight` does exactly that when `[ ! -t 1 ]`, and takes `--here` to override
+it. Any tool we write that draws a full screen needs the same check.
+
+---
+
+## ls is aliased to eza and prints nothing at all under a non-tty
+
+**verified:** 2026-09-01, `zsh -ic 'ls' </dev/null` returns 0 lines in a directory where
+`/bin/ls` returns 10
+**where:** every agent shell on this machine
+
+Not fewer lines, not unformatted lines. Nothing, and exit 0. An agent listing a
+directory sees what looks exactly like an empty one and reasons from it.
+
+**Why:** `home.nix` aliases `ls` to `eza`, and eza suppresses output when stdout is not a
+terminal.
+
+**Fix:** `/bin/ls` in anything an agent runs, or `find` when you want it recursive.
+Never trust an empty `ls` from a script.

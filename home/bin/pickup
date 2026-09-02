@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Put me back where I was: a tab in the repo with the last Claude conversation
+# in that directory already reopened.
+#
+# Safe to run twice. A second run focuses the tab that is already there rather
+# than stacking a second Claude on the same work, because only one of them
+# would hold the real history and there is no way to tell which from the tab
+# strip.
+set -euo pipefail
+export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
+
+repo="$HOME/github/dotfiles"
+
+if [ ! -d "$repo" ]; then
+  echo "pickup: $repo is not there" >&2
+  exit 1
+fi
+
+# Every herdr subcommand talks to a server over a socket and exits 1 when that
+# server is not running. Bound to a key inside herdr that cannot happen, but
+# run from a plain shell it can, and with set -e the script then died on its
+# first real line with nothing on screen, which reads exactly like a keybind
+# that was never registered. Check once and say it plainly.
+if ! herdr status 2>/dev/null | grep -q "status: running"; then
+  echo "pickup: no herdr server is running. Press ctrl+alt+g first, or run herdr." >&2
+  exit 1
+fi
+
+# No match is an empty result, not a failure, so do not let a status code from
+# anywhere in this pipeline take the script with it.
+existing=$(herdr agent list 2>/dev/null \
+  | jq -r --arg cwd "$repo" \
+      '.result.agents[]? | select(.agent == "claude" and .cwd == $cwd) | .tab_id' \
+  | head -1 || true)
+
+if [ -n "$existing" ]; then
+  herdr tab focus "$existing" >/dev/null
+  echo "focused the claude already open in $repo"
+  exit 0
+fi
+
+created=$(herdr tab create --label claude --cwd "$repo" --focus)
+pane=$(printf '%s' "$created" | jq -r '.result.root_pane.pane_id // empty')
+
+if [ -z "$pane" ]; then
+  echo "pickup: could not read the new pane id from herdr" >&2
+  printf '%s\n' "$created" >&2
+  exit 1
+fi
+
+# --continue reopens the most recent conversation in that directory. A fresh
+# Claude in the right folder is not picking up where you left off, it is
+# starting again with better scenery.
+herdr agent start claude --kind claude --pane "$pane" -- --continue >/dev/null
+echo "claude resumed in $pane"

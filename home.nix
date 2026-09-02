@@ -319,13 +319,17 @@
     next_tab         = "ctrl+alt+n"
     previous_tab     = "ctrl+alt+p"
 
+    # The key list itself is an everyday action, not a rare one. Behind the
+    # prefix it was unreachable: F12 needs the Fn layer on a 60% board, and
+    # the Caps Lock remap that stands in for it lives on the Windows side.
+    help             = "ctrl+alt+/"
+
     # The rare ones stay behind the prefix, out of the way.
     # Ctrl+Alt+digit never reached herdr on Windows, where that chord is AltGr.
     # Letters work, digits do not. Tab numbers live behind the prefix instead.
     switch_tab      = "prefix+1..9"
     goto            = "prefix+g"
     detach          = "prefix+q"
-    help            = "prefix+?"
     settings        = "prefix+s"
     reload_config   = "prefix+shift+r"
     toggle_sidebar  = "prefix+b"

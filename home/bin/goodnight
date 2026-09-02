@@ -78,13 +78,52 @@ if [ "$dry_run" = 1 ]; then
   exit 0
 fi
 
-echo "goodnight: $(pwd)"
-echo "  agent      $agent"
-echo "  worktree   yes, so nothing collides with your open tree"
-echo "  ceiling    $max_tokens tokens, $rate_limit_wait of usage-limit wait"
-echo "  push       no, every commit waits for you"
+# The launch card. gnhf takes the alternate screen the moment it starts, so
+# this is what you see on the way in and what is still there when it exits.
+#
+# Colour only when stdout is a terminal that wants it, so a redirect to a file
+# or a pipe into a log gets clean text. Values stay ASCII on purpose: the
+# padding counts characters, and a locale that is not UTF-8 counts bytes, which
+# would knock the right hand border out of line.
+dim=''; bold=''; off=''
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ] && [ "${TERM:-dumb}" != dumb ]; then
+  dim=$'\033[2m'; bold=$'\033[1m'; off=$'\033[0m'
+fi
+
+W=62
+
+# Not `printf %*s | tr ' ' '─'`. tr works on bytes, and the box character is
+# three of them, so that prints a row of mojibake instead of a line.
+rule() { printf '─%.0s' $(seq 1 "$W"); }
+
+edge() { printf '  %s%s%s%s%s\n' "$dim" "$1" "$(rule)" "$2" "$off"; }
+
+# One labelled line. The label is padded before the colour goes on, so the
+# escape codes never count towards the width.
+kv() {
+  local pad=$(( W - 12 - ${#2} ))
+  [ "$pad" -lt 0 ] && pad=0
+  printf '  %s│%s %s%-10s%s%s%*s %s│%s\n' \
+    "$dim" "$off" "$bold" "$1" "$off" "$2" "$pad" '' "$dim" "$off"
+}
+
+# The title sits above the box rather than inside it. It carries a moon, and
+# terminals disagree about whether an emoji is one column or two, so anything
+# padded to a border beside one lines up in some terminals and not others.
+# Outside the box there is no border to miss.
 echo
-echo "  review it with: git log --oneline --stat, then treehouse status"
+printf '  🌙 %s%s%s\n' "$bold" 'g o o d n i g h t' "$off"
+printf '     %s%s%s\n' "$dim" 'the agents work, you do not' "$off"
+echo
+edge '╭' '╮'
+kv 'repo'     "$(pwd)"
+kv 'agent'    "$agent"
+kv 'worktree' 'its own, nothing collides with your open tree'
+kv 'ceiling'  "$(( max_tokens / 1000000 ))M tokens, $rate_limit_wait of usage-limit wait"
+kv 'push'     'never, every commit waits for you'
+edge '├' '┤'
+kv 'morning'  'git log --oneline --stat, treehouse status'
+edge '╰' '╯'
 echo
 
 exec "$@"

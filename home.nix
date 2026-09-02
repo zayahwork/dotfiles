@@ -289,8 +289,9 @@
     pane_gaps = true
     pane_scrollbars = false
 
-    # Iris, so the lines and the focused pane read clearly against the glass.
-    accent = "#c4a7e7"
+    # Near white, the brightest token in rose-pine, so the outlines read as
+    # deliberate frames rather than faint terminal rules.
+    accent = "#e0def4"
 
     # One line per notch. The scroll hotkeys send a steady stream of single
     # notches, so the smoothness comes from the rate, not the step size.

@@ -101,6 +101,13 @@
     executable = true;
   };
 
+  # Agent ergonomic GitHub reads, so an agent does not pay for `gh`'s human
+  # sized output on every turn.
+  home.file.".local/bin/gh-axi" = {
+    source = ./home/bin/gh-axi;
+    executable = true;
+  };
+
   # One word for the overnight run, so its objective is never retyped.
   home.file.".local/bin/goodnight" = {
     source = ./home/bin/goodnight;

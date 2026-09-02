@@ -324,6 +324,11 @@
     # deliberate frames rather than faint terminal rules.
     accent = "#e0def4"
 
+    # Let the terminal see plain clicks, so URLs in scrollback are clickable.
+    # herdr's own mouse UI goes away with this, which is fine when everything
+    # is driven from the keyboard anyway.
+    mouse_capture = false
+
     # One line per notch. The scroll hotkeys send a steady stream of single
     # notches, so the smoothness comes from the rate, not the step size.
     mouse_scroll_lines = 1

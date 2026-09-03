@@ -1,0 +1,41 @@
+#AgenticEngineering #DevEnvironment #ClaudeCode
+
+🔴 BUILDING AN L8 AGENTIC DEV ENVIRONMENT FROM SCRATCH. Zero to keyboard-only, live. No mouse. No IDE. Just a terminal and agents. We are ripping out the entire setup and rebuilding it the way principal engineers actually work — and I have never done this before.
+
+Today we go from a blank Windows box to a full Linux dev environment running inside WSL2. Ubuntu, zsh, fzf, Starship, Neovim, and Claude Code wired together into one keyboard-driven loop. Every shortcut learned live. Every mistake on camera. Most devs never leave VS Code. Today we find out what's on the other side.
+
+THE GRIND RULES: Every like on this stream = +1 pushup. You hit the button, I hit the floor.
+
+The Journey to $1,000,000
+
+Current MRR: $8,400/month
+
+What We're Building Today
+
+WSL2 + Ubuntu 26.04 From Zero — Linux running inside Windows. Full install, live, from a completely fresh terminal.
+
+The Keyboard-Only Workflow — 60% keyboard, no arrow keys, no F-row. Every navigation shortcut rebuilt around Ctrl bindings. Live quizzes as we learn them.
+
+zsh + Starship + fzf — Ghost-text autosuggestions, syntax highlighting before you hit Enter, and fuzzy search that kills typing file paths forever.
+
+Reproducible Dotfiles — One repo, one command, any machine ends up identical. The core thesis of the whole setup.
+
+Claude Code At Full Power — Global AGENTS.md, project memory, and agent ergonomics inside a real terminal workflow.
+
+Links
+
+Corp — https://corpsystems.net
+
+Discord — https://discord.gg/EfqrAdSa3
+
+X (Twitter) — https://x.com/CorppAI
+
+YouTube — https://www.youtube.com/@ZayBuilds-b6o
+
+What is Corp?
+
+Corp is an AI automation agency for small businesses — the face of AI for the business world. We take the systems that big companies pay millions for and put them in the hands of the shops, studios, and service businesses that actually run the economy. Automation, agents, and AI workflows built for people who don't have an engineering team.
+
+Keywords: AI automation agency, AI for small business, small business automation, AI agency, business automation, AI consultant, AI workflows, agentic engineering, agentic dev environment, dev environment from scratch, terminal setup, terminal workflow, WSL2, WSL2 setup, WSL2 Ubuntu, Ubuntu 26.04, Windows Subsystem for Linux, zsh, zsh setup, zsh autosuggestions, Starship prompt, fzf, ripgrep, Neovim, Neovim config, tmux, WezTerm, dotfiles, dotfiles repo, reproducible dev environment, Nix, home-manager, keyboard only workflow, 60% keyboard, keyboard shortcuts, terminal keybinds, no mouse workflow, Claude Code, Claude Code setup, Claude Fable 5.1, AGENTS.md, CLAUDE.md, agent memory, agent skills, L8 principal engineer, principal engineer workflow, developer productivity, vibe coding, agentic coding, AI coding tools, build in public, live coding, learn to code, indie hacker, AI startup, Corp, CorppAI, Corp Systems, ZayBuilds
+
+#Corp #CorppAI #ZayBuilds #AIAutomation #AIForSmallBusiness #AIAgency #BusinessAutomation #AgenticEngineering #DevEnvironment #ClaudeCode #ClaudeFable51 #WSL2 #Ubuntu #Linux #Zsh #Neovim #Tmux #Starship #Dotfiles #TerminalSetup #KeyboardOnly #60PercentKeyboard #VibeCoding #DeveloperProductivity #BuildInPublic #LiveCoding #IndieHacker #SaaS #StartupFounder #AgenticAI

@@ -161,10 +161,13 @@ total, which is what lets it hold everything without costing everything to read.
 
 ## Agents
 
-`home/.claude/agents/` holds a file per subagent, deployed to `~/.claude/agents/` by
-`home.nix` the same way skills are. A definition there is the only place an agent is
-written down, so an agent nobody can read is an agent nobody can fix. Same limit as
-skills: this reaches Claude Code and not Codex or cursor-agent.
+`home/.claude/skills/` holds a directory per skill and `home.nix` deploys it to three
+places: `~/.claude/skills/`, `~/.codex/skills/` and `~/.cursor/skills/`. One source, so a
+skill written once reaches Claude, Codex and cursor-agent alike.
+
+`home/.claude/agents/` holds a file per subagent, deployed to `~/.claude/agents/` the same
+way. A definition there is the only place an agent is written down, so an agent nobody can
+read is an agent nobody can fix. Subagents still reach Claude Code only.
 
 - **`library-admin` is the only thing that writes to `library/`.** Do not edit a library
   file yourself. Hand it the claim, the rows behind it, and the topic it would live

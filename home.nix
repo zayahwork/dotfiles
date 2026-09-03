@@ -142,7 +142,26 @@
 
   # The method skills, pulled by any project rather than copied into each one.
   # The scaffolding they refer to is in method/.
+  #
+  # One source, three agents. All three read a directory of <name>/SKILL.md:
+  # Claude at ~/.claude/skills, codex 0.149 at CODEX_HOME/skills, cursor-agent
+  # at ~/.cursor/skills.
+  #
+  # Claude takes the directory whole. The other two are recursive instead, which
+  # links each file and leaves the directory itself real, because codex keeps its
+  # own ~/.codex/skills/.system in there and a store symlink over the parent would
+  # evict it.
   home.file.".claude/skills".source = ./home/.claude/skills;
+
+  home.file.".codex/skills" = {
+    source = ./home/.claude/skills;
+    recursive = true;
+  };
+
+  home.file.".cursor/skills" = {
+    source = ./home/.claude/skills;
+    recursive = true;
+  };
 
   # Subagents, same deal. A definition here is the only place an agent is
   # written down, and library-admin is the gate on library/ itself.

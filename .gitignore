@@ -3,3 +3,7 @@ result-*
 .direnv/
 .lavish/
 stream/secrets.env
+stream/config.json
+__pycache__/
+.pytest_cache/
+stream/data/*.tmp

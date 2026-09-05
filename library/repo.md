@@ -9,6 +9,7 @@ this file is the bug.
 
 - [Branches move `development -> staging -> main`, one direction, no direct commits to the last two.](#never-commit-directly-to-staging-or-main)
 - [Promote with `git merge --no-ff`, never a reset or a cherry-pick.](#never-commit-directly-to-staging-or-main)
+- [Promote inside a `git worktree`. Switching the shared tree put a commit straight onto `staging`.](#promote-inside-a-git-worktree-switching-the-shared-tree-put-a-commit-straight-onto-staging)
 - [`media` is an orphan branch with no shared history. It joins nothing.](#media-is-an-orphan-branch-and-never-merges)
 - [One task, roughly 100K tokens. Clear context, do not compact it.](#one-task-roughly-100k-tokens-then-clear)
 - [This repo is private, so a commit link 404s for anyone not signed in as zayahwork.](#the-repo-is-private-so-commit-links-404-unless-you-are-signed-in)
@@ -113,3 +114,17 @@ Reading the sources cannot drift and cannot be forgotten.
 
 **The one thing that does need catching:** a gnhf run's notes die with its worktree. Read
 `metrics` before `git worktree remove`, or that run's iteration count is gone.
+
+## Promote inside a `git worktree`. Switching the shared tree put a commit straight onto `staging`
+
+**verified:** 2026-09-02, commit `973f0e4` landed on `staging` with no shared history to `development`
+**where:** every promotion in this repo
+
+Several Claude sessions work this repo at once. Checking `staging` out in the shared
+working tree to run a promotion left it there, and the next session to commit put its
+change straight onto `staging`, which the branch rule forbids. It was recovered by
+cherry-picking to `development` as `8c61ca3`, resetting `staging` to `origin/staging`,
+and promoting normally. Nothing was lost and nothing was force-pushed.
+
+**Fix:** `git worktree add /tmp/promote main`, merge there, push from there, remove it.
+The shared tree never leaves `development`, so no other session can be misled by it.

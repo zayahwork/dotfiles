@@ -8,6 +8,7 @@ The sequence from cold to broadcasting, and what the agent may and may not touch
 - [Going live takes one word from a human, and everything before it is automatic](#going-live-takes-one-word-from-a-human-and-everything-before-it-is-automatic)
 - [The countdown runs on air, so saying the words is publishing](#the-countdown-runs-on-air-so-saying-the-words-is-publishing)
 - [Local fanout copies one encode to every platform, so every platform gets the same bitrate](#local-fanout-copies-one-encode-to-every-platform-so-every-platform-gets-the-same-bitrate)
+- [obs-websocket 5.x keeps its config in plugin_config, not global.ini, and OBS wipes the keys you put there](#obs-websocket-5x-keeps-its-config-in-plugin_config-not-globalini-and-obs-wipes-the-keys-you-put-there)
 
 ---
 
@@ -64,3 +65,19 @@ the bitrate has to be the lowest ceiling among the platforms.
 
 **Why:** Rejected: a second encode to give YouTube a prettier picture. That is real CPU on a
 laptop already running a game, and picture quality is not what is holding growth back.
+
+## obs-websocket 5.x keeps its config in `plugin_config`, not `global.ini`, and OBS wipes the keys you put there
+
+**verified:** 2026-09-02, keys written into `[OBSWebSocket]` in `global.ini` were gone after one OBS start, leaving the bare section header
+**where:** enabling or reading the OBS websocket without clicking through the UI
+
+The real file is
+`%APPDATA%\obs-studio\plugin_config\obs-websocket\config.json`, holding
+`server_enabled`, `server_port`, `auth_required` and `server_password` in snake case.
+The `global.ini` `[OBSWebSocket]` section with `ServerEnabled` in camel case is the
+obs-websocket 4.x layout and OBS 28+ migrates it once and then discards the keys. OBS
+rewrites its config on exit, so any edit made while it is running is lost, and the server
+only binds the port on start, so a config change needs a restart before `4455` opens.
+
+**Fix:** edit `config.json` with OBS closed, then start OBS and wait for the port. Check
+`tasklist.exe /FI "IMAGENAME eq obs64.exe"` before writing, not after.

@@ -12,6 +12,8 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
+| [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
+| [`support.reddithelp.com` is behind Cloudflare bot verification: `WebFetch` 403s and headless Edge gets the interstitial](#supportreddithelpcom-is-behind-cloudflare-bot-verification-webfetch-403s-and-headless-edge-gets-the-interstitial) | 29,081 bytes of "Performing security verification", zero policy text. Reddit's own policy pages cannot be read by an agent. |
 | [Headless Edge on the Windows side reaches hosts the WSL sandbox blocks, and confirms Reddit's 403 is policy not network](#headless-edge-on-the-windows-side-reaches-hosts-the-wsl-sandbox-blocks-and-confirms-reddits-403-is-policy-not-network) | `msedge.exe --headless=new --dump-dom` returned 189,960 bytes from a Reddit URL that Node cannot reach at all. Same block page though: 0 `short_name` matches. |
 | [The agent sandbox allowlists network egress by host for Node: `registry.npmjs.org` is 200, `reddit.com` and `example.com` are `ETIMEDOUT`](#the-agent-sandbox-allowlists-network-egress-by-host-for-node-registrynpmjsorg-is-200-redditcom-and-examplecom-are-etimedout) | `npm install` works, which hides it. Not IPv6, not `fetch`: `node:https` fails the same way. `curl` is not subject to the allowlist. |
 
@@ -118,3 +120,37 @@ the Reddit question: the DOM came back as the HTML theme page with 0 occurrences
 DOM. Do not use it to reach a page behind the user's own login: that needs their real
 browser profile, which is a separate permission and puts any secret on the page into the
 session transcript.
+
+## Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists
+
+**verified:** 2026-09-02, Zayah hit the gate on `reddit.com/prefs/apps` while trying to create a script app
+**where:** any build that needs Reddit API credentials
+
+The create-app form is behind an acknowledgement of the Responsible Builder Policy at
+`support.reddithelp.com/hc/en-us/articles/42728983564564`. Two things follow. First,
+having a Reddit account, or having linked one to Google SSO, is not the same as having a
+registered app, and a person can sincerely say the app is set up while `prefs/apps` is
+empty - four turns went into fetching credentials that had never been generated. Second,
+that policy is Reddit's own statement of what automated accounts may do, so any bot design
+that assumes disclosure alone makes it acceptable is an assumption until somebody reads it.
+UNCONFIRMED what the policy actually requires; see the entry below for why.
+
+**Fix:** before designing anything against the Reddit API, have the human open
+`prefs/apps` and say whether an app is listed. Empty means the credentials do not exist
+yet, not that they are hard to find. The client ID is the unlabelled ~14-character string
+under "personal use script"; the secret is the field labelled `secret`; the type must be
+**script** or the OAuth password grant will not work.
+
+## `support.reddithelp.com` is behind Cloudflare bot verification: `WebFetch` 403s and headless Edge gets the interstitial
+
+**verified:** 2026-09-02, `WebFetch` returned `HTTP 403 Forbidden`, and `msedge.exe --headless=new --dump-dom` returned 29,081 bytes whose only readable text was "Performing security verification" and "Enable JavaScript and cookies to continue"
+**where:** reading Reddit's policy, help or support pages programmatically
+
+Both routes that work elsewhere fail here. The Edge trick that defeats the WSL egress
+allowlist does not defeat Cloudflare, because the interstitial needs JavaScript and cookies
+that `--dump-dom` never executes. The byte count is the trap again: 29KB looks like a page
+came back, and none of it is the article.
+
+**Fix:** ask the human to read it and paste the text. Do not conclude a policy permits
+something because the page could not be read - an unread policy is UNCONFIRMED, not
+permission.

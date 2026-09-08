@@ -67,3 +67,10 @@ then switches. `apply --check` reports without touching anything.
 happened twice more anyway, on 2026-09-01 and 2026-09-02. A trap that repeats past being
 documented needs a check, not a better entry. That is the general rule now, and it is in
 `home/AGENTS.md`.
+
+### Held back
+
+**apply cannot use mapfile. macOS /usr/bin/bash is 3.2.**
+n=0 of the failure, 2026-09-08. `home/bin/apply` now uses a while-read loop that works
+on this VM's bash 5.2.21. UNCONFIRMED under macOS `/usr/bin/bash` 3.2. Rejected: never
+executed on Darwin, n is not five, no control.

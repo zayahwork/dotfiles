@@ -41,6 +41,13 @@ source. herdr's `shell_mode = "auto"` only makes panes login shells on macOS.
 `export PATH="$HOME/.local/bin:$PATH"` in `programs.zsh.initContent`, so it holds for
 interactive non-login shells too.
 
+### Held back
+
+**On macOS, do not start herdr with brew services. launchd PATH is /usr/bin:/bin:/usr/sbin:/sbin, and pi is #!/usr/bin/env node, so the pane dies with no output.**
+n=0, 2026-09-08. Documented by @andrewjacop/pi-herdr and written into
+`macos/wezterm.lua`. NOT reproduced on this Linux VM. Rejected: never observed, n is
+not five, no control.
+
 ---
 
 ## herdr paints its own pane background over terminal transparency

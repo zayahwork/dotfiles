@@ -44,6 +44,14 @@ purely through a skill description is invisible to two of the three agents.
 well as the skill. Keep that line to a pointer, a path and when to follow it, because
 `AGENTS.md` is sent on every single turn.
 
+### Held back
+
+**Skills now reach Claude, Codex, cursor-agent, and Pi.**
+n=1, 2026-09-08, five `home.file` skill blocks plus `home.activation.piSkills` in
+`home.nix`, and Pi docs. UNCONFIRMED that `pi` lists `/skill:grill`. Rejected: wiring
+is not five runtime observations from five subjects, no control, and "reach" was not
+seen.
+
 ---
 
 ## `home/.claude/agents/` holds a file per subagent, and `library-admin` is the only thing that writes to `library/`

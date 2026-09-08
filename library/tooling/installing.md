@@ -17,6 +17,13 @@ wrapper so an upstream release cannot change what a switch installs. `lavish-axi
 deliberately not pinned: its skill is a stub that defers to the running CLI, and pinning
 would defeat the thing that keeps it from going stale.
 
+### Held back
+
+**Pi must install under ~/.local because nixpkgs nodejs makes npm -g unwritable.**
+n=1, 2026-09-08, official `pi.dev/install.sh` (1728 lines) plus `bootstrap-mac.sh`.
+Rejected: the read-only prefix is already this subject's fact; the Pi `~/.local` prefix
+was not measured as a failure on this machine, and n is not five.
+
 ---
 
 ---

@@ -39,6 +39,12 @@ exist.
 those entries record what happened. The real fix is to stop hardcoding it, which this
 repo has not done yet.
 
+### Held back
+
+**home.homeDirectory is /Users/$user on Darwin. /home/$user would be a directory that does not exist.**
+n=1, 2026-09-08, `home.nix` read on a Linux x86_64 VM. No Darwin switch. Rejected: n is
+not five, never observed, no control, and the same edit also parameterized `username`.
+
 ---
 
 ## wsl.exe -d Ubuntu -- zsh exits 127, and the terminal window just vanishes

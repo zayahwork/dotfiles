@@ -8,9 +8,9 @@ export PATH="$HOME/.nix-profile/bin:$HOME/.local/bin:$PATH"
 
 kind="${1:-}"
 case "$kind" in
-  claude|codex|cursor) ;;
+  claude|codex|cursor|pi) ;;
   *)
-    echo "usage: agent-tab <claude|codex|cursor> [cwd]" >&2
+    echo "usage: agent-tab <claude|codex|cursor|pi> [cwd]" >&2
     exit 1
     ;;
 esac

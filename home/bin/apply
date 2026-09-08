@@ -47,7 +47,12 @@ done
 cd "$repo" || { echo "apply: no repo at $repo" >&2; exit 1; }
 
 # Untracked and not ignored. These are the ones a flake cannot see.
-mapfile -t hidden < <(git ls-files --others --exclude-standard)
+# A while-read loop, not mapfile: macOS /usr/bin/bash is 3.2, and mapfile
+# arrived in bash 4. After a switch, env bash may still be that 3.2.
+hidden=()
+while IFS= read -r line; do
+  hidden+=("$line")
+done < <(git ls-files --others --exclude-standard)
 
 if [ "${#hidden[@]}" -gt 0 ]; then
   echo "apply: ${#hidden[@]} file(s) the flake cannot see, because git does not track them:"

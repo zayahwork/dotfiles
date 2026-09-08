@@ -1,6 +1,7 @@
 # dotfiles
 
-Declarative WSL Ubuntu environment, managed with Nix flakes and home-manager.
+Declarative environment, managed with Nix flakes and home-manager. Linux is WSL
+Ubuntu. macOS is a native Apple Silicon (or Intel) install with Pi and herdr.
 Nix installed 2026-09-01 with the Determinate Systems installer.
 
 ## Apply
@@ -17,13 +18,51 @@ cannot see an untracked file and fails with a stack trace that buries the real r
 `apply --check` reports without changing anything, `apply --build` builds without
 activating.
 
+## Mac
+
+One command after the clone. This is a private repo, so GitHub has to already know you.
+
+    gh repo clone zayahwork/dotfiles ~/github/dotfiles
+    bash ~/github/dotfiles/bootstrap-mac.sh
+
+If `gh` is not installed yet, clone in GitHub Desktop, or `git clone` after you have
+access, then run the same `bootstrap-mac.sh`.
+
+`bootstrap.sh` on Darwin hands off to that script, so the Linux command works too.
+
+It installs Homebrew if needed, Determinate Nix, rustup, herdr, Pi (under `~/.local` so
+a later nix `node` cannot hide `npm -g`), clones this repo if you have not, adds a
+`homeConfigurations` line for your macOS username, and runs home-manager. Then cursor-agent
+and WezTerm.
+
+**What you still do by hand**
+
+    pi            then /login
+    claude        then log in
+    brew install --cask font-jetbrains-mono-nerd-font
+
+**Skills in Pi.** After a new shell they load from `~/.pi/agent/skills/` and from
+`~/.claude/skills` via `~/.pi/agent/settings.json`. Type `/skill:grill` (or any method
+skill name). Global rules are `~/.pi/agent/AGENTS.md`, the same file as Claude and Codex.
+
+**Launch herdr from WezTerm or a terminal, not `brew services`.** A launchd herdr has a
+tiny PATH, and `pi` is `#!/usr/bin/env node`, so the pane dies with no output.
+
+**Still Linux / Windows only:** AutoHotkey, the no-mouse layer, `/mnt/c` corp aliases,
+Windows Git Credential Manager, and `windows/apply.ps1`. Stream tooling is unchanged.
+
+**UNCONFIRMED on this cloud Linux VM:** the Darwin home-manager build, Homebrew, rustup
+on macOS, and Pi actually listing `/skill:...`. The flake still evaluates the Linux
+`pc` / `stuck` configs. A Mac user running the bootstrap is the real check.
+
 ## Layout
 
 - `flake.nix` pins nixpkgs and home-manager
 - `home.nix` is the actual config: packages, git, zsh, starship
 - `home/` is the source for anything deployed into `$HOME`
 - `home/AGENTS.md` is the one rules file every agent reads
-- `home/.claude/skills/` are the method skills, deployed to `~/.claude/skills/`
+- `home/.claude/skills/` are the method skills, deployed to Claude, Codex, cursor-agent and Pi
+- `macos/` is native WezTerm plus `macos/apply.sh`. No WSL.
 - `method/` is the build workflow: vocabulary, templates and an empty board.
   `method/README.md` explains it. Copy its pieces into a new project to start one.
 - `library/` is what we know about this machine, kept as numbers, rules and failures.

@@ -3,12 +3,19 @@
 #
 #   bash ~/github/dotfiles/bootstrap.sh
 #
+# On macOS this hands off to bootstrap-mac.sh. Same command, right half.
+#
 # Idempotent. Every step checks before it acts, so running it again on a machine
 # that is already set up changes nothing and still prints what it found.
 #
 # What it will not do: type your password, and log you into Claude. Both are
 # yours. It tells you the exact commands at the end.
 set -euo pipefail
+
+if [ "$(uname -s)" = Darwin ]; then
+  here=$(CDPATH= cd "$(dirname "$0")" && pwd)
+  exec bash "$here/bootstrap-mac.sh" "$@"
+fi
 
 repo="${1:-$HOME/github/dotfiles}"
 user="$(id -un)"
@@ -76,7 +83,7 @@ echo "branch: $(git branch --show-current)"
 say "machine entry in flake.nix"
 marker="# BOOTSTRAP-INSERTS-MACHINES-HERE"
 
-if grep -q "\"$user\" = mkHome \"$user\";" flake.nix; then
+if grep -qE "\"$user\" = mkHome(For [^ ]+)? \"$user\";" flake.nix; then
   echo "flake.nix already knows about $user"
 elif grep -qF "$marker" flake.nix; then
   sed -i "s|$marker|\"$user\" = mkHome \"$user\";\n          $marker|" flake.nix

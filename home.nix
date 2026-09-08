@@ -5,7 +5,12 @@
   # whose user was not that name could not activate at all: home-manager refuses
   # to run when home.username disagrees with whoever is running it.
   home.username = username;
-  home.homeDirectory = "/home/${username}";
+  # Linux homes live under /home. macOS homes live under /Users. Hardcoding
+  # /home made every Darwin switch point at a directory that does not exist.
+  home.homeDirectory =
+    if pkgs.stdenv.isDarwin
+    then "/Users/${username}"
+    else "/home/${username}";
   home.stateVersion = "24.11";
 
   programs.home-manager.enable = true;
@@ -40,19 +45,21 @@
     wget
     unzip
 
+    # Gates a push behind an agent-run validation pipeline before the branch
+    # reaches the real remote. Built here: not in nixpkgs, and ships no flake.
+    (pkgs.callPackage ./nix/no-mistakes.nix { })
+  ] ++ lib.optionals (builtins.hasAttr pkgs.system treehouse.packages) [
     # A pool of reusable worktrees, so an agent gets an isolated tree
     # instantly instead of paying for a clone every session.
     #
     # Their own flake at v2.3.0 does not build: its test suite asserts on
     # no-mistakes CI gate output and fails in the nix sandbox, which has no
     # git remote and no PR. The code is fine, the check is not ours to run.
+    # Skip the package on a system the treehouse flake does not expose,
+    # rather than failing the whole switch. UNCONFIRMED on aarch64-darwin.
     (treehouse.packages.${pkgs.system}.default.overrideAttrs (_: {
       doCheck = false;
     }))
-
-    # Gates a push behind an agent-run validation pipeline before the branch
-    # reaches the real remote. Built here: not in nixpkgs, and ships no flake.
-    (pkgs.callPackage ./nix/no-mistakes.nix { })
   ];
 
   # corp-layout builds a herdr workspace per worktree.
@@ -139,18 +146,21 @@
   home.file.".claude/CLAUDE.md".source = ./home/AGENTS.md;
   home.file.".codex/AGENTS.md".source = ./home/AGENTS.md;
   xdg.configFile."opencode/AGENTS.md".source = ./home/AGENTS.md;
+  # Pi loads global instructions from ~/.pi/agent/AGENTS.md, then project
+  # AGENTS.md files walking up from cwd. Same bytes as the other three.
+  home.file.".pi/agent/AGENTS.md".source = ./home/AGENTS.md;
 
   # The method skills, pulled by any project rather than copied into each one.
   # The scaffolding they refer to is in method/.
   #
-  # One source, three agents. All three read a directory of <name>/SKILL.md:
+  # One source, several agents. All of them read a directory of <name>/SKILL.md:
   # Claude at ~/.claude/skills, codex 0.149 at CODEX_HOME/skills, cursor-agent
-  # at ~/.cursor/skills.
+  # at ~/.cursor/skills, Pi at ~/.pi/agent/skills and ~/.agents/skills.
   #
-  # Claude takes the directory whole. The other two are recursive instead, which
-  # links each file and leaves the directory itself real, because codex keeps its
-  # own ~/.codex/skills/.system in there and a store symlink over the parent would
-  # evict it.
+  # Claude takes the directory whole. The others are recursive instead, which
+  # links each file and leaves the directory itself real, because those agents
+  # keep their own files beside the skills (codex has ~/.codex/skills/.system)
+  # and a store symlink over the parent would evict them.
   home.file.".claude/skills".source = ./home/.claude/skills;
 
   home.file.".codex/skills" = {
@@ -161,6 +171,22 @@
   home.file.".cursor/skills" = {
     source = ./home/.claude/skills;
     recursive = true;
+  };
+
+  home.file.".pi/agent/skills" = {
+    source = ./home/.claude/skills;
+    recursive = true;
+  };
+
+  home.file.".agents/skills" = {
+    source = ./home/.claude/skills;
+    recursive = true;
+  };
+
+  # Native WezTerm on macOS. Linux still uses windows/wezterm.lua on the
+  # Windows side. A store symlink is fine here: we own the whole file.
+  xdg.configFile."wezterm/wezterm.lua" = lib.mkIf pkgs.stdenv.isDarwin {
+    source = ./macos/wezterm.lua;
   };
 
   # Subagents, same deal. A definition here is the only place an agent is
@@ -199,6 +225,29 @@
       done
     '';
 
+  # Pi writes ~/.pi/agent/settings.json itself (login, theme, models). Own only
+  # the keys that make the method skills show up as /skill:name.
+  home.activation.piSkills =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      settings="$HOME/.pi/agent/settings.json"
+      mkdir -p "$(dirname "$settings")"
+
+      if [ ! -s "$settings" ] || ! ${pkgs.jq}/bin/jq -e . "$settings" >/dev/null 2>&1; then
+        echo '{}' > "$settings"
+      fi
+
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq '
+        .enableSkillCommands = true
+        | .skills = (
+            ((.skills | if type == "array" then . else [] end) + ["~/.claude/skills"])
+            | unique
+          )
+      ' "$settings" > "$tmp"
+
+      $DRY_RUN_CMD mv $VERBOSE_ARG "$tmp" "$settings"
+    '';
+
   # codex needs nothing here. It already prints "N% context left" under its
   # composer by default, and it could not draw the bar anyway: its status line
   # takes a fixed set of built-in items and has no "run this command" item.
@@ -230,6 +279,19 @@
     # shells, so cursor-agent and the corp scripts went missing in new panes.
     initContent = ''
       export PATH="$HOME/.local/bin:$PATH"
+      ${lib.optionalString pkgs.stdenv.isDarwin ''
+      # Apple Silicon Homebrew. Intel Homebrew is /usr/local. rustup writes
+      # cargo here. None of these are on PATH until a login shell loads them,
+      # and a GUI-launched WezTerm is not always a login shell.
+      if [ -x /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      elif [ -x /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+      fi
+      if [ -f "$HOME/.cargo/env" ]; then
+        . "$HOME/.cargo/env"
+      fi
+      ''}
 
       # Every shell starts in the repo. A shell that opens in $HOME opened there
       # by default rather than by choice, and the work is never in $HOME: an
@@ -272,7 +334,7 @@
       cc = "claude";
       cx = "codex";
       cr = "cursor-agent";
-
+    } // lib.optionalAttrs pkgs.stdenv.isLinux {
       brain = "cd /mnt/c/Brain";
       builder = "cd /mnt/c/Corp-builder";
       debugger = "cd /mnt/c/Corp-debugger";
@@ -328,6 +390,11 @@
     key = "ctrl+alt+shift+r"
     type = "shell"
     command = "${config.home.homeDirectory}/.local/bin/agent-tab cursor"
+
+    [[keys.command]]
+    key = "ctrl+alt+shift+p"
+    type = "shell"
+    command = "${config.home.homeDirectory}/.local/bin/agent-tab pi"
 
     # Open the commit you are looking at on GitHub, in the Windows browser. Runs
     # in the focused pane's directory, so it follows whichever repo you are in,

@@ -1,6 +1,6 @@
 # Agent rules
 
-One file, loaded by every agent. Claude, Codex, opencode all read this.
+One file, loaded by every agent. Claude, Codex, opencode and Pi all read this.
 
 Read it on boot and read nothing else. Do not scan the repo, do not open its README,
 do not index anything until a task actually asks for it. These rules and the library
@@ -161,9 +161,12 @@ total, which is what lets it hold everything without costing everything to read.
 
 ## Agents
 
-`home/.claude/skills/` holds a directory per skill and `home.nix` deploys it to three
-places: `~/.claude/skills/`, `~/.codex/skills/` and `~/.cursor/skills/`. One source, so a
-skill written once reaches Claude, Codex and cursor-agent alike.
+`home/.claude/skills/` holds a directory per skill and `home.nix` deploys it to five
+places: `~/.claude/skills/`, `~/.codex/skills/`, `~/.cursor/skills/`, `~/.pi/agent/skills/`
+and `~/.agents/skills/`. Pi also gets `~/.pi/agent/AGENTS.md` and a `skills` entry in
+`~/.pi/agent/settings.json` pointing at `~/.claude/skills`. One source, so a skill
+written once reaches Claude, Codex, cursor-agent and Pi alike. In Pi they show up as
+`/skill:name`.
 
 `home/.claude/agents/` holds a file per subagent, deployed to `~/.claude/agents/` the same
 way. A definition there is the only place an agent is written down, so an agent nobody can

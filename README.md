@@ -48,6 +48,11 @@ skill name). Global rules are `~/.pi/agent/AGENTS.md`, the same file as Claude a
 **Launch herdr from WezTerm or a terminal, not `brew services`.** A launchd herdr has a
 tiny PATH, and `pi` is `#!/usr/bin/env node`, so the pane dies with no output.
 
+If your macOS username is already `pc` or `stuck`, those flake keys are Linux
+machines. The bootstrap will refuse rather than build `x86_64-linux` on a Mac.
+Change that line to `mkHomeFor` for this machine, or use a different key and
+`apply --flake .#thatkey`.
+
 **Still Linux / Windows only:** AutoHotkey, the no-mouse layer, `/mnt/c` corp aliases,
 Windows Git Credential Manager, and `windows/apply.ps1`. Stream tooling is unchanged.
 

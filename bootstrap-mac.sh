@@ -286,8 +286,18 @@ say "machine entry in flake.nix"
 marker="# BOOTSTRAP-INSERTS-MACHINES-HERE"
 entry="\"$user\" = mkHomeFor \"$nix_system\" \"$user\";"
 
-if grep -qE "\"$user\" = mkHome(For [^ ]+)? \"$user\";" flake.nix; then
-  echo "flake.nix already knows about $user"
+if grep -q "\"$user\" = mkHomeFor \"$nix_system\" \"$user\";" flake.nix; then
+  echo "flake.nix already knows about $user on $nix_system"
+elif grep -q "\"$user\" = mkHome \"$user\";" flake.nix; then
+  cat >&2 <<EOF
+bootstrap-mac: flake.nix already has "$user" as a Linux (x86_64-linux) machine.
+A switch here would build Linux binaries. Replace that line with:
+
+    $entry
+
+then run this script again.
+EOF
+  exit 1
 elif grep -qF "$marker" flake.nix; then
   insert_flake_machine flake.nix "$entry"
   echo "added: $entry"

@@ -44,3 +44,17 @@ npx wrapper exists to avoid, so it stays unrun and the wrapper says so.
 That is their number, measured on their tasks, not ours.
 
 ---
+
+## Held back
+
+### `VALIDATION_ERROR: unknown flag for gh-axi run watch: --exit-status` at n=1
+
+**verified:** 2026-09-22, `gh-axi run watch 35789890059 --exit-status` returned the title's exact error although upstream `gh run watch` accepts `--exit-status`
+**where:** one MemeCoin release-monitoring invocation
+
+This observation establishes the wrapper's response for one run-watch invocation, not a general claim about flag compatibility across `gh-axi` commands or versions.
+
+**Why:** REJECT at n=1; there are not five observations from five different subjects.
+**Fix:** use `gh-axi run watch <id>` without `--exit-status`, then inspect `gh-axi run view <id>` for the final conclusion.
+
+---

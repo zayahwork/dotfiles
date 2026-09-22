@@ -65,3 +65,13 @@ The library file was writable through the patch tool, but the sandbox did not pe
 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** rerun the scoped Git index operation with approved filesystem escalation.
+
+### `zip -r ../../evidence/...` updated the existing archive instead of replacing it at n=1
+
+**verified:** 2026-09-22, from `/private/tmp/memecoin-standalone-20260922/apps/extension`, `mv evidence/memecoin-extension-0.2.1.zip /private/tmp/...` failed because the archive was two directories above, then `zip -r ../../evidence/... manifest.json dist/content.js` updated that existing archive and left both wrong `apps/extension/...` entries and correct root entries
+**where:** one MemeCoin extension packaging occurrence in `/private/tmp/memecoin-standalone-20260922/apps/extension`
+
+The occurrence combines a current-workdir path mistake with `zip`'s incremental update behavior, so neither cause has an independent comparison.
+
+**Why:** REJECT at n=1; there are not five observations from five different subjects.
+**Fix:** resolve and check the archive's exact path from the current workdir, move the existing archive to a recoverable temporary path, create a fresh archive, then verify `unzip -l` contains only `manifest.json` and `dist/content.js`.

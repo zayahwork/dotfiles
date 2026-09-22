@@ -75,3 +75,13 @@ The occurrence combines a current-workdir path mistake with `zip`'s incremental 
 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** resolve and check the archive's exact path from the current workdir, move the existing archive to a recoverable temporary path, create a fresh archive, then verify `unzip -l` contains only `manifest.json` and `dist/content.js`.
+
+### An 80-byte CRLF checksum file made macOS `shasum` read `MemeCoin.exe\r` at n=1
+
+**verified:** 2026-09-22, the downloaded PowerShell-generated `MemeCoin.exe.sha256` was 80 bytes and ended with CRLF; `shasum -a 256 -c MemeCoin.exe.sha256` treated the filename as `MemeCoin.exe\r` and could not open it, although its printed digest exactly matched the independently computed hash
+**where:** one MemeCoin v0.2.1 checksum validation on macOS
+
+The digest matched; the observed failure came from the carriage return retained in the filename field for this one cross-platform artifact.
+
+**Why:** REJECT at n=1; there are not five observations from five different subjects.
+**Fix:** preserve the downloaded asset and normalize only the validation stream with `tr -d '\r' < MemeCoin.exe.sha256 | shasum -a 256 -c -`.

@@ -57,4 +57,14 @@ This observation establishes the wrapper's response for one run-watch invocation
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** use `gh-axi run watch <id>` without `--exit-status`, then inspect `gh-axi run view <id>` for the final conclusion.
 
+### `download: ok` with two `--pattern` flags produced only `MemeCoin.exe` at n=1
+
+**verified:** 2026-09-22, `gh-axi release download v0.2.1 --pattern MemeCoin.exe --pattern MemeCoin.exe.sha256 --dir <tmp>` printed `download: ok` but downloaded only `MemeCoin.exe`; `MemeCoin.exe.sha256` was absent, and downstream `wc`, `sed`, and `shasum -c` failed on the missing file
+**where:** one MemeCoin v0.2.1 release-download invocation
+
+This observation establishes one multi-pattern download result, not general behavior across tags, assets, or `gh-axi` versions.
+
+**Why:** REJECT at n=1; there are not five observations from five different subjects.
+**Fix:** make a second exact `gh-axi release download <tag> --pattern MemeCoin.exe.sha256 --dir <same-dir>` call, then verify both filenames before hashing.
+
 ---

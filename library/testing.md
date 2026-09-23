@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: patch-context, loopback-bind, browser-extension reload, and Computer Use API walls.](#held-back)
+- [Held back: source-path, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -57,15 +57,15 @@ The same source and complete command passed when only sandbox authority changed,
 **Why:** held back at n=1 from one project subject; there are not five observations from five different subjects.
 **Fix:** rerun the complete unchanged gate with approved escalation, then use its full counts and artifact output.
 
-### Reloading one unpacked Chrome extension left 2 historical `Extension context invalidated` Promise errors at n=1
+### Reloading one unpacked Chrome extension left old page contexts active at n=2 from one subject
 
-**verified:** 2026-09-22, reloading the unpacked MemeCoin extension produced two old unhandled Chrome storage Promise errors and blank web surfaces until `chrome://restart`; catches added to Promise-based storage reads, writes, and the scanner entrypoint prevented new errors on the final reload
-**where:** one MemeCoin unpacked-extension reload sequence in Chrome
+**verified:** 2026-09-22, one MemeCoin reload produced two old unhandled `Extension context invalidated` storage Promise errors and blank surfaces until `chrome://restart`, while a later v0.3.1 reload left the already-open Padre tab on its old injected context until the page was refreshed; catches prevented new errors on the final reload
+**where:** two reload observations from the same MemeCoin unpacked extension in Chrome
 
-The two old errors remained in UI history because clearing them would be a destructive UI action; the final reload proves only that no new error appeared in this sequence.
+Both observations show that reloading the extension does not replace the context already injected into an open page; the historical errors remained because clearing them would be destructive.
 
-**Why:** REJECT at n=1 from one extension subject; there are not five observations from five different subjects.
-**Fix:** catch Promise rejections at Chrome storage reads, writes, and the scanner entrypoint, then restart Chrome and distinguish historical console rows from new ones.
+**Why:** still held back at n=2 from one extension subject; there are not five observations from five different subjects.
+**Fix:** catch Promise rejections at Chrome storage reads, writes, and the scanner entrypoint, then refresh the open target page after reloading the extension; use `chrome://restart` when the browser surfaces remain blank.
 
 ### `chromeApp.getState()` failed after compaction; `getAXState({disableDiffing:true})` returned Padre state at n=1
 
@@ -86,6 +86,26 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
+
+### `packages/core/src/rating.ts` did not exist; `rg --files packages/core/src` found `research-indicator.ts` at n=1
+
+**verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
+**where:** one MemeCoin core-source lookup in `/private/tmp/memecoin-standalone-20260922`
+
+The failed read came from guessing a concept-based filename instead of enumerating the repository's current files.
+
+**Why:** REJECT at n=1 from one repository subject; there are not five observations from five different subjects.
+**Fix:** run `rg --files` in the narrow source directory before reading an assumed implementation path.
+
+### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
+
+**verified:** 2026-09-22, sending `ctrl+l` on Padre put `/extensions` into Padre's own search; refreshing AX state, setting Chrome's `Address and search bar` element to `chrome://extensions`, activating it, and pressing Return navigated correctly, and reloading Padre cleared the accidental filter
+**where:** one Computer Use session controlling Google Chrome on Padre
+
+The page intercepted the shortcut, so the keystroke did not prove that Chrome's address bar had focus.
+
+**Why:** REJECT at n=1 from one page/session subject; there are not five observations from five different subjects.
+**Fix:** refresh AX state, target the Chrome `Address and search bar` element directly, set and activate it, then press Return; reload the page to clear accidental page-level input.
 
 ### `fatal: Unable to create '/Users/zayah/github/dotfiles/.git/index.lock': Operation not permitted` at n=1
 

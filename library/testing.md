@@ -36,15 +36,15 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines in apps/extension/src/content.ts` at n=1
+### `apply_patch verification failed: Failed to find expected lines in apps/extension/src/content.ts` at n=2 from one subject
 
-**verified:** 2026-09-22, one `apply_patch` attempt put the test-file hunk under the `apps/extension/src/content.ts` Update File header, failed atomically with the title's exact error, and changed no file
-**where:** `/Users/zayah/Downloads/home-main`, a patch spanning `apps/extension/src/content.ts` and its test
+**verified:** 2026-09-22, one `apply_patch` attempt put a test-file hunk under the `apps/extension/src/content.ts` Update File header and failed atomically; a later multi-file attempt expected `let activeOverlayRoot: ShadowRoot | null = null;` at the wrong context position and failed with `apply_patch verification failed: Failed to find expected lines ... content.ts`, with no file changed by either attempt
+**where:** `/Users/zayah/Downloads/home-main`, two patches touching the same MemeCoin `apps/extension/src/content.ts` subject
 
-The failure named `content.ts` because `apply_patch` tried to match test-file context inside that source file.
+Both failures mean the hunk context did not match the named target file, but the two observations come from one file and project rather than independent subjects.
 
-**Why:** REJECT at n=1; there are not five observations from five different subjects.
-**Fix:** split the source and test hunks under their correct Update File headers.
+**Why:** still held back at n=2 from one subject; there are not five observations from five different subjects.
+**Fix:** read the target's current numbered lines, keep each hunk under its correct Update File header, and split large patches into smaller anchored hunks before retrying them as one verified batch.
 
 ### `No browser is available` at n=1
 

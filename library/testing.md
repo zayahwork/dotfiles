@@ -7,6 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
+- [Held back: patch-context, loopback-bind, browser-extension reload, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -36,15 +37,45 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines in apps/extension/src/content.ts` at n=2 from one subject
+### `apply_patch verification failed: Failed to find expected lines in apps/extension/src/content.ts` at n=3 from one subject
 
-**verified:** 2026-09-22, one `apply_patch` attempt put a test-file hunk under the `apps/extension/src/content.ts` Update File header and failed atomically; a later multi-file attempt expected `let activeOverlayRoot: ShadowRoot | null = null;` at the wrong context position and failed with `apply_patch verification failed: Failed to find expected lines ... content.ts`, with no file changed by either attempt
-**where:** `/Users/zayah/Downloads/home-main`, two patches touching the same MemeCoin `apps/extension/src/content.ts` subject
+**verified:** 2026-09-22, three atomic failures against the same MemeCoin `content.ts`: a test-file hunk sat under the wrong Update File header, a later hunk expected `let activeOverlayRoot: ShadowRoot | null = null;` at the wrong position, and another expected absent context beginning `void scanSignalCards().finally`; no failed attempt changed a file
+**where:** `/Users/zayah/Downloads/home-main`, three patches touching the same MemeCoin `apps/extension/src/content.ts` subject
 
-Both failures mean the hunk context did not match the named target file, but the two observations come from one file and project rather than independent subjects.
+All three failures mean the hunk context did not match the named target file, but they come from one file and project rather than independent subjects.
 
-**Why:** still held back at n=2 from one subject; there are not five observations from five different subjects.
+**Why:** still held back at n=3 from one subject; there are not five observations from five different subjects.
 **Fix:** read the target's current numbered lines, keep each hunk under its correct Update File header, and split large patches into smaller anchored hunks before retrying them as one verified batch.
+
+### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
+
+**verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
+**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`
+
+The same source and complete command passed when only sandbox authority changed, isolating this occurrence to loopback-bind permission.
+
+**Why:** held back at n=1 from one project subject; there are not five observations from five different subjects.
+**Fix:** rerun the complete unchanged gate with approved escalation, then use its full counts and artifact output.
+
+### Reloading one unpacked Chrome extension left 2 historical `Extension context invalidated` Promise errors at n=1
+
+**verified:** 2026-09-22, reloading the unpacked MemeCoin extension produced two old unhandled Chrome storage Promise errors and blank web surfaces until `chrome://restart`; catches added to Promise-based storage reads, writes, and the scanner entrypoint prevented new errors on the final reload
+**where:** one MemeCoin unpacked-extension reload sequence in Chrome
+
+The two old errors remained in UI history because clearing them would be a destructive UI action; the final reload proves only that no new error appeared in this sequence.
+
+**Why:** REJECT at n=1 from one extension subject; there are not five observations from five different subjects.
+**Fix:** catch Promise rejections at Chrome storage reads, writes, and the scanner entrypoint, then restart Chrome and distinguish historical console rows from new ones.
+
+### `chromeApp.getState()` failed after compaction; `getAXState({disableDiffing:true})` returned Padre state at n=1
+
+**verified:** 2026-09-22, after task compaction `chromeApp.getState()` failed because the App surface exposes `getAXState()`; `cua.rewriteDocumentation()` restored the API reference and `chromeApp.getAXState({disableDiffing:true})` returned the live Padre state
+**where:** one compacted Computer Use session controlling Chrome
+
+The failure was an API-method mismatch after context loss, not evidence that the Chrome surface had disappeared.
+
+**Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
+**Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
 ### `No browser is available` at n=1
 

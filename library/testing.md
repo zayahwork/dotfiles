@@ -37,15 +37,15 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines in apps/extension/src/content.ts` at n=3 from one subject
+### `apply_patch verification failed: Failed to find expected lines` at n=4 across 2 file subjects
 
-**verified:** 2026-09-22, three atomic failures against the same MemeCoin `content.ts`: a test-file hunk sat under the wrong Update File header, a later hunk expected `let activeOverlayRoot: ShadowRoot | null = null;` at the wrong position, and another expected absent context beginning `void scanSignalCards().finally`; no failed attempt changed a file
-**where:** `/Users/zayah/Downloads/home-main`, three patches touching the same MemeCoin `apps/extension/src/content.ts` subject
+**verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
+**where:** four patch attempts across MemeCoin `apps/extension/src/content.ts` and one Home Meta Cognition log file
 
-All three failures mean the hunk context did not match the named target file, but they come from one file and project rather than independent subjects.
+All four failures mean the hunk context did not match the named target file; they cover two file subjects, not five independent subjects.
 
-**Why:** still held back at n=3 from one subject; there are not five observations from five different subjects.
-**Fix:** read the target's current numbered lines, keep each hunk under its correct Update File header, and split large patches into smaller anchored hunks before retrying them as one verified batch.
+**Why:** still held back at n=4 across two file subjects; there are not five observations from five different subjects.
+**Fix:** read each target's current numbered lines with `sed`, keep each hunk under its correct Update File header, and split large patches into smaller anchored hunks before retrying them as one verified batch.
 
 ### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
 

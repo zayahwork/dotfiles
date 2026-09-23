@@ -107,6 +107,16 @@ The page intercepted the shortcut, so the keystroke did not prove that Chrome's 
 **Why:** REJECT at n=1 from one page/session subject; there are not five observations from five different subjects.
 **Fix:** refresh AX state, target the Chrome `Address and search bar` element directly, set and activate it, then press Return; reload the page to clear accidental page-level input.
 
+### Chrome Computer Use returned `element ID is no longer valid` twice after fresh AX reads at n=2 from one subject
+
+**verified:** 2026-09-22, two index clicks on the MemeCoin Reload button at `chrome://extensions` returned `element ID is no longer valid` immediately after fresh AX reads; a current screenshot and direct coordinate click on the visible reload glyph succeeded, and the next AX state showed `Reloaded`
+**where:** one Computer Use session and page subject in Google Chrome
+
+Refreshing AX state did not make index-based clicks stable for this control, while the screenshot anchored the successful coordinate action to the visible current surface.
+
+**Why:** REJECT at n=2 from one page/session subject; there are not five observations from five different subjects.
+**Fix:** after one refreshed AX click still reports a stale element ID, take a current screenshot, click the visible control by coordinates, then confirm the resulting state through a new AX read.
+
 ### `fatal: Unable to create '/Users/zayah/github/dotfiles/.git/index.lock': Operation not permitted` at n=1
 
 **verified:** 2026-09-22, `git add -N library/testing.md` from `/Users/zayah/github/dotfiles` failed with the title's exact error before changing the index, then the identical operation succeeded with approved filesystem escalation
@@ -117,15 +127,15 @@ The library file was writable through the patch tool, but the sandbox did not pe
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** rerun the scoped Git index operation with approved filesystem escalation.
 
-### `zip -r ../../evidence/...` updated the existing archive instead of replacing it at n=1
+### From `apps/extension`, the repository root is `../..`: use `../../evidence/...` and run verify from root at n=2 from one subject
 
-**verified:** 2026-09-22, from `/private/tmp/memecoin-standalone-20260922/apps/extension`, `mv evidence/memecoin-extension-0.2.1.zip /private/tmp/...` failed because the archive was two directories above, then `zip -r ../../evidence/... manifest.json dist/content.js` updated that existing archive and left both wrong `apps/extension/...` entries and correct root entries
-**where:** one MemeCoin extension packaging occurrence in `/private/tmp/memecoin-standalone-20260922/apps/extension`
+**verified:** 2026-09-22, from `/private/tmp/memecoin-standalone-20260922/apps/extension`, one packaging run found the archive at `../../evidence/...` and showed that `zip -r` updated an existing archive; a later `zip -q -FS ../../../evidence/...` failed because it climbed one level too far, then the combined command ran `npm run verify` from `@memecoin/extension`, which has no verify script, and no file was overwritten
+**where:** two MemeCoin extension packaging invocations from `/private/tmp/memecoin-standalone-20260922/apps/extension`
 
-The occurrence combines a current-workdir path mistake with `zip`'s incremental update behavior, so neither cause has an independent comparison.
+Both invocations show that artifact paths and npm scripts resolve from the command's actual cwd; they remain one workdir and repository subject, and the older run also showed `zip`'s incremental update behavior.
 
-**Why:** REJECT at n=1; there are not five observations from five different subjects.
-**Fix:** resolve and check the archive's exact path from the current workdir, move the existing archive to a recoverable temporary path, create a fresh archive, then verify `unzip -l` contains only `manifest.json` and `dist/content.js`.
+**Why:** still held back at n=2 from one workdir subject; there are not five observations from five different subjects.
+**Fix:** from `apps/extension`, write the archive to `../../evidence/...`; then return to the repository root before `npm run verify`, and inspect the archive with `unzip -l` before accepting it.
 
 ### An 80-byte CRLF checksum file made macOS `shasum` read `MemeCoin.exe\r` at n=1
 

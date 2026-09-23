@@ -5,20 +5,20 @@ environment rather than the source under test.
 
 ## Contents
 
-- [From Cove's `source/cove-crm`, `../../../tests/sample-desk.test.ts` is one level too high; `../../tests/sample-desk.test.ts` passes 1 test.](#from-coves-sourcecove-crm-testsample-desktestts-is-one-level-too-high-testssample-desktestts-passes-1-test)
+- [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
 
 ---
 
-## From Cove's source/cove-crm, ../../../tests/sample-desk.test.ts is one level too high; ../../tests/sample-desk.test.ts passes 1 test
+## Relative test paths follow the runner working directory: ../../tests/sample-desk.test.ts and test/paper-strategy.test.ts
 
-**verified:** 2026-09-20, `node --test ../../../tests/sample-desk.test.ts` exited 1 with `Could not find`, while `node --test ../../tests/sample-desk.test.ts` exited 0 with `tests 1`, `pass 1`, and `fail 0`
-**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`
+**verified:** 2026-09-20, from Cove's `source/cove-crm`, `node --test ../../../tests/sample-desk.test.ts` exited 1 with `Could not find`, while `node --test ../../tests/sample-desk.test.ts` exited 0 with `tests 1`, `pass 1`, and `fail 0`; 2026-09-22, from the MemeCoin monorepo root, `npm test -- --run packages/core/test/paper-strategy.test.ts` exited 1 after npm changed cwd to `packages/core`, and Vitest printed `No test files found`
+**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/private/tmp/memecoin-standalone-20260922`
 
-The CRM directory is two levels below the build folder, so three `..` segments climb above the folder that owns `tests/`.
+Relative test filters are resolved from the runner's actual working directory, including a workspace cwd selected by npm, not necessarily from the repository root where the outer command began.
 
-**Why:** the failing path was calculated from the repository layout instead of the command's actual working directory.
-**Fix:** run `node --test ../../tests/sample-desk.test.ts` from `source/cove-crm`.
+**Why:** both failing paths were calculated from the repository layout instead of the cwd used by the test runner.
+**Fix:** from Cove's `source/cove-crm`, run `node --test ../../tests/sample-desk.test.ts`; from the MemeCoin root workspace script, run `npm test -- --run test/paper-strategy.test.ts`, or run Vitest from `packages/core`.
 
 ---
 

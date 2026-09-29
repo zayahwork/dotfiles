@@ -7,6 +7,7 @@ return, and where they quietly return nothing.
 
 | Subject | What it says |
 | --- | --- |
+| [`agent-reach doctor --json` exited 0 after 30.2 seconds with 0 output bytes](#agent-reach-doctor---json-exited-0-after-302-seconds-with-0-output-bytes) | A successful exit does not confirm backend status when the command returns no bytes. Verify non-empty output and report backend status as UNCONFIRMED when it is empty. |
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
@@ -18,6 +19,16 @@ return, and where they quietly return nothing.
 | [The agent sandbox allowlists network egress by host for Node: `registry.npmjs.org` is 200, `reddit.com` and `example.com` are `ETIMEDOUT`](#the-agent-sandbox-allowlists-network-egress-by-host-for-node-registrynpmjsorg-is-200-redditcom-and-examplecom-are-etimedout) | `npm install` works, which hides it. Not IPv6, not `fetch`: `node:https` fails the same way. `curl` is not subject to the allowlist. |
 
 ---
+
+## `agent-reach doctor --json` exited 0 after 30.2 seconds with 0 output bytes
+
+**verified:** 2026-09-29, `agent-reach doctor --json` produced exactly 0 output bytes, exited 0, and recorded `wall_time_seconds: 30.2`
+**where:** `/Users/zayah/Documents/Codex/2026-09-29/can`
+
+This observation proves that `agent-reach doctor --json` can return no status payload despite a successful exit, but it does not identify the cause.
+
+**Why:** an exit code of 0 did not establish that any backend was checked because there was no output to inspect.
+**Fix:** verify that stdout is non-empty before using the result; when it is empty, report backend status as UNCONFIRMED.
 
 ## A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone
 

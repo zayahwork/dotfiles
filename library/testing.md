@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, Python dynamic-import and test-runner walls, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, Python runtime, dynamic-import and test-runner walls, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -191,3 +191,15 @@ The failed import and passing registered-module run isolate the observed failure
 
 **Why:** REJECT at n=1 from one import subject; there are not five observations from five different subjects.
 **Fix:** set `sys.modules[SPEC.name] = module` before `SPEC.loader.exec_module(module)`, then run the test file and require exit 0 plus its expected test count.
+
+### `/opt/homebrew` Python 3.14 lacked `docx` and `pypdf`; bundled Python imported both and passed 18 tests
+
+**verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
+**verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
+**verified:** 2026-10-05 at 4:24 pm Pacific, default `/opt/homebrew/bin/python3` 3.14.7 running `python3 -m unittest job-pipeline/tests/test_pipeline.py` failed with `ModuleNotFoundError: No module named 'docx'`, and a `python3` PDF validation snippet failed with exactly `ModuleNotFoundError: No module named 'pypdf'`; a paired check showed the bundled Python imported `docx` 1.2.0 and `pypdf` 6.10.0, then ran `job-pipeline/tests/test_pipeline.py -q` with `Ran 18 tests in 0.843s`, `OK`, and exit 0
+**where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.
+
+**Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
+**Fix:** run dependency-bearing tests, pipeline commands, and PDF validation with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then verify the command's real output and exit status.

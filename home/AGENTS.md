@@ -71,6 +71,9 @@ just stop when it is said.
 - Do the thing asked. Do not quietly widen or narrow it.
 - If a second problem turns up, say so and let the human choose.
 - Nothing sends, publishes or posts without a person saying yes.
+- **A direct send or submit instruction is the yes.** When Zayah says "submit them"
+  for an identified batch, execute that batch without asking for the same approval
+  again. General standing intent does not approve unidentified future submissions.
 
 ## Git
 

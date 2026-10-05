@@ -14,6 +14,7 @@ return, and where they quietly return nothing.
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
 | [`gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1](#gh-search-repos---json-namewithowner-returned-unknown-json-field-namewithowner-at-n1) | The printed field list includes `fullName`. Use that field and require nonempty output; successful replacement output is UNCONFIRMED. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
@@ -217,3 +218,13 @@ The supplied run establishes the 404 and the CLI's `-f` method behavior, but no 
 
 **Why:** REJECT at n=1 from one repository and request subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or encode the query in the endpoint, then require a nonempty commits response.
+
+### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
+
+**verified:** 2026-10-05, `command -v gh-axi` returned no path and `gh-axi api --help` returned exactly `zsh:2: command not found: gh-axi`
+**where:** one zsh GitHub CLI check from `/Users/zayah/github/dotfiles`
+
+The shell exposed no `gh-axi` command; why the active rule and installed command set disagree is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one shell and tool subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; reconcile the active GitHub CLI rule with the installed tool before running GitHub commands.

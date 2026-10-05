@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, missing Python test runners, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, Python dynamic-import and test-runner walls, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -180,3 +180,14 @@ The failed accessibility click did not establish whether the page or tool caused
 
 **Why:** REJECT at n=1 from one page and click subject; there are not five observations from five different subjects.
 **Fix:** when this exact click fails and the intended visible link URL is known, navigate the same tab directly to that URL and verify the destination with `getAXState(...)`.
+
+### `exec_module` without `sys.modules` registration raised `AttributeError: 'NoneType' object has no attribute '__dict__'` at n=1
+
+**verified:** 2026-10-05, bundled Python 3.12 loaded `job-pipeline/pipeline.py` through `spec_from_file_location`, `module_from_spec`, and `exec_module` without first registering the module, then failed at `@dataclass(frozen=True)` in `dataclasses._is_type` with exactly `AttributeError: 'NoneType' object has no attribute '__dict__'` because `sys.modules.get(cls.__module__)` was `None`
+**verified:** 2026-10-05, `tests/test_pipeline.py` registered `sys.modules[SPEC.name] = pipeline` before `SPEC.loader.exec_module(pipeline)`; direct execution with the bundled Python completed 18 tests in 1.368 seconds, printed `OK`, and exited 0
+**where:** one dynamic test import of a module declaring `@dataclass`
+
+The failed import and passing registered-module run isolate the observed failure to this dynamic import setup rather than the pipeline execution, but broader Python-version behavior is unconfirmed.
+
+**Why:** REJECT at n=1 from one import subject; there are not five observations from five different subjects.
+**Fix:** set `sys.modules[SPEC.name] = module` before `SPEC.loader.exec_module(module)`, then run the test file and require exit 0 plus its expected test count.

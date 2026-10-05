@@ -13,6 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
 | [`gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1](#gh-search-repos---json-namewithowner-returned-unknown-json-field-namewithowner-at-n1) | The printed field list includes `fullName`. Use that field and require nonempty output; successful replacement output is UNCONFIRMED. |
+| [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
@@ -206,3 +207,13 @@ The read-only command verifies unavailability for this pass, but `active_backend
 
 **Why:** REJECT at n=1 from one command and environment subject; there are not five observations from five different subjects or an untouched control.
 **Fix:** treat this OpenCLI route as unavailable for the pass, terminate the hung process, use public search-engine Reddit results only as UNCONFIRMED leads, and do not retry until Doctor reports a usable backend or the user has connected an existing logged-in browser extension.
+
+### `gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1
+
+**verified:** 2026-10-05, `gh api repos/jaimaann/LangHire/commits -f per_page=5` returned HTTP 404, while the public commits endpoint existed
+**where:** one official GitHub CLI API request for the public LangHire commits endpoint
+
+The supplied run establishes the 404 and the CLI's `-f` method behavior, but no successful corrected request output was supplied.
+
+**Why:** REJECT at n=1 from one repository and request subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or encode the query in the endpoint, then require a nonempty commits response.

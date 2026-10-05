@@ -9,6 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
+- [Held back: literal `\n` in `python3 -c` raised a SyntaxError twice.](#held-back)
 
 ---
 
@@ -96,3 +97,17 @@ terminal.
 
 **Fix:** `/bin/ls` in anything an agent runs, or `find` when you want it recursive.
 Never trust an empty `ls` from a script.
+
+---
+
+## Held back
+
+### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
+
+**verified:** 2026-10-05, bundled Python invoked through zsh as `python3 -c ${JSON.stringify(code)}` exited 1 and printed the full escaped script beginning with literal `\nfrom pathlib...`, followed by exactly `SyntaxError: unexpected character after line continuation character`; a second workbook-inspection invocation with literal `\n` sequences returned the same exact SyntaxError before reading the workbook, while rewriting it as one list comprehension with no literal `\n` succeeded and printed `{"summary_tailored": 37, "summary_submitted": 35, "matches": []}`
+**where:** two bundled-Python commands assembled for zsh `python3 -c`
+
+The observed script began with backslash and `n` characters instead of a real newline, so Python parsed the backslash as a line continuation before reaching the unexpected `n`.
+
+**Why:** REJECT at n=2 from two invocation subjects in one environment; there are not five observations from five different subjects.
+**Fix:** use a real single-line expression for short `python3 -c` work, as confirmed by the list-comprehension output; for nontrivial logic, write a file in the writable work directory with `apply_patch`, then run the bundled Python executable on that file.

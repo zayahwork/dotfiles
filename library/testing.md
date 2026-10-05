@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, Python runtime, dynamic-import and test-runner walls, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -215,3 +215,35 @@ All seven failures mean the hunk context did not match the named target file; th
 
 **Why:** still held back at n=7 across four file subjects; there are not five observations from five different subjects.
 **Fix:** read each target immediately before editing, patch stable source separately from generated state, and use a minimal whole-file patch based on current content when a small generated file must be reset.
+
+### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
+
+**verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
+**verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
+**where:** one `Applications` worksheet and openpyxl read-only subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The short tuples begin immediately after the visible A1:J52 range, but the reason openpyxl emitted them is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one workbook subject; there are not five observations from five different subjects.
+**Fix:** guard `len(row) < 6` before positional access in read-only iteration, then run the repository test file and require exit 0 plus its expected test count.
+
+### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
+
+**verified:** 2026-10-05, `load_workspace_dependencies` listed `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback` as the fallback binary directory; direct calls to its `pdfinfo` and `pdftoppm` paths each returned exactly `no such file or directory`, while `command -v pdfinfo` and `command -v pdftoppm` resolved both under `dependencies/bin/override` and each reported version 26.05.0
+**where:** one Codex workspace dependency bundle on macOS
+
+The fallback directory was available but did not contain these two Poppler programs; the reason for that layout is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
+**Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.
+
+### artifact-tool copy operations lost formatting or corrupted overlapping sources on 4 observations from one workbook
+
+**verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row
+**verified:** 2026-10-05, overlapping `A49:J52.copyTo(A50:J53, "all")` on four individually merged rows made all four destination rows contain `Take-home estimate assumptions`, replacing the three distinct body rows
+**where:** one imported tracker workbook edited with artifact-tool
+
+The evidence establishes all four copy results in this workbook but does not establish their cause or behavior in other workbooks.
+
+**Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.

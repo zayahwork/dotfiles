@@ -11,6 +11,7 @@ return, and where they quietly return nothing.
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
+| [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -165,3 +166,17 @@ came back, and none of it is the article.
 **Fix:** ask the human to read it and paste the text. Do not conclude a policy permits
 something because the page could not be read - an unread policy is UNCONFIRMED, not
 permission.
+
+---
+
+## Held back
+
+### `opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1
+
+**verified:** 2026-10-05, `agent-reach doctor --json` reported Reddit status `warn`, `active_backend: null`, OpenCLI installed, and no connected browser extension; `opencli reddit search "jobs hiring Snohomish Lake Stevens Bothell 2026" -f yaml` produced 0 output bytes and was still running after 30.2 seconds, `pgrep -af "opencli reddit search"` returned PID 6008, and `kill 6008` exited 0
+**where:** one required-platform Reddit search from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The read-only command verifies unavailability for this pass, but `active_backend: null` can mean Doctor skipped a live probe, so the missing extension as the cause remains unconfirmed.
+
+**Why:** REJECT at n=1 from one command and environment subject; there are not five observations from five different subjects or an untouched control.
+**Fix:** treat this OpenCLI route as unavailable for the pass, terminate the hung process, use public search-engine Reddit results only as UNCONFIRMED leads, and do not retry until Doctor reports a usable backend or the user has connected an existing logged-in browser extension.

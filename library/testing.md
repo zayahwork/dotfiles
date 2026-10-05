@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -236,3 +236,14 @@ The fallback directory was available but did not contain these two Poppler progr
 
 **Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
 **Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.
+
+### artifact-tool copy operations lost formatting or corrupted overlapping sources on 4 observations from one workbook
+
+**verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row
+**verified:** 2026-10-05, overlapping `A49:J52.copyTo(A50:J53, "all")` on four individually merged rows made all four destination rows contain `Take-home estimate assumptions`, replacing the three distinct body rows
+**where:** one imported tracker workbook edited with artifact-tool
+
+The evidence establishes all four copy results in this workbook but does not establish their cause or behavior in other workbooks.
+
+**Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.

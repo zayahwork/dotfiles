@@ -11,11 +11,9 @@ return, and where they quietly return nothing.
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
-| [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, official ATS APIs, or `gh-axi` for GitHub. |
+| [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
 | [`gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1](#gh-search-repos---json-namewithowner-returned-unknown-json-field-namewithowner-at-n1) | The printed field list includes `fullName`. Use that field and require nonempty output; successful replacement output is UNCONFIRMED. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
-| [`gh-axi api` wrappers caused 2 base64 failures and 1 quoted-URL curl failure across 3 repositories](#gh-axi-api-wrappers-caused-2-base64-failures-and-1-quoted-url-curl-failure-across-3-repositories) | Wrapper text is not a raw content scalar, and the `download_url` body retains quotes. Match and remove one quote pair before fetching and verifying the raw file. |
-| [`REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1](#repo_not_found-twice-for-rxresu-merxresume-reactive-resumereactive-resume-succeeded-at-n1) | Repository search found the current slug. Both repository view and issue listing then succeeded against it. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -187,7 +185,7 @@ permission.
 The returned command lists contain neither top-level web command, but the evidence does not establish behavior for other installed versions.
 
 **Why:** still held back at n=14 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
-**Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search or official ATS capability, or `gh-axi` for GitHub instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
+**Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search, or an official API instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
 
 ### `gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1
 
@@ -208,25 +206,3 @@ The read-only command verifies unavailability for this pass, but `active_backend
 
 **Why:** REJECT at n=1 from one command and environment subject; there are not five observations from five different subjects or an untouched control.
 **Fix:** treat this OpenCLI route as unavailable for the pass, terminate the hung process, use public search-engine Reddit results only as UNCONFIRMED leads, and do not retry until Doctor reports a usable backend or the user has connected an existing logged-in browser extension.
-
-### `gh-axi api` wrappers caused 2 base64 failures and 1 quoted-URL curl failure across 3 repositories
-
-**verified:** 2026-10-05, `gh-axi api repos/Gsync/jobsync/readme --jq '.content'` printed a YAML document whose base64 text was under `api_response.body` with `truncated: true`; piping that output to `base64 --decode` returned exactly `base64: stdin: (null): error decoding base64 input stream` and wrote 0 bytes, while querying `.download_url`, extracting the short `api_response.body` URL, and fetching it returned 18,024 bytes beginning `# JobSync`
-**verified:** 2026-10-05, `gh-axi api repos/jsonresume/resume-cli/readme --jq '.content' | tr -d '\n' | base64 --decode` exited 1 with exactly `base64: stdin: (null): error decoding base64 input stream` and wrote 0 bytes although the API wrapper reported `truncated: false`; `.body.content` exited 0 with an empty `api_response.body`, while querying `.download_url`, extracting `https://raw.githubusercontent.com/jsonresume/resume-cli/master/README.md`, and fetching it returned 4,284 bytes beginning `# ⚠️ This repository has moved`
-**verified:** 2026-10-05, `gh-axi api repos/xitanggg/open-resume/readme --jq '.download_url'` returned `body: "https://raw.githubusercontent.com/xitanggg/open-resume/main/README.md"`; extraction with `sed -n 's/^  body: //p'` preserved both quotes and `curl -fsSL "$resume_readme_url"` exited 3 with exactly `curl: (3) URL rejected: Port number was not a decimal number between 0 and 65535`, while matching and removing one quote pair produced a successful 5,472-byte fetch beginning `# OpenResume`
-**where:** three read-only GitHub README retrieval subjects through `gh-axi`
-
-All three outputs used the YAML wrapper, and the earlier observed `download_url` bodies were also quoted, so the claimed earlier unquoted form is refuted.
-
-**Why:** REJECT at n=3 from three repository subjects; there are not five observations from five different subjects.
-**Fix:** query `gh-axi api repos/OWNER/REPO/readme --jq '.download_url'`, extract with `sed -n 's/^  body: "\(.*\)"$/\1/p'`, then fetch the result and verify nonzero bytes plus expected content.
-
-### `REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1
-
-**verified:** 2026-10-05, `gh-axi repo view rxresu-me/rxresu.me` and `gh-axi issue list --repo rxresu-me/rxresu.me --limit 5` each exited 1 with code `REPO_NOT_FOUND`; `gh-axi search repos "Reactive Resume" --limit 10` returned `reactive-resume/reactive-resume` first with 43,847 stars, then `gh-axi repo view reactive-resume/reactive-resume` exited 0 with 54 issues and `gh-axi issue list --repo reactive-resume/reactive-resume --limit 5` exited 0 with `count: 5 of 54 total`
-**where:** one Reactive Resume repository lookup subject through `gh-axi`
-
-The two failures establish that the assumed slug was not resolvable through these commands, while repository search identified the slug that both read operations accepted.
-
-**Why:** REJECT at n=1 from one repository identity subject; there are not five observations from five different subjects.
-**Fix:** search repositories by project name before retrying an uncertain slug, then use `reactive-resume/reactive-resume` for the current repository and issue reads.

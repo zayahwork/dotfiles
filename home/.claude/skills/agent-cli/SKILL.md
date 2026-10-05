@@ -10,9 +10,7 @@ prompt. That changes what good output is. Every token the tool prints is a token
 agent pays for, and every ambiguous line is a round trip.
 
 Adapted from **AXI**, ten design principles measured against real benchmarks:
-<https://github.com/kunchenguid/axi>, MIT, read 2026-09-01. Their published GitHub run
-had `gh-axi` at 100% task success against plain `gh` at 86%, and roughly a third of the
-cost of the MCP equivalent. Those are their numbers from their harness, not ours.
+<https://github.com/kunchenguid/axi>, MIT, read 2026-09-01.
 
 ## The checks
 

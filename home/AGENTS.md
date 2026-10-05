@@ -103,12 +103,8 @@ just stop when it is said.
 
 ## GitHub
 
-`gh-axi`, not `gh`. Same CLI underneath, wrapped in agent sized output: a few fields
-instead of a JSON dump, definite empty states, structured errors, no prompts.
-
-- Do not trust a count from bare `gh-axi`. With no argument it exits 0 and prints
-  `0 open` for issues and PRs it never fetched. The subcommands are honest and exit 1
-  with `AUTH_REQUIRED`, so run one of those before believing a zero.
+Use GitHub's official `gh` CLI. Do not install or call wrappers that replace it.
+Use an explicit subcommand and verify nonempty output before trusting a result.
 
 ## The library
 

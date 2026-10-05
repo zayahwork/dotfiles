@@ -11,6 +11,9 @@ return, and where they quietly return nothing.
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
+| [`agent-reach` rejected `search` 8 times, `read` 4 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-4-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, official ATS APIs, or `gh-axi` for GitHub. |
+| [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
+| [`gh-axi api --jq '.content'` emitted YAML wrapper text and `base64 --decode` returned 0 bytes at n=1](#gh-axi-api---jq-content-emitted-yaml-wrapper-text-and-base64---decode-returned-0-bytes-at-n1) | `api_response.body` was wrapped and truncated. Query `download_url`, extract the short body field, then fetch and verify the raw file. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -165,3 +168,40 @@ came back, and none of it is the article.
 **Fix:** ask the human to read it and paste the text. Do not conclude a policy permits
 something because the page could not be read - an unread policy is UNCONFIRMED, not
 permission.
+
+---
+
+## Held back
+
+### `agent-reach` rejected `search` 8 times, `read` 4 times, and `get` once across 4 dates
+
+**verified:** 2026-09-30, invoking `search` returned exactly `invalid choice: 'search' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`; 2026-10-03, installed agent-reach v1.5.0 returned the same list for another `search` call, `agent-reach read <Ashby URL> --json` returned the equivalent exact `invalid choice: 'read'` error, and a Hyatt `agent-reach search ... --json` call returned the same `invalid choice: 'search'` list while Exa was explicitly prohibited; 2026-10-04, three more `agent-reach search '...' --json` calls exited 2 with the same exact `invalid choice: 'search'` command list; 2026-10-05, `agent-reach search "Rocket Money Operations Associate Remote Pacific Time Zone" --json` returned the same argparse error and allowed-command list from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05, `agent-reach search --help` from `/Users/zayah/Documents/Codex` returned exactly `invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
+**verified:** 2026-10-05 at the 10:32 am Pacific heartbeat, three `agent-reach read <URL>` calls for Palm Desert, remote, and Bothell query tracks each exited 2 with exactly `invalid choice: 'read'` and the same allowed-command list
+**verified:** 2026-10-05, `agent-reach get https://raw.githubusercontent.com/Gsync/jobsync/main/README.md` exited with an argparse error containing exactly `invalid choice: 'get' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`
+**where:** thirteen calls covering three missing subcommands in one installed agent-reach CLI environment
+
+The returned command lists contain neither top-level web command, but the evidence does not establish behavior for other installed versions.
+
+**Why:** still held back at n=13 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
+**Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search or official ATS capability, or `gh-axi` for GitHub instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
+
+### `opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1
+
+**verified:** 2026-10-05, `agent-reach doctor --json` reported Reddit status `warn`, `active_backend: null`, OpenCLI installed, and no connected browser extension; `opencli reddit search "jobs hiring Snohomish Lake Stevens Bothell 2026" -f yaml` produced 0 output bytes and was still running after 30.2 seconds, `pgrep -af "opencli reddit search"` returned PID 6008, and `kill 6008` exited 0
+**where:** one required-platform Reddit search from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The read-only command verifies unavailability for this pass, but `active_backend: null` can mean Doctor skipped a live probe, so the missing extension as the cause remains unconfirmed.
+
+**Why:** REJECT at n=1 from one command and environment subject; there are not five observations from five different subjects or an untouched control.
+**Fix:** treat this OpenCLI route as unavailable for the pass, terminate the hung process, use public search-engine Reddit results only as UNCONFIRMED leads, and do not retry until Doctor reports a usable backend or the user has connected an existing logged-in browser extension.
+
+### `gh-axi api --jq '.content'` emitted YAML wrapper text and `base64 --decode` returned 0 bytes at n=1
+
+**verified:** 2026-10-05, `gh-axi api repos/Gsync/jobsync/readme --jq '.content'` printed a YAML document whose base64 text was under `api_response.body` with `truncated: true`; piping that output to `base64 --decode` returned exactly `base64: stdin: (null): error decoding base64 input stream` and wrote 0 bytes, while querying `.download_url`, extracting the short `api_response.body` URL, and fetching it returned 18,024 bytes beginning `# JobSync`
+**where:** one read-only GitHub README retrieval subject through `gh-axi`
+
+The failed pipe received the wrapper document rather than a raw base64 scalar, and the wrapper reported that the content field had also been truncated.
+
+**Why:** REJECT at n=1 from one repository and wrapper subject; there are not five observations from five different subjects.
+**Fix:** query `gh-axi api repos/OWNER/REPO/readme --jq '.download_url'`, extract the short `api_response.body` value, fetch that URL, and verify the returned file has nonzero bytes and expected content.

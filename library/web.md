@@ -12,6 +12,7 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, official ATS APIs, or `gh-axi` for GitHub. |
+| [`gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1](#gh-search-repos---json-namewithowner-returned-unknown-json-field-namewithowner-at-n1) | The printed field list includes `fullName`. Use that field and require nonempty output; successful replacement output is UNCONFIRMED. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [`gh-axi api` wrappers caused 2 base64 failures and 1 quoted-URL curl failure across 3 repositories](#gh-axi-api-wrappers-caused-2-base64-failures-and-1-quoted-url-curl-failure-across-3-repositories) | Wrapper text is not a raw content scalar, and the `download_url` body retains quotes. Match and remove one quote pair before fetching and verifying the raw file. |
 | [`REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1](#repo_not_found-twice-for-rxresu-merxresume-reactive-resumereactive-resume-succeeded-at-n1) | Repository search found the current slug. Both repository view and issue listing then succeeded against it. |
@@ -187,6 +188,16 @@ The returned command lists contain neither top-level web command, but the eviden
 
 **Why:** still held back at n=14 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search or official ATS capability, or `gh-axi` for GitHub instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
+
+### `gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1
+
+**verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"` and printed its available fields, including `fullName`
+**where:** one official GitHub CLI repository-search schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The command failed during JSON field validation before repository results could be accepted.
+
+**Why:** REJECT at n=1 from one CLI and field subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; replace `nameWithOwner` with `fullName` for `gh search repos`, then require nonempty output before using the result.
 
 ### `opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1
 

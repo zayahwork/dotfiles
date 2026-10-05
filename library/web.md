@@ -13,7 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, official ATS APIs, or `gh-axi` for GitHub. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
-| [`gh-axi api --jq '.content'` emitted YAML wrapper text and `base64 --decode` returned 0 bytes at n=1](#gh-axi-api---jq-content-emitted-yaml-wrapper-text-and-base64---decode-returned-0-bytes-at-n1) | `api_response.body` was wrapped and truncated. Query `download_url`, extract the short body field, then fetch and verify the raw file. |
+| [`gh-axi api --jq '.content'` emitted wrapper text and `base64 --decode` returned 0 bytes for 2 repositories](#gh-axi-api---jq-content-emitted-wrapper-text-and-base64---decode-returned-0-bytes-for-2-repositories) | `api_response.body` was YAML-wrapped whether `truncated` was true or false. Query `download_url`, extract the short body field, then fetch and verify the raw file. |
 | [`REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1](#repo_not_found-twice-for-rxresu-merxresume-reactive-resumereactive-resume-succeeded-at-n1) | Repository search found the current slug. Both repository view and issue listing then succeeded against it. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
@@ -198,14 +198,15 @@ The read-only command verifies unavailability for this pass, but `active_backend
 **Why:** REJECT at n=1 from one command and environment subject; there are not five observations from five different subjects or an untouched control.
 **Fix:** treat this OpenCLI route as unavailable for the pass, terminate the hung process, use public search-engine Reddit results only as UNCONFIRMED leads, and do not retry until Doctor reports a usable backend or the user has connected an existing logged-in browser extension.
 
-### `gh-axi api --jq '.content'` emitted YAML wrapper text and `base64 --decode` returned 0 bytes at n=1
+### `gh-axi api --jq '.content'` emitted wrapper text and `base64 --decode` returned 0 bytes for 2 repositories
 
 **verified:** 2026-10-05, `gh-axi api repos/Gsync/jobsync/readme --jq '.content'` printed a YAML document whose base64 text was under `api_response.body` with `truncated: true`; piping that output to `base64 --decode` returned exactly `base64: stdin: (null): error decoding base64 input stream` and wrote 0 bytes, while querying `.download_url`, extracting the short `api_response.body` URL, and fetching it returned 18,024 bytes beginning `# JobSync`
-**where:** one read-only GitHub README retrieval subject through `gh-axi`
+**verified:** 2026-10-05, `gh-axi api repos/jsonresume/resume-cli/readme --jq '.content' | tr -d '\n' | base64 --decode` exited 1 with exactly `base64: stdin: (null): error decoding base64 input stream` and wrote 0 bytes although the API wrapper reported `truncated: false`; `.body.content` exited 0 with an empty `api_response.body`, while querying `.download_url`, extracting `https://raw.githubusercontent.com/jsonresume/resume-cli/master/README.md`, and fetching it returned 4,284 bytes beginning `# ⚠️ This repository has moved`
+**where:** two read-only GitHub README retrieval subjects through `gh-axi`
 
-The failed pipe received the wrapper document rather than a raw base64 scalar, and the wrapper reported that the content field had also been truncated.
+Both failed pipes received the wrapper document rather than a raw base64 scalar; the second failure with `truncated: false` shows that wrapper shape, not truncation alone, is required for this observed failure.
 
-**Why:** REJECT at n=1 from one repository and wrapper subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=2 from two repository subjects; there are not five observations from five different subjects.
 **Fix:** query `gh-axi api repos/OWNER/REPO/readme --jq '.download_url'`, extract the short `api_response.body` value, fetch that URL, and verify the returned file has nonzero bytes and expected content.
 
 ### `REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1

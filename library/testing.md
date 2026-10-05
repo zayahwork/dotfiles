@@ -170,3 +170,13 @@ The repository test file imports `unittest` and calls `unittest.main()`, so dire
 
 **Why:** REJECT at n=1 from one repository and runtime subject; there are not five observations from five different subjects.
 **Fix:** run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tests/test_pipeline.py -q` and require exit 0 plus the expected test count; do not install pytest without approval.
+
+### `mallTab.click(18)` returned `Could not check the click target's shadow root` at n=1
+
+**verified:** 2026-10-05, on `https://shopsatpalmdesert.com/careers`, `await mallTab.click(18)` returned exactly `Could not check the click target's shadow root`; `await mallTab.goto("https://shopsatpalmdesert.com/job/part-time-seasonal-associate")` followed by `await mallTab.getAXState(...)` succeeded
+**where:** one unified-computer-use navigation subject on The Shops at Palm Desert careers site
+
+The failed accessibility click did not establish whether the page or tool caused the shadow-root check failure, while direct navigation reached the intended visible job URL.
+
+**Why:** REJECT at n=1 from one page and click subject; there are not five observations from five different subjects.
+**Fix:** when this exact click fails and the intended visible link URL is known, navigate the same tab directly to that URL and verify the destination with `getAXState(...)`.

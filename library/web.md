@@ -14,6 +14,7 @@ return, and where they quietly return nothing.
 | [`agent-reach` rejected `search` 8 times, `read` 4 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-4-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, official ATS APIs, or `gh-axi` for GitHub. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [`gh-axi api --jq '.content'` emitted YAML wrapper text and `base64 --decode` returned 0 bytes at n=1](#gh-axi-api---jq-content-emitted-yaml-wrapper-text-and-base64---decode-returned-0-bytes-at-n1) | `api_response.body` was wrapped and truncated. Query `download_url`, extract the short body field, then fetch and verify the raw file. |
+| [`REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1](#repo_not_found-twice-for-rxresu-merxresume-reactive-resumereactive-resume-succeeded-at-n1) | Repository search found the current slug. Both repository view and issue listing then succeeded against it. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -205,3 +206,13 @@ The failed pipe received the wrapper document rather than a raw base64 scalar, a
 
 **Why:** REJECT at n=1 from one repository and wrapper subject; there are not five observations from five different subjects.
 **Fix:** query `gh-axi api repos/OWNER/REPO/readme --jq '.download_url'`, extract the short `api_response.body` value, fetch that URL, and verify the returned file has nonzero bytes and expected content.
+
+### `REPO_NOT_FOUND` twice for `rxresu-me/rxresu.me`; `reactive-resume/reactive-resume` succeeded at n=1
+
+**verified:** 2026-10-05, `gh-axi repo view rxresu-me/rxresu.me` and `gh-axi issue list --repo rxresu-me/rxresu.me --limit 5` each exited 1 with code `REPO_NOT_FOUND`; `gh-axi search repos "Reactive Resume" --limit 10` returned `reactive-resume/reactive-resume` first with 43,847 stars, then `gh-axi repo view reactive-resume/reactive-resume` exited 0 with 54 issues and `gh-axi issue list --repo reactive-resume/reactive-resume --limit 5` exited 0 with `count: 5 of 54 total`
+**where:** one Reactive Resume repository lookup subject through `gh-axi`
+
+The two failures establish that the assumed slug was not resolvable through these commands, while repository search identified the slug that both read operations accepted.
+
+**Why:** REJECT at n=1 from one repository identity subject; there are not five observations from five different subjects.
+**Fix:** search repositories by project name before retrying an uncertain slug, then use `reactive-resume/reactive-resume` for the current repository and issue reads.

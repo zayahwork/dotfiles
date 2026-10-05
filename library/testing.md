@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -226,3 +226,13 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 
 **Why:** REJECT at n=1 from one workbook subject; there are not five observations from five different subjects.
 **Fix:** guard `len(row) < 6` before positional access in read-only iteration, then run the repository test file and require exit 0 plus its expected test count.
+
+### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
+
+**verified:** 2026-10-05, `load_workspace_dependencies` listed `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback` as the fallback binary directory; direct calls to its `pdfinfo` and `pdftoppm` paths each returned exactly `no such file or directory`, while `command -v pdfinfo` and `command -v pdftoppm` resolved both under `dependencies/bin/override` and each reported version 26.05.0
+**where:** one Codex workspace dependency bundle on macOS
+
+The fallback directory was available but did not contain these two Poppler programs; the reason for that layout is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
+**Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.

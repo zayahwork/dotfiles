@@ -25,6 +25,7 @@ return, and where they quietly return nothing.
 | [`opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-7-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
+| [Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1](#pilot-careers-iab-navigation-failed-with-neterr_cert_common_name_invalid-at-n1) | No page content loaded. Do not bypass the safety interstitial; find a certificate-valid official route. |
 | [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results](#4-jina-wrapped-google-searches-returned-696-to-754-captcha-bytes-and-0-results) | Exit 0 and nonempty output still hid every search result. Detect CAPTCHA or homepage content and switch search routes. |
 | [Jina routes returned 8 unusable responses across 10 Brave, Yahoo, and Bing queries](#jina-routes-returned-8-unusable-responses-across-10-brave-yahoo-and-bing-queries) | Search-engine text is only a lead. Validate expected results, then verify candidates on official pages or platform APIs. |
@@ -356,6 +357,16 @@ The response proves that this reader route did not expose the official listings,
 
 **Why:** REJECT at n=1 from one page and reader subject; there are not five observations from five different subjects.
 **Fix:** keep every specific role UNCONFIRMED unless another official surface or normal visible browser verifies it; do not treat third-party snippets as official-listing confirmation.
+
+### Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1
+
+**verified:** 2026-10-06 at about 3:20 am Pacific, focused direct navigation of browser tab 311 to `https://jobs.pilotcompany.com/search-results?keywords=&location=Arlington%2C%20WA` stopped before page content with exactly `net::ERR_CERT_COMMON_NAME_INVALID`
+**where:** one Codex in-app browser navigation to the official Pilot Company careers search URL
+
+The browser reported a certificate common-name mismatch for this route; the certificate chain and behavior on other Pilot Company domains were not independently inspected.
+
+**Why:** REJECT at n=1 from one URL and browser subject; there are not five observations from five different subjects.
+**Fix:** do not bypass the browser safety interstitial. Use another official Pilot Company domain or an official search result that resolves with a valid certificate, and keep Reddit references UNCONFIRMED until an official page verifies them.
 
 ### GitHub README decode returned `is not valid base64 data` at n=1
 

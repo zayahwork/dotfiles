@@ -18,7 +18,7 @@ return, and where they quietly return nothing.
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api contents` returned HTTP 404 for 4 guessed paths; tree inspection found exact files across 3 repositories](#gh-api-contents-returned-http-404-for-4-guessed-paths-tree-inspection-found-exact-files-across-3-repositories) | Resolve the remote path from the tree before requesting repository contents. |
-| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-5-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; one corrected retry succeeded. |
+| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 6 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-6-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; two corrected retries succeeded. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -276,19 +276,20 @@ All four requests supplied form fields without forcing GET, while the successful
 **Why:** REJECT at n=4 from four repository request subjects; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api -X GET repos/OWNER/REPO/commits -f per_page=5`, omit pagination for a small check, or encode the query in a quoted GET endpoint, then require a nonempty commits response.
 
-### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches
+### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 6 hard-coded branch mismatches
 
 **verified:** 2026-10-05, `gh repo view` reported `Gsync/jobsync` default branch `main`, then `gh api repos/Gsync/jobsync/git/trees/master?recursive=1` returned HTTP 404
 **verified:** 2026-10-05 at about 10:16 pm Pacific, repository view reported `NullSpace-BitCradle/ats-resume-agent` default branch `master`, then `gh api repos/NullSpace-BitCradle/ats-resume-agent/git/trees/main?recursive=1` returned HTTP 404
 **verified:** 2026-10-06, repository metadata reported `sp6370/Job-Application-Tracker` default branch `main`, a tree request for `master` returned HTTP 404, and retrying with the metadata-provided branch succeeded
 **verified:** 2026-10-06, `gh repo view rpunia29/applic --json defaultBranchRef` returned `{"name":"master"}` immediately before the quoted `main?recursive=1` tree request returned HTTP 404 Not Found
 **verified:** 2026-10-06, repository metadata reported `benidevo/vega-ai` default branch `master`, then its `main?recursive=1` tree request returned HTTP 404
-**where:** five official GitHub API tree requests across five repositories
+**verified:** 2026-10-06, `gh repo view sliday/resume-job-matcher --json defaultBranchRef` returned `master` after a tree request hard-coded `main`; the quoted corrected `master?recursive=1` GET returned 49 tree paths in 997 bytes
+**where:** six official GitHub API tree requests across six repositories
 
-Each failed request hard-coded a branch that differed from repository metadata, while the one corrected retry used the metadata value and succeeded.
+Each failed request hard-coded a branch that differed from repository metadata, while two corrected retries used the metadata value and succeeded.
 
-**Why:** still held back at n=5 from five repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** read `defaultBranchRef.name`, quote the query-bearing endpoint that uses that exact branch, and require a nonempty tree response; the corrected `sp6370/Job-Application-Tracker` retry verifies this recovery.
+**Why:** still held back at n=6 from six repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** read `defaultBranchRef.name`, quote the query-bearing endpoint that uses that exact branch, and require a nonempty tree response; corrected retries for `sp6370/Job-Application-Tracker` and `sliday/resume-job-matcher` verify this recovery.
 
 ### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
 

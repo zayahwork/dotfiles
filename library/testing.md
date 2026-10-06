@@ -251,6 +251,7 @@ The failed import and passing registered-module run isolate the observed failure
 **verified:** 2026-10-05, another Homebrew `python3` pair failed immediately because `python-docx` was absent: the pipeline exited 1 with exactly `ModuleNotFoundError: No module named 'docx'`, and unittest reported one failed import followed by `FAILED (errors=1)`; the bundled Python path remained the verified recovery
 **verified:** 2026-10-05 at about 10:13 pm Pacific, `python3 job-pipeline/pipeline.py run` again failed immediately at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; no job-applications file was changed
 **verified:** 2026-10-06, system `python3` running the pipeline and its tests failed at import with exactly `ModuleNotFoundError: No module named 'docx'`, while the bundled workspace Python completed the working test invocation with 24 tests passed
+**verified:** 2026-10-06 at about 6:58 am Pacific, system Python 3.14 running `python3 job-pipeline/pipeline.py` and `python3 -m unittest discover -s job-pipeline/tests -v` each failed at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; switching to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` passed the dependency-bearing replacement run
 **where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.

@@ -13,7 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 12 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-12-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
 | [`gh search repos` rejected `nameWithOwner` 7 times, `forkCount` 5 times, and `licenseInfo` twice across 9 commands](#gh-search-repos-rejected-namewithowner-7-times-forkcount-5-times-and-licenseinfo-twice-across-9-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
-| [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
+| [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 3 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-3-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api contents` returned HTTP 404 for 3 guessed paths; tree inspection found exact files across 2 repositories](#gh-api-contents-returned-http-404-for-3-guessed-paths-tree-inspection-found-exact-files-across-2-repositories) | Resolve the remote path from the tree before requesting repository contents. |
@@ -219,15 +219,16 @@ All nine commands failed during JSON field validation before repository results 
 **Why:** still held back after nine commands from one CLI schema subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `fullName` for repository identity, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output before using the result.
 
-### `gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories
+### 2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories
 
 **verified:** 2026-10-05, `gh api -X GET search/repositories -f q='resume ATS checker job tracker stars:>100' -f sort=stars -f order=desc -f per_page=10 --jq '.items[] | [...] | @tsv'` exited 0 with exactly 0 output bytes, while the same endpoint with `q='resume ats'` returned 10 repository rows
-**where:** two official GitHub repository-search API calls from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05, `gh search repos 'job application tracker ats resume ranking' --sort updated --order desc --limit 20 --json fullName,url,description,stargazersCount,forksCount,updatedAt,pushedAt,license,openIssuesCount` exited 0 and printed exactly `[]`
+**where:** two constrained GitHub repository-search queries and one shorter control query from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The comparison proves that the first successful exit exposed no usable result rows, but does not establish whether every term or the star qualifier caused the empty set.
+Both constrained searches exposed no usable result rows, but the comparison does not establish which terms or qualifiers caused the empty sets.
 
-**Why:** REJECT at n=1 query-pair subject; there are not five observations from five different subjects.
-**Fix:** treat zero-byte success as untrusted, simplify the query, and require nonempty validated rows before concluding that no repositories match.
+**Why:** REJECT at n=2 constrained-query subjects with one shorter control; there are not five observations from five different subjects.
+**Fix:** split a constrained search into shorter independent queries and require nonempty validated rows before concluding that no repositories match; whether this recovers results for the second query is UNCONFIRMED.
 
 ### `opencli reddit search` blocked for 15 to 35 seconds on 4 queries with no connected extension
 

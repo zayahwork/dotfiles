@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, pipeline partial-source timeouts, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool row and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -161,6 +161,17 @@ The source and output establish the row-66 omission for this one script state bu
 
 **Why:** REJECT at n=1 from one workbook and count-script subject; there are not five observations from five different subjects.
 **Fix:** derive the application-row end from the current used range or table, start below the header, and count only rows with a nonempty status; the current used-range implementation and nonempty rerun are verified.
+
+### Idempotency scan `Applications!A8:J69` duplicated Direct Meds and dropped the Tax basis footer
+
+**verified:** 2026-10-06, an idempotent tracker update checked only `Applications!A8:J69` for Direct Meds after its first run had inserted that company and role at row 70; the timestamp-patch retry missed row 70, shifted the footer again, and inspection showed Direct Meds in rows 70 and 71 before verification failed with exactly `Assumption footer verification failed` because the footer began at row 72
+**verified:** 2026-10-06, the original insertion loop copied footer rows 73 through 70 downward while the four footer rows occupied 70:73; on retry after the first insertion, the same hard-coded loop shifted only rows 70:73 and overwrote the fourth footer line already at row 74, and cleanup verification returned the footer header, monthly assumptions, hourly assumptions, and `null` instead of the Tax basis row
+**where:** one retry of the Direct Meds update script against `outputs/job-application-tracker.xlsx`
+
+The fixed duplicate-check range excluded the script's own insertion row, and the fixed footer range excluded the footer's post-insertion last row; behavior in other update scripts is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one script and workbook subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED until rerun; scan the full possible application area including the insertion row, remove duplicate company-and-role keys, and reconstruct or shift all four footer rows as one explicit block before export. Reopen the workbook and require exactly one Direct Meds match plus all four exact footer labels and texts at the expected rows.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 
@@ -413,15 +424,16 @@ Bare-package resolution failed from eval or script-directory contexts without th
 **Why:** still held back after six failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
-### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`
+### Artifact Tool Date writes rendered UTC clock components in 2 tracker cells
 
 **verified:** 2026-10-05, artifact-tool wrote `new Date('2026-10-05T18:20:29-07:00')` and the XLSX displayed `10/06/26 1:20 AM`; writing `new Date('2026-10-05T18:20:29Z')` displayed the intended `10/05/26 6:20 PM`
-**where:** one date-cell edit in an artifact-tool XLSX workflow
+**verified:** 2026-10-06, an update script wrote `new Date("2026-10-06T15:03:35.791Z")` into a cell formatted `mm/dd/yy h:mm AM/PM`; inspection returned serial `46301.627497581016` and the rendered row 70 showed `10/06/26 3:03 PM` instead of the trigger's intended `8:03:35 am` Pacific wall time
+**where:** two date-cell writes in one Artifact Tool XLSX tracker and runtime subject
 
-The paired display values establish that this workbook used the serialized UTC components as an Excel wall-clock value, but not a universal rule for every spreadsheet engine.
+The three rendered display values establish that this tracker path used serialized UTC clock components as timezone-free Excel wall-clock values, but not a universal rule for every spreadsheet engine.
 
-**Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
-**Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.
+**Why:** still held back at n=2 from one workbook and runtime subject; there are not five observations from five different subjects.
+**Fix:** the verified recovery is to encode the intended displayed wall-clock components as UTC components, then render the formatted cell and verify its exact date and time. The direct serial `Date.UTC(2026,9,6,8,3,35,791) / 86400000 + 25569` is UNCONFIRMED until written and rendered in this tracker.
 
 ### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=4
 

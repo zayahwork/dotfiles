@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -136,6 +136,16 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
+
+### `createBrowserTab("2", ...)` returned `Timed out waiting for the Browser webview to attach for this browser-use page` at n=1
+
+**verified:** 2026-10-06, `cua.createBrowserTab("2", <Gmail search URL>, {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`; the Gmail tab did not appear in the subsequent tab list, the selected in-app browser had no Gmail tab, and no Chrome or Edge browser was available
+**where:** one hidden Gmail tab-creation attempt through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The failed attachment and absent tab prove that no fresh Gmail state was read in this run; why the webview did not attach is UNCONFIRMED, and official OpenAI browser documentation does not describe this exact error.
+
+**Why:** REJECT at n=1 from one browser session and Gmail subject; there are not five observations from five different subjects.
+**Fix:** treat inbox review as unavailable for that run, preserve the previous verified inbox state, and state explicitly that no fresh check occurred; retry only in a later browser-enabled run.
 
 ### 8 guessed, stale, or wrong-cwd local paths failed across 9 invocations; current paths found source, tracker, test, and counter targets
 

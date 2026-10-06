@@ -15,6 +15,7 @@ return, and where they quietly return nothing.
 | [`gh search repos` rejected `nameWithOwner` 5 times, `forkCount` 4 times, and `licenseInfo` twice across 6 commands](#gh-search-repos-rejected-namewithowner-5-times-forkcount-4-times-and-licenseinfo-twice-across-6-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 2 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-2-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `-X GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
@@ -281,3 +282,13 @@ The response establishes an anti-bot interstitial for this page and route, but n
 
 **Why:** REJECT at n=1 from one page and backend subject; there are not five observations from five different subjects.
 **Fix:** use search-indexed official content or the employer's linked ATS through normal visible navigation; never retry or bypass the challenge.
+
+### GitHub README decode returned `is not valid base64 data` at n=1
+
+**verified:** 2026-10-05 at about 9:14 pm Pacific, `gh api repos/espin086/GPT-Jobhunter/readme --jq '{...,content}' | jq -r '...(.content | @base64d)'` failed with exactly `string (...) is not valid base64 data` even though the API object exposed a `content` value
+**where:** one official GitHub CLI README-content inspection
+
+The transformed value was not accepted as base64, but the evidence does not establish which transformation changed it.
+
+**Why:** REJECT at n=1 from one repository-content subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; request raw README bytes with `gh api -H 'Accept: application/vnd.github.raw+json' repos/OWNER/REPO/readme`, then require nonzero bytes and expected content instead of locally decoding the transformed field.

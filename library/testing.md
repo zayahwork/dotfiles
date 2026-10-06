@@ -99,6 +99,16 @@ The returned tab objects did not expose those methods; direct accessibility acti
 **Why:** still held back after nineteen calls from six documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** after a summarized Computer Use task, call `cua.rewriteDocumentation()` before interacting. Wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()`. Use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; the YMCA and Home Depot role-click results remain UNCONFIRMED until run and visibly verified.
 
+### ALDI AX tree exposed 2 `APPLY` links while the exact Playwright role locator matched 0 at n=1
+
+**verified:** 2026-10-06, the ALDI careers accessibility tree exposed two links named `APPLY`, then `aldiTab.playwright.getByRole("link", { name: "APPLY", exact: true }).first().click()` timed out with no matches
+**where:** one ALDI careers page in unified computer use
+
+The two observation surfaces disagreed about the exact-role match; whether the links are absent from the DOM, renamed, or represented differently is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one page and selector subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; inspect `aldiTab.playwright.domSnapshot()`, locate the exact employer application `href`, navigate through that verified URL, and confirm the destination before continuing.
+
 ### `setValue(15, "All job types")` returned `Select did not retain the requested option` at n=1
 
 **verified:** 2026-10-05 at about 5:48 pm Pacific, the YMCA of Snohomish County SaaS HR category control appeared as an accessibility pop-up button with Value `Housekeeping`; `tab.setValue(15, "All job types")` returned exactly `Select did not retain the requested option`, and `performSecondaryAction(..., "Expand")` returned no expanded state

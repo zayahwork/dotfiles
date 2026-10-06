@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed backticked commands twice, and bare zsh globs stopped 2 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 4 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed backticked commands twice, and bare zsh globs stopped 2 commands before execution.](#held-back)
 
 ---
 
@@ -101,6 +101,18 @@ Never trust an empty `ls` from a script.
 ---
 
 ## Held back
+
+### `path` replaced `PATH` and made 8 commands unavailable across 4 zsh subjects
+
+**verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
+**verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
+**verified:** 2026-10-05 at about 6:40 pm Pacific, `for path in ...` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed `zsh:4: command not found` for `gh`, `base64`, and `sed` on every iteration after assigning `path`
+**where:** four zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and a job-application file loop
+
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all four observations.
+
+**Why:** REJECT at n=4 from four zsh subjects; there are not five observations from five different subjects.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name.
 
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 

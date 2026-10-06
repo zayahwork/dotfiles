@@ -26,6 +26,7 @@ return, and where they quietly return nothing.
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
+| [4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results](#4-jina-wrapped-google-searches-returned-696-to-754-captcha-bytes-and-0-results) | Exit 0 and nonempty output still hid every search result. Detect CAPTCHA or homepage content and switch search routes. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -311,6 +312,16 @@ Both successful completions establish no search result because they exposed zero
 
 **Why:** REJECT at n=2 from two call subjects in one runtime; there are not five observations from five different subjects.
 **Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.
+
+### 4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results
+
+**verified:** 2026-10-06, Jina Reader requests to Google Search for Marriott Palm Desert jobs, Conduent remote Washington, REI Seattle jobs, and Reddit Coachella Valley jobs exited 0 but returned unusual-traffic CAPTCHA or homepage content without search results; an exact rerun returned 742, 739, 696, and 754 bytes respectively, and every response contained `Our systems have detected unusual traffic`
+**where:** four `https://r.jina.ai/http://www.google.com/search?...` job and Reddit queries from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+All four responses were nonempty but contained no usable result links, so exit status and byte count alone did not verify a search.
+
+**Why:** REJECT at n=4 queries from one Google-through-Jina route; there are not five observations from five different subjects or an untouched control.
+**Fix:** use runtime web search only when it returns nonempty result content, or use official career-board endpoints and direct employer pages. Require expected result text or links, stop without bypassing a CAPTCHA, and never accept exit 0 alone.
 
 ### Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1
 

@@ -401,17 +401,18 @@ The nonempty parser stderr establishes that no pipeline run occurred; exit code 
 **Why:** REJECT at n=3 from one CLI parser subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
-### 4 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
+### 5 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
 **verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
 **verified:** 2026-10-06, `jq '.[-4:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-4,"end":null})`; the earlier verified root keys were `last_run` and `checked_domains`, not `entries`
 **verified:** 2026-10-06, `jq 'length, .[-2:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-2,"end":null})` because the source-log root is an object
-**where:** four jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `jq '.[-8:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-8,"end":null})`; this was one command reported twice, and the verified nested array remains `checked_domains`
+**where:** five jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them; the source-log array field remains `checked_domains` in the verified inspection.
 
-**Why:** REJECT at n=4 command observations across two JSON file and schema subjects; there are not five observations from five different subjects.
+**Why:** still held back at n=5 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
 **Fix:** inspect the root type and keys first; use `jq '.checked_domains[-2:]'` for the requested object-root source-log slice and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require nonempty expected output.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1

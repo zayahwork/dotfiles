@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: literal `\n` raised 2 Python SyntaxErrors, and double-quoted `rg` patterns executed backticked commands twice.](#held-back)
+- [Held back: literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed backticked commands twice, and bare zsh globs stopped 2 commands before execution.](#held-back)
 
 ---
 
@@ -122,3 +122,14 @@ The shell executed the backtick contents as command substitution before `rg` rec
 
 **Why:** REJECT at n=2 from two shell-command subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh.
+
+### zsh `no matches found` stopped bare `*.md` and `?per_page=5` arguments before execution at n=2
+
+**verified:** 2026-10-03, an `rg` command with bare unmatched `*.md *.json` arguments returned exactly `zsh:1: no matches found: *.md` before `rg` executed
+**verified:** 2026-10-05, unquoted `gh api repos/Gsync/jobsync/commits?per_page=5` failed before `gh` ran because zsh treated `?` as a glob and printed `no matches found`
+**where:** two zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+Both failures occurred during zsh glob expansion, before the named tool could handle the argument.
+
+**Why:** REJECT at n=2 from two shell-command subjects; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; pass file filters through quoted `rg --glob '*.md' --glob '*.json'` arguments, and quote GitHub API endpoints containing `?`, such as `gh api 'repos/Gsync/jobsync/commits?per_page=5'`.

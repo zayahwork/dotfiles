@@ -12,10 +12,12 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
-| [`gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1](#gh-search-repos---json-namewithowner-returned-unknown-json-field-namewithowner-at-n1) | The printed field list includes `fullName`. Use that field and require nonempty output; successful replacement output is UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1](#gh-search-repos-rejected-namewithowner-forkcount-and-licenseinfo-at-n1) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
+| [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -189,15 +191,15 @@ The returned command lists contain neither top-level web command, but the eviden
 **Why:** still held back at n=14 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search, or an official API instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
 
-### `gh search repos --json nameWithOwner` returned `Unknown JSON field: "nameWithOwner"` at n=1
+### `gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1
 
-**verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"` and printed its available fields, including `fullName`
+**verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`; a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
 **where:** one official GitHub CLI repository-search schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The command failed during JSON field validation before repository results could be accepted.
 
 **Why:** REJECT at n=1 from one CLI and field subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; replace `nameWithOwner` with `fullName` for `gh search repos`, then require nonempty output before using the result.
+**Fix:** UNCONFIRMED; replace `nameWithOwner`, `forkCount`, and `licenseInfo` with `fullName`, `forksCount`, and `license`, then require nonempty output before using the result.
 
 ### `opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1
 
@@ -219,6 +221,16 @@ The supplied run establishes the 404 and the CLI's `-f` method behavior, but no 
 **Why:** REJECT at n=1 from one repository and request subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or encode the query in the endpoint, then require a nonempty commits response.
 
+### `gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1
+
+**verified:** 2026-10-05, `gh repo view` reported `Gsync/jobsync` default branch `main`, then `gh api repos/Gsync/jobsync/git/trees/master?recursive=1` returned HTTP 404
+**where:** one official GitHub API tree request for `Gsync/jobsync`
+
+The request named `master` after repository metadata had identified `main`; no corrected tree response was supplied.
+
+**Why:** REJECT at n=1 from one repository and branch-ref subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; read `defaultBranchRef.name`, use that exact branch in the tree endpoint, and require a nonempty tree response.
+
 ### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
 
 **verified:** 2026-10-05, `command -v gh-axi` returned no path and `gh-axi api --help` returned exactly `zsh:2: command not found: gh-axi`
@@ -228,3 +240,13 @@ The shell exposed no `gh-axi` command; why the active rule and installed command
 
 **Why:** REJECT at n=1 from one shell and tool subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; reconcile the active GitHub CLI rule with the installed tool before running GitHub commands.
+
+### `web__run` completed 4 long search queries with zero text or image content at n=1
+
+**verified:** 2026-10-05, `web__run` accepted four job and Reddit `search_query` items with `response_length` set to `long`, completed successfully, and returned no text or image content
+**where:** one multi-query job and Reddit web-search call
+
+The successful completion establishes no search result because the response exposed zero content blocks; why the content was empty is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one call subject; there are not five observations from five different subjects.
+**Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.

@@ -440,6 +440,16 @@ The retained objects show that a JavaScript binding or `typeof` existence guard 
 **Why:** REJECT at n=4 from four tab subjects in one browser-session context; there are not five observations from five different subjects, and one unmarked tab does not establish the general survival cause.
 **Fix:** UNCONFIRMED; call `cua.getState()` at the start of a new heartbeat to rediscover current tabs, then reacquire by current URL or ID or create a fresh tab before using a saved binding; mark an agent-created tab for handoff before ending the turn only after that path is verified on a current tab.
 
+### Home Depot resume PDF retained the title `Pacific Reign Gymnastics Front Desk Staff` at n=1
+
+**verified:** 2026-10-06, `pdfinfo` on a newly rendered Home Depot resume reported Title `Zayah Nelson resume for Pacific Reign Gymnastics Front Desk Staff`, while visual rendering showed the new Home Depot resume content
+**where:** one resume created by editing a prior DOCX and rendering it to PDF
+
+The visible page and PDF core metadata disagreed; whether every reused DOCX retains the prior title is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one reused document and PDF subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; set `document.core_properties.title` and the other relevant core properties before saving, re-render the PDF, and require `pdfinfo` to report the new title.
+
 ### `pdftotext` was missing on 18 attempts across 5 dates; 3 other PDF text routes were unavailable in one environment
 
 **verified:** 2026-09-29, system `pdftotext` returned exactly `zsh: command not found: pdftotext`, system `python3` failed to import `pypdf` with `ModuleNotFoundError`, and direct `firecrawl` returned `command not found`; `npx firecrawl-cli parse` installed `firecrawl-cli@1.24.6` and produced 2,344 bytes of expected resume text; 2026-10-02, `from pypdf import PdfReader` returned exactly `ModuleNotFoundError: No module named 'pypdf'`, and `mdls -name kMDItemTextContent` returned null for the resume PDFs; 2026-10-03, six separate read-only resume extraction attempts, including `outputs/office-operations/Zayah Nelson - Office Operations resume.pdf` and a 3,565-byte IT Support resume whose `pdfinfo` showed one letter-size page, each returned exactly `zsh:1: command not found: pdftotext`, and a fresh `command -v pdftotext` exited 1; 2026-10-04, three earlier resume checks returned `command not found: pdftotext`, including Office Operations and Palm Springs Guest Service files, and a fresh `command -v pdftotext` exited 1; at 5:29 pm Pacific, another Office Operations check returned exactly `zsh:1: command not found: pdftotext`, `mdls -raw -name kMDItemTextContent` returned exactly `(null)`, and the adjacent `build_resume.py` supplied the usable source text

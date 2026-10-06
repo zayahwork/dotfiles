@@ -366,3 +366,14 @@ The first JavaScript input failed before the web request could return results, w
 
 **Why:** REJECT at n=1 from one exec-input subject; there are not five observations from five different subjects.
 **Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.
+
+### Artifact marker paths were missing at the workspace and plugin root; skill-cache paths existed across 2 skill subjects
+
+**verified:** 2026-10-03, `ls -l container_tools/mark_artifact_operation_started.mjs` returned `No such file or directory`, while `rg --files /Users/zayah/.codex /Users/zayah/.cache/codex-runtimes | rg '/mark_artifact_operation_started\.mjs$'` found `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/pdf/26.905.11957/skills/pdf/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
+**verified:** 2026-10-05, the Spreadsheets skill requested `node container_tools/mark_artifact_operation_started.mjs ...`, but `ls` on `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools` returned exactly `No such file or directory`; `rg --files` found the marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
+**where:** PDF and Spreadsheets skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The workspace-relative and spreadsheet plugin-root paths were absent, while skill-specific cache searches returned the marker files.
+
+**Why:** REJECT at n=2 from two skill-path subjects; there are not five observations from five different subjects.
+**Fix:** resolve `mark_artifact_operation_started.mjs` with `rg --files` and invoke the absolute path under the active skill's `skills/<skill>/container_tools/` directory rather than assuming a workspace-relative or plugin-root `container_tools/` path.

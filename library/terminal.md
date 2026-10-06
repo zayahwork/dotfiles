@@ -11,6 +11,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 30 commands before execution.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
+- [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
 
 ---
 
@@ -191,3 +192,13 @@ Both successful exits produced malformed timestamps because this environment's `
 
 **Why:** REJECT at n=2 from one date binary and environment subject; there are not five observations from five different subjects.
 **Fix:** format the offset with `%z`, verify the output is nonempty, then insert the colon with zsh substring expansion as shown in the verified command and require a final `-07:00` or `-08:00` suffix for Pacific time.
+
+### macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp
+
+**verified:** 2026-10-06, `date -j -f '%Y-%m-%dT%H:%M:%S.%NZ' '2026-10-06T13:13:58.429Z'` printed a first line beginning exactly `Failed conversion of` for that timestamp and format, followed by exactly `date: illegal time format`; a current isolated rerun produced the same two lines
+**where:** two macOS date parsing invocations in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+Node parsed the same timestamp and `Intl.DateTimeFormat` printed `10/06/2026, 6:13:58 AM PDT`, confirming that the input timestamp itself was valid.
+
+**Why:** REJECT at n=2 from one date binary and environment subject; there are not five observations from five different subjects.
+**Fix:** use Node `Intl.DateTimeFormat` for the timestamp, or strip the fractional part and parse `2026-10-06T13:13:58Z` with BSD date format `%Y-%m-%dT%H:%M:%SZ`; the normalized command printed exactly `2026-10-06T13:13:58Z`.

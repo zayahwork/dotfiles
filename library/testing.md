@@ -356,3 +356,13 @@ The root value was an object, so the array slice had to target its `checked_doma
 
 **Why:** REJECT at n=1 from one JSON file and schema subject; there are not five observations from five different subjects.
 **Fix:** inspect the root shape first, then use `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` and require 12 returned entries.
+
+### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1
+
+**verified:** 2026-10-05, a `functions.exec` call containing a direct `web__run` request failed with exactly `Script error: SyntaxError: Unexpected string` and returned zero results; retrying as `const args={search_query:[...],response_length:"long"}; await tools.web__run(args);` succeeded
+**where:** one hourly-application-questions heartbeat web-search input
+
+The first JavaScript input failed before the web request could return results, while the explicit object binding produced a valid tool call in the same workflow.
+
+**Why:** REJECT at n=1 from one exec-input subject; there are not five observations from five different subjects.
+**Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.

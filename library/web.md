@@ -14,7 +14,7 @@ return, and where they quietly return nothing.
 | [`agent-reach` rejected `search` 11 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-11-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, the built-in web search capability, or official APIs. |
 | [`gh search repos` rejected `nameWithOwner` 4 times, `forkCount` 3 times, and `licenseInfo` once across 5 commands](#gh-search-repos-rejected-namewithowner-4-times-forkcount-3-times-and-licenseinfo-once-across-5-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
-| [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [`gh api` form fields returned HTTP 404 on 2 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-2-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `-X GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
@@ -230,14 +230,15 @@ Both read-only commands establish that this OpenCLI route was unavailable for th
 **Why:** REJECT at n=2 query subjects in one environment; there are not five observations from five different subjects or an untouched control.
 **Fix:** when Doctor reports `active_backend: null` and no connected extension, do not wait on native Reddit search during a heartbeat; terminate a blocked process and use public search results only as UNCONFIRMED anecdotes, never as application evidence.
 
-### `gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1
+### `gh api` form fields returned HTTP 404 on 2 commit-list requests without forced GET
 
 **verified:** 2026-10-05, `gh api repos/jaimaann/LangHire/commits -f per_page=5` returned HTTP 404, while the public commits endpoint existed
-**where:** one official GitHub CLI API request for the public LangHire commits endpoint
+**verified:** 2026-10-05, `gh api repos/career-ops-hq/career-ops/commits --paginate -F per_page=5` returned GitHub `404 Not Found`
+**where:** two official GitHub CLI commit-list requests for public repositories
 
-The supplied run establishes the 404 and the CLI's `-f` method behavior, but no successful corrected request output was supplied.
+Both requests supplied form fields without forcing GET, but no successful corrected request output was supplied.
 
-**Why:** REJECT at n=1 from one repository and request subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=2 from two repository request subjects; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or encode the query in the endpoint, then require a nonempty commits response.
 
 ### `gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1

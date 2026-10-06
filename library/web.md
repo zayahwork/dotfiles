@@ -23,7 +23,7 @@ return, and where they quietly return nothing.
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 to 35 seconds on 3 queries with no connected extension](#opencli-reddit-search-blocked-for-30-to-35-seconds-on-3-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
-| [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
+| [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -272,14 +272,15 @@ The shell exposed no `gh-axi` command; why the active rule and installed command
 **Why:** REJECT at n=1 from one shell and tool subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; reconcile the active GitHub CLI rule with the installed tool before running GitHub commands.
 
-### `web__run` completed 4 long search queries with zero text or image content at n=1
+### `web__run` completed two 4-query searches with zero text, image, or error content
 
 **verified:** 2026-10-05, `web__run` accepted four job and Reddit `search_query` items with `response_length` set to `long`, completed successfully, and returned no text or image content
-**where:** one multi-query job and Reddit web-search call
+**verified:** 2026-10-05 at about 10:23 pm Pacific, the runtime web search accepted four queries covering Home Depot or TJX in Palm Desert, Allstate or TELUS Digital remote in Washington, Lowe's or WinCo in Snohomish County, and recent Reddit job or scam discussions, then returned zero bytes with no result or error
+**where:** two multi-query job and Reddit web-search calls
 
-The successful completion establishes no search result because the response exposed zero content blocks; why the content was empty is UNCONFIRMED.
+Both successful completions establish no search result because they exposed zero content blocks or errors; why the content was empty is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one call subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=2 from two call subjects in one runtime; there are not five observations from five different subjects.
 **Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.
 
 ### Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1

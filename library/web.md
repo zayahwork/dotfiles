@@ -15,7 +15,7 @@ return, and where they quietly return nothing.
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
 | [`gh search repos` rejected `nameWithOwner` 10 times, `forkCount` 7 times, and `licenseInfo` 3 times across 13 commands](#gh-search-repos-rejected-namewithowner-10-times-forkcount-7-times-and-licenseinfo-3-times-across-13-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
-| [`gh api` form fields returned HTTP 404 on 3 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-3-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
+| [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api contents` returned HTTP 404 for 4 guessed paths; tree inspection found exact files across 3 repositories](#gh-api-contents-returned-http-404-for-4-guessed-paths-tree-inspection-found-exact-files-across-3-repositories) | Resolve the remote path from the tree before requesting repository contents. |
 | [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-5-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; one corrected retry succeeded. |
@@ -261,17 +261,18 @@ All five read-only commands establish that this OpenCLI route was unavailable fo
 **Why:** still held back at n=5 query subjects in one environment because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** the repeated recurrence requires a reusable launch guard that runs Doctor first and refuses `opencli reddit search` when `active_backend` is null or the extension is disconnected; this guard is UNCONFIRMED until built and exercised. Until then, interrupt an empty hanging probe and use the runtime web search for public Reddit discovery while keeping posts UNCONFIRMED.
 
-### `gh api` form fields returned HTTP 404 on 3 commit-list requests without forced GET
+### `gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET
 
 **verified:** 2026-10-05, `gh api repos/jaimaann/LangHire/commits -f per_page=5` returned HTTP 404, while the public commits endpoint existed
 **verified:** 2026-10-05, `gh api repos/career-ops-hq/career-ops/commits --paginate -F per_page=5` returned GitHub `404 Not Found`
 **verified:** 2026-10-05, `gh api repos/liangdabiao/resume-matcher-agent-cn/commits --paginate -F per_page=5 --jq ...` returned HTTP 404 after repository view, README, and license requests for the same repository succeeded
-**where:** three official GitHub CLI commit-list requests for public repositories
+**verified:** 2026-10-06, `gh api repos/OWNER/REPO/commits --paginate -F per_page=5` returned HTTP 404 when the intended request was a read-only GET
+**where:** four official GitHub CLI commit-list requests for public repositories
 
-All three requests supplied form fields without forcing GET, while the successful read-only calls on the third repository established that the repository was reachable; no successful corrected commits request output was supplied.
+All four requests supplied form fields without forcing GET, while the successful read-only calls on one repository established that the repository was reachable; no successful corrected commits request output was supplied.
 
-**Why:** REJECT at n=3 from three repository request subjects; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or `gh api --method GET 'repos/OWNER/REPO/commits?per_page=5'`, then require a nonempty commits response.
+**Why:** REJECT at n=4 from four repository request subjects; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; use `gh api -X GET repos/OWNER/REPO/commits -f per_page=5`, omit pagination for a small check, or encode the query in a quoted GET endpoint, then require a nonempty commits response.
 
 ### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches
 

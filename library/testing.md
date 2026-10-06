@@ -248,13 +248,14 @@ The evidence establishes all four copy results in this workbook but does not est
 **Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.
 
-### Git push failed twice over SSH and 3 times over HTTPS in one repository session at n=1
+### Git push failed twice over SSH and 3 times over HTTPS, then the same SSH push succeeded at n=1
 
 **verified:** 2026-10-05 at 4:58 pm Pacific, two `git push origin development` attempts returned exactly `git@github.com: Permission denied (publickey)` while `ssh-add -l` listed one ED25519 key; three HTTPS push attempts, including one forced to HTTP/1.1, reached `github.com` but were rejected with exactly `remote: Internal Server Error`
 **verified:** 2026-10-05, HTTPS `git ls-remote` successfully returned development at `15c0988`, while GitHub's public status API returned `indicator: none` and `All Systems Operational`
+**verified:** 2026-10-05, a later identical `git push origin development` succeeded without a configuration change and advanced the remote from `15c0988` to `3d2ea69`
 **where:** one `/Users/zayah/github/dotfiles` push session for local commit `b8066a1`
 
-The paired failures establish that neither configured write transport completed the push in this session; their cause is UNCONFIRMED.
+The failures and later recovery establish a transient write wall in this session, but its cause is UNCONFIRMED.
 
 **Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; restore a working GitHub write credential, rerun the scoped development push, and verify the remote ref before promotion.
+**Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.

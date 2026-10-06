@@ -328,17 +328,18 @@ The two failures show that the marker requires all named arguments and did not a
 **Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
 **Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
 
-### `@oai/artifact-tool` import failed in 3 bundled-Node setups; the correct path imported 1,175 exports
+### `@oai/artifact-tool` import failed in 4 bundled-Node setups; the correct path imported 1,175 exports
 
 **verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
 **verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
 **verified:** 2026-10-05, a temporary directory whose `node_modules` symlink targeted `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` imported the package and printed 1,175 exports; importing its absolute `dist/artifact_tool.mjs` printed the same count
 **verified:** 2026-10-05, a spreadsheet artifact script run with the bundled Node binary failed with `ERR_MODULE_NOT_FOUND` for `@oai/artifact-tool` because its working directory had no conversation-specific `node_modules` link to the bundled dependencies
-**where:** three failed spreadsheet import setups and two successful recovery probes on this machine
+**verified:** 2026-10-06, a builder under `job-pipeline/work/heartbeat-2026-10-06-0014` returned `ERR_MODULE_NOT_FOUND` for `@oai/artifact-tool` even with `ARTIFACT_TOOL_NODE_MODULES` set; only the prior work directory had a script-directory `node_modules` symlink to the bundled `dependencies/node/node_modules`
+**where:** four failed spreadsheet import setups and two successful recovery probes on this machine
 
-Bare-package resolution failed from the eval context and from a symlink whose target did not exist; both observed recovery paths resolved the package's actual runtime location.
+Bare-package resolution failed from eval or script-directory contexts without the correct local symlink and from a symlink whose target did not exist; setting `ARTIFACT_TOOL_NODE_MODULES` did not change the observed ESM lookup, while both recovery paths resolved the package's actual runtime location.
 
-**Why:** REJECT after three failed setups from one machine and package subject; there are not five observations from five different subjects.
+**Why:** REJECT after four failed setups from one machine and package subject; there are not five observations from five different subjects.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
 ### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`

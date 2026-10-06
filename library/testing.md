@@ -335,3 +335,13 @@ The paired display values establish that this workbook used the serialized UTC c
 
 **Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
 **Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.
+
+### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=1
+
+**verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py` exited 2 and printed `usage: pipeline.py [-h] {run} ...` followed by exactly `pipeline.py: error: the following arguments are required: command`; the same bundled runtime with `pipeline.py run` had already completed successfully and printed pipeline counts
+**where:** one job-pipeline CLI invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The parser output establishes that this script requires a subcommand before it performs pipeline work.
+
+**Why:** REJECT at n=1 from one CLI invocation subject; there are not five observations from five different subjects.
+**Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.

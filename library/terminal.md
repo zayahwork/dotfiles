@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 4 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 4 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 5 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 5 commands before execution.](#held-back)
 
 ---
 
@@ -102,17 +102,18 @@ Never trust an empty `ls` from a script.
 
 ## Held back
 
-### `path` replaced `PATH` and made 8 commands unavailable across 4 zsh subjects
+### `path` replaced `PATH` and made 8 command names unavailable across 5 zsh subjects
 
 **verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
 **verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
 **verified:** 2026-10-05 at about 6:40 pm Pacific, `for path in ...` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed `zsh:4: command not found` for `gh`, `base64`, and `sed` on every iteration after assigning `path`
-**where:** four zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and a job-application file loop
+**verified:** 2026-10-05 at 7:07 pm Pacific, another `for path in ...` tooling loop printed `zsh: command not found: gh` and `sed` for every item immediately after assigning `path`
+**where:** five zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and two job-application tooling loops
 
-Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all four observations.
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all five observations.
 
-**Why:** REJECT at n=4 from four zsh subjects; there are not five observations from five different subjects.
-**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name.
+**Why:** still held back at n=5 from five zsh subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name. Add a reusable shell-command preflight that rejects assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME`; this prevention check remains UNCONFIRMED until built and exercised.
 
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 
@@ -136,15 +137,16 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **Why:** REJECT after four substitutions across three shell-invocation subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
-### zsh `no matches found` stopped 4 bare glob and query arguments before execution
+### zsh `no matches found` stopped 5 bare glob and query arguments before execution
 
 **verified:** 2026-10-03, an `rg` command with bare unmatched `*.md *.json` arguments returned exactly `zsh:1: no matches found: *.md` before `rg` executed
 **verified:** 2026-10-05, unquoted `gh api repos/Gsync/jobsync/commits?per_page=5` failed before `gh` ran because zsh treated `?` as a glob and printed `no matches found`
 **verified:** 2026-10-05, unquoted `gh api repos/LingyiChen-AI/JadeAI/issues?state=open&per_page=5` failed before `gh` ran with exactly `zsh: no matches found:` followed by the endpoint argument
 **verified:** 2026-10-05, an `rg` command with bare unmatched `applications*` failed before `rg` ran with exactly `zsh: no matches found: applications*`
-**where:** four zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at 7:06 pm Pacific, unquoted `gh api repos/TusharVashishth/localcv/git/trees/main?recursive=1` failed before `gh` ran with exactly `zsh: no matches found`
+**where:** five zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All four failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
+All five failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
-**Why:** REJECT at n=4 from four shell-command subjects; there are not five observations from five different subjects.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, such as `gh api 'repos/OWNER/REPO/issues?state=open&per_page=5'`, pass file filters through quoted `rg --glob '*.md' --glob '*.json'` arguments, and run `rg --files` before passing uncertain path targets; the corrected JadeAI request and required third-recurrence prevention check remain UNCONFIRMED.
+**Why:** still held back at n=5 from five shell-command subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, such as `gh api 'repos/TusharVashishth/localcv/git/trees/main?recursive=1'`, pass file filters through quoted `rg --glob '*.md' --glob '*.json'` arguments, and run `rg --files` before passing uncertain path targets. Add a reusable command preflight that rejects unquoted `?`, `&`, or `*` in shell endpoint and pattern arguments; this prevention check remains UNCONFIRMED until built and exercised.

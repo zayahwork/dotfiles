@@ -310,15 +310,16 @@ The failures and later recovery establish a transient write wall in this session
 **Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
 **Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.
 
-### `mark_artifact_operation_started.mjs` with no arguments printed usage and exited 1 at n=1
+### `mark_artifact_operation_started.mjs` rejected no arguments and `--output-format docx,pdf` across 2 invocations
 
 **verified:** 2026-10-05, running `mark_artifact_operation_started.mjs` with no arguments exited 1 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
-**where:** one spreadsheet artifact marker invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05, `mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 2 --output-format docx,pdf` failed and printed only the same usage text; the combined comma-separated output-format token was not accepted
+**where:** spreadsheet and document artifact marker invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The output proves that all three named arguments are required before the marker can record an operation.
+The two failures show that the marker requires all named arguments and did not accept two formats encoded as one comma-separated value.
 
-**Why:** REJECT at n=1 from one marker invocation and workspace subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; for one tracker edit, run the marker with `--operation-kind edit --expected-output-count 1 --output-format xlsx` and require exit 0 before authoring.
+**Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx` and require exit 0, then treat the rendered PDF as renderer output or mark it separately only when the tool explicitly requires another marker operation.
 
 ### `@oai/artifact-tool` import failed from eval and a symlink to missing `dependencies/node_modules`; the correct path imported 1,175 exports
 

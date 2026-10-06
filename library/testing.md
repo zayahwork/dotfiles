@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -146,6 +146,16 @@ Six reads used guessed concept paths; the seventh used a prior-turn path that wa
 
 **Why:** still held back at n=7 from four workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
 **Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. Require the resolved file to exist, report a nonzero byte count for artifacts, and invoke only a current path returned by the listing; the counter execution recovery is UNCONFIRMED because only path discovery was rerun.
+
+### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
+
+**verified:** 2026-10-06 at 5:25 am Pacific, the then-current `count_tracker.mjs` read fixed range `Applications!A7:J65` and printed 55 tracker rows plus 21 blocked after Nordstrom was added at row 66; the current script reads `sheet.getUsedRange().rowCount`, selects `A8:J${usedRowCount}`, filters for nonempty status, and a same-window rerun printed 55 tracker rows plus 22 blocked
+**where:** one tracker-count script and `outputs/job-application-tracker.xlsx` state
+
+The source and output establish the row-66 omission for this one script state but do not establish behavior in other workbooks.
+
+**Why:** REJECT at n=1 from one workbook and count-script subject; there are not five observations from five different subjects.
+**Fix:** derive the application-row end from the current used range or table, start below the header, and count only rows with a nonempty status; the current used-range implementation and nonempty rerun are verified.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 

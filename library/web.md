@@ -15,6 +15,7 @@ return, and where they quietly return nothing.
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
 | [`gh search repos` rejected `nameWithOwner` 15 times, `forkCount` 13 times, and `licenseInfo` 5 times across 22 commands](#gh-search-repos-rejected-namewithowner-15-times-forkcount-13-times-and-licenseinfo-5-times-across-22-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
+| [`gh search repos 'job application tracker stars:>100'` returned irrelevant, truncated description output at n=1](#gh-search-repos-job-application-tracker-stars100-returned-irrelevant-truncated-description-output-at-n1) | One narrow query produced no usable shortlist. Select one candidate and inspect its repository and exact files directly; that recovery is UNCONFIRMED. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api` returned HTTP 404 for 10 assumed repository file locations or availability states; inspection exposed 9 layouts](#gh-api-returned-http-404-for-10-assumed-repository-file-locations-or-availability-states-inspection-exposed-9-layouts) | Resolve remote files from the tree and metadata before requesting contents, and do not decode an API error as file data. |
@@ -260,6 +261,16 @@ Both constrained searches exposed no usable result rows, but the comparison does
 
 **Why:** REJECT at n=2 constrained-query subjects with one shorter control; there are not five observations from five different subjects.
 **Fix:** split a constrained search into shorter independent queries and require nonempty validated rows before concluding that no repositories match; whether this recovers results for the second query is UNCONFIRMED.
+
+### `gh search repos 'job application tracker stars:>100'` returned irrelevant, truncated description output at n=1
+
+**verified:** 2026-10-06, `gh search repos 'job application tracker stars:>100'` returned a large repository-description response that included irrelevant material and was truncated before it yielded a usable narrow result set
+**where:** one GitHub CLI repository search from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The output did not support selecting a repository from the narrow query; the component that performed the truncation and why irrelevant repositories were returned are UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one query and search-output subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; select one candidate repository, inspect it through the required GitHub wrapper's direct repository view, and read only targeted files instead of accepting broad repository-description output.
 
 ### `opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension
 

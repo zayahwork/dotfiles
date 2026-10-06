@@ -17,7 +17,7 @@ return, and where they quietly return nothing.
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
-| [`gh api contents` returned HTTP 404 for 5 guessed paths; tree inspection found exact files across 4 repositories](#gh-api-contents-returned-http-404-for-5-guessed-paths-tree-inspection-found-exact-files-across-4-repositories) | Resolve the remote path from the tree before requesting repository contents, and do not decode an API error as file data. |
+| [`gh api contents` returned HTTP 404 for 7 guessed paths; tree or root inspection corrected 6 repository layouts](#gh-api-contents-returned-http-404-for-7-guessed-paths-tree-or-root-inspection-corrected-6-repository-layouts) | Resolve the remote path from the tree before requesting repository contents, and do not decode an API error as file data. |
 | [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 7 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-7-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; three corrected retries succeeded. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
@@ -381,17 +381,19 @@ The transformed value was not accepted as base64, but the evidence does not esta
 **Why:** REJECT at n=1 from one repository-content subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; request raw README bytes with `gh api -H 'Accept: application/vnd.github.raw+json' repos/OWNER/REPO/readme`, then require nonzero bytes and expected content instead of locally decoding the transformed field.
 
-### `gh api contents` returned HTTP 404 for 5 guessed paths; tree inspection found exact files across 4 repositories
+### `gh api contents` returned HTTP 404 for 7 guessed paths; tree or root inspection corrected 6 repository layouts
 
 **verified:** 2026-10-05 at about 9:14 pm Pacific, fetching `contents/LICENSE` through the official GitHub CLI returned HTTP 404, while repository-tree inspection showed the actual file path was `LICENSE.md`
 **verified:** 2026-10-05, `gh api repos/TusharVashishth/localcv/contents/src/lib/db.ts -H 'Accept: application/vnd.github.raw+json'` and a second request for guessed path `src/lib/db/local-db.ts` each returned exactly `gh: Not Found (HTTP 404)` with nonempty JSON errors; `gh api 'repos/TusharVashishth/localcv/git/trees/HEAD?recursive=1' --jq '.tree[].path' | rg '(^|/)(db|database|dexie|storage)'` returned `src/lib/db/schema.ts`, and fetching that exact contents path succeeded and printed the IndexedDB schema
 **verified:** 2026-10-05, a GitHub contents request for guessed path `src/main/java/com/resume/ats/check/utils/ResumeMatcher.java` returned HTTP 404, while the recursive repository tree exposed `KeywordMatcher.java` and `SkillMatcherUtil.java` instead
 **verified:** 2026-10-06, `gh api repos/seehiong/ats-buddy/contents/src/services/parser.ts` returned exactly `gh: Not Found (HTTP 404)` and its piped decoder returned `base64: stdin: (null): error decoding base64 input stream`; the recursive tree listed `src/services/parse.ts`, whose raw contents request returned 6,731 bytes with `stripReasoning`, `extractJsonObject`, and `parseAnalysis` exports
-**where:** five failed official GitHub CLI content-path lookups across four repository subjects, plus two successful tree-first recoveries
+**verified:** 2026-10-06, `gh api repos/zoepan0109-coder/job-application-tracker-extension/contents/package.json -H 'Accept: application/vnd.github.raw+json'` returned exactly `gh: Not Found (HTTP 404)`; the repository root listing showed a plain browser extension with existing `manifest.json` and `records.js` paths instead
+**verified:** 2026-10-06, `gh api repos/adamrangwala/Job-Application-Tracker/contents/ChromeExtension/manifest.json -H 'Accept: application/vnd.github.raw+json'` returned exactly `gh: Not Found (HTTP 404)`; the repository root listing showed Apps Script `.gs` files and no `ChromeExtension` directory
+**where:** seven failed official GitHub CLI content-path lookups across six repository subjects, plus two successful tree-first content recoveries
 
-All five failed requests used paths that differed from the exact filenames exposed by their repository trees.
+All seven failed requests assumed a path or layout that differed from the repository tree or root listing.
 
-**Why:** REJECT at n=5 path failures across four repository subjects; there are not five observations from five different subjects.
+**Why:** still held back at n=7 path failures across six repository subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** query the recursive tree first, filter its returned paths for the target concept, then pass the exact path to `gh api repos/OWNER/REPO/contents/<path>` and require nonempty expected content. Stop when `gh api` returns nonzero, request raw media for file contents, and never pipe an API error payload into `base64`; use the repository license API when the target is a license.
 
 ### Ashby posting API selection exited 0 with zero output for one board and job ID

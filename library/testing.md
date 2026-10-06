@@ -210,7 +210,7 @@ The failed import and passing registered-module run isolate the observed failure
 **Why:** REJECT at n=1 from one import subject; there are not five observations from five different subjects.
 **Fix:** set `sys.modules[SPEC.name] = module` before `SPEC.loader.exec_module(module)`, then run the test file and require exit 0 plus its expected test count.
 
-### Direct `pipeline.py` execution was denied; `/opt/homebrew` Python lacked `docx` and `pypdf`; bundled Python passed 18 tests
+### Direct `pipeline.py` execution was denied; system Python lacked `docx` and `pypdf`; bundled Python passed 18 then 24 tests
 
 **verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
 **verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
@@ -219,6 +219,7 @@ The failed import and passing registered-module run isolate the observed failure
 **verified:** 2026-10-05, direct execution of `job-pipeline/pipeline.py` returned `permission denied`; invoking it through system `python3` then failed with `ModuleNotFoundError: No module named 'docx'`, while the bundled Python path remained the verified successful runtime for the script and tests
 **verified:** 2026-10-05, another Homebrew `python3` pair failed immediately because `python-docx` was absent: the pipeline exited 1 with exactly `ModuleNotFoundError: No module named 'docx'`, and unittest reported one failed import followed by `FAILED (errors=1)`; the bundled Python path remained the verified recovery
 **verified:** 2026-10-05 at about 10:13 pm Pacific, `python3 job-pipeline/pipeline.py run` again failed immediately at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; no job-applications file was changed
+**verified:** 2026-10-06, system `python3` running the pipeline and its tests failed at import with exactly `ModuleNotFoundError: No module named 'docx'`, while the bundled workspace Python completed the working test invocation with 24 tests passed
 **where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.

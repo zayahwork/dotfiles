@@ -27,6 +27,7 @@ return, and where they quietly return nothing.
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results](#4-jina-wrapped-google-searches-returned-696-to-754-captcha-bytes-and-0-results) | Exit 0 and nonempty output still hid every search result. Detect CAPTCHA or homepage content and switch search routes. |
+| [Jina routes returned 8 unusable responses across 10 Brave, Yahoo, and Bing queries](#jina-routes-returned-8-unusable-responses-across-10-brave-yahoo-and-bing-queries) | Search-engine text is only a lead. Validate expected results, then verify candidates on official pages or platform APIs. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -322,6 +323,16 @@ All four responses were nonempty but contained no usable result links, so exit s
 
 **Why:** REJECT at n=4 queries from one Google-through-Jina route; there are not five observations from five different subjects or an untouched control.
 **Fix:** use runtime web search only when it returns nonempty result content, or use official career-board endpoints and direct employer pages. Require expected result text or links, stop without bypassing a CAPTCHA, and never accept exit 0 alone.
+
+### Jina routes returned 8 unusable responses across 10 Brave, Yahoo, and Bing queries
+
+**verified:** 2026-10-06, three of four parallel Jina-wrapped Brave queries returned HTTP 429 or CAPTCHA pages, two of three Jina-wrapped Yahoo queries returned temporary-problem pages, and three Bing queries for Palm, REI, and Reddit returned unrelated results
+**where:** ten Brave, Yahoo, and Bing search-engine queries through Jina Reader in one job-search run
+
+Eight named responses did not provide usable query results; the evidence does not establish the quality of the remaining two responses or a general rule for later runs.
+
+**Why:** REJECT at n=10 query calls across three engine-route subjects in one run; there are not five subjects plus an untouched control.
+**Fix:** treat search-engine text as an unverified lead, require expected query terms and relevant result links, then verify on official employer pages or platform-native APIs. Fall back to the runtime web search only when it returns nonempty relevant content.
 
 ### Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1
 

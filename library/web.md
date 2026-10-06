@@ -17,6 +17,7 @@ return, and where they quietly return nothing.
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
+| [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
 | [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
@@ -255,3 +256,13 @@ The successful completion establishes no search result because the response expo
 
 **Why:** REJECT at n=1 from one call subject; there are not five observations from five different subjects.
 **Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.
+
+### Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1
+
+**verified:** 2026-10-05 at 7:09 pm Pacific, Jina Reader on `https://www.pccmarkets.com/page/about/jobs` returned HTTP 403 and a Cloudflare page containing exactly `Performing security verification`; the workflow stopped and did not bypass the challenge
+**where:** one read of the PCC Community Markets careers page through Jina Reader
+
+The response establishes an anti-bot interstitial for this page and route, but not a site-wide rule for every PCC URL or client.
+
+**Why:** REJECT at n=1 from one page and backend subject; there are not five observations from five different subjects.
+**Fix:** use search-indexed official content or the employer's linked ATS through normal visible navigation; never retry or bypass the challenge.

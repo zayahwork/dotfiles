@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -105,16 +105,17 @@ Never trust an empty `ls` from a script.
 
 ## Held back
 
-### `rm -f style commands are not permitted. Use a safer approach` at n=2
+### `rm -f style commands are not permitted. Use a safer approach` at n=3
 
 **verified:** 2026-10-04, `exec_command` rejected a multiline DOCX render command containing `rm -rf work/welo-cv-render` with exactly `rm -f style commands are not permitted. Use a safer approach`
 **verified:** 2026-10-06, the execution layer rejected explicit single-file command `rm -f /Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx.inspect.ndjson` with exactly `rm -f style commands are not permitted. Use a safer approach`; the target was a generated inspection sidecar
-**where:** two removal commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, covering one recursive render directory and one explicit generated file
+**verified:** 2026-10-06, a combined document build and render command containing `rm -rf job-pipeline/work/heartbeat-2026-10-06-0950/qa-office-depot` was rejected before execution with exactly `rm -f style commands are not permitted. Use a safer approach`; `shell-preflight` then rejected the same rm command, accepted a fresh-directory command, and printed `shell-preflight: 20 fixtures passed`
+**where:** three removal commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, covering two recursive render or QA directories and one explicit generated file
 
-Both commands were rejected before removal, but the evidence does not establish the execution layer's complete deletion policy.
+All three commands were rejected before removal, but the evidence does not establish the execution layer's complete deletion policy.
 
-**Why:** REJECT at n=2 from two command subjects in one execution layer; there are not five observations from five different subjects.
-**Fix:** use a fresh explicit output directory or `mktemp -d` instead of recursively removing a render directory. No single-file recovery was verified; leave the generated sidecar in place rather than bypassing the command gate.
+**Why:** still held back at n=3 from three command subjects in one execution layer; there are not five observations from five different subjects.
+**Fix:** use a fresh never-before-used output directory or `mktemp -d` instead of deleting or reusing a render directory, and leave generated sidecars in place rather than bypassing the command gate. Run `shell-preflight '<planned command>'` first; its verified rm check rejects direct and combined rm commands before execution.
 
 ### `path` replaced `PATH` and made 8 command names unavailable across 8 zsh subjects
 
@@ -195,14 +196,14 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **verified:** 2026-10-06, after `gh repo view` and README inspection established that `AmruthPillai/Reactive-Resume` moved to `reactive-resume/reactive-resume`, unquoted `gh api repos/AmruthPillai/Reactive-Resume/commits?per_page=5` printed exactly `zsh:8: no matches found: repos/AmruthPillai/Reactive-Resume/commits?per_page=5`, and the unquoted `git/trees/v4?recursive=1` endpoint likewise returned `zsh: no matches found` before `gh` ran
 **verified:** 2026-10-06, unquoted `gh api repos/hugounoclaw/ats-checker/commits?per_page=5` failed before `gh` ran with exactly `zsh:1: no matches found`; the endpoint's `?` was exposed to zsh filename generation
 **verified:** 2026-10-06 at about 9:00 am Pacific, unquoted `gh api repos/kotarowatanabe107/ats-resume-checker/git/trees/main?recursive=1` failed before `gh` ran with `zsh: no matches found`; repository metadata had already reported default branch `master`, and the quoted `master?recursive=1` retry returned 28 paths
-**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` rejected unquoted query endpoints, accepted their quoted forms, and its expanded query-glob plus GitHub-field suite printed `shell-preflight: 16 fixtures passed`
+**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` rejected unquoted query endpoints, accepted their quoted forms, and its expanded query-glob, GitHub-field, and rm suite printed `shell-preflight: 20 fixtures passed`
 **verified:** 2026-10-06, unquoted `gh api repos/.../commits?per_page=5` and `gh api repos/.../issues?state=all&per_page=10` each failed before `gh` ran with `zsh: no matches found`; quoting the complete endpoint is the verified recovery class already exercised by the preflight fixtures
 **where:** forty-four zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, plus the reusable `home/bin/shell-preflight` check in the dotfiles repository
 
 All forty-four failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
 **Why:** still held back at n=44 from forty-four shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its expanded 16-fixture suite passes. Exact historical fixture parity for all forty-four failures remains UNCONFIRMED.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its expanded 20-fixture suite passes. Exact historical fixture parity for all forty-four failures remains UNCONFIRMED.
 
 ### macOS `date %:z` exited 0 with literal `:z` suffixes at n=3
 

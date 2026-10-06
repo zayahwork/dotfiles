@@ -13,12 +13,12 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 20 times, `read` 5 times, `get` once, and `search-web` once across 5 dates](#agent-reach-rejected-search-20-times-read-5-times-get-once-and-search-web-once-across-5-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
-| [`gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 7 times, and `licenseInfo` 3 times across 14 commands](#gh-search-repos-rejected-namewithowner-11-times-forkcount-7-times-and-licenseinfo-3-times-across-14-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 8 times, and `licenseInfo` 3 times across 15 commands](#gh-search-repos-rejected-namewithowner-11-times-forkcount-8-times-and-licenseinfo-3-times-across-15-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api contents` returned HTTP 404 for 4 guessed paths; tree inspection found exact files across 3 repositories](#gh-api-contents-returned-http-404-for-4-guessed-paths-tree-inspection-found-exact-files-across-3-repositories) | Resolve the remote path from the tree before requesting repository contents. |
-| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-5-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; one corrected retry succeeded. |
+| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 6 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-6-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; two corrected retries succeeded. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -214,7 +214,7 @@ The result shows that this command performs skill installation management rather
 **Why:** REJECT at n=1 from one command and installed CLI subject; there are not five observations from five different subjects.
 **Fix:** read the installed Agent Reach `SKILL.md` and invoke its documented backend-specific commands; do not use `agent-reach skill` as search documentation.
 
-### `gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 7 times, and `licenseInfo` 3 times across 14 commands
+### `gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 8 times, and `licenseInfo` 3 times across 15 commands
 
 **verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
 **verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
@@ -230,11 +230,12 @@ The result shows that this command performs skill installation management rather
 **verified:** 2026-10-06, a job-applications heartbeat `gh search repos ... --json nameWithOwner,...,licenseInfo` command failed field validation because the accepted repository identity and license fields were `fullName` and `license`
 **verified:** 2026-10-06, `gh search repos 'job application tracker duplicate detection resume ATS' --sort updated --limit 10 --json ...` returned nonempty stderr containing exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the valid fields
 **verified:** 2026-10-06, `gh search repos 'job application tracker duplicate detection resume' --sort updated --order desc --limit 10 --json nameWithOwner,description,stargazersCount,forksCount,updatedAt,url` returned output beginning exactly `Unknown JSON field: "nameWithOwner"` and listed `fullName` among the available fields
-**where:** fourteen official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `gh search repos ... --json owner,name,description,stargazersCount,forkCount,pushedAt,updatedAt,url` returned exactly `Unknown JSON field: "forkCount"` and listed `forksCount` and `fullName`; a corrected `gh search repos 'resume' --sort updated --limit 10 --json owner,name,description,stargazersCount,forksCount,pushedAt,updatedAt,url` retry returned 3,686 bytes containing 10 repository rows
+**where:** fifteen official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All fourteen commands failed during JSON field validation before repository results could be accepted.
+All fifteen commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** still held back after fourteen commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
+**Why:** still held back after fifteen commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
 **Fix:** use `fullName` for repository identity, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output. The repeated recurrence requires a wrapper or preflight that maps or rejects `nameWithOwner`, `forkCount`, and `licenseInfo` before execution; that check remains UNCONFIRMED until built and exercised.
 
 ### 2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories
@@ -275,19 +276,20 @@ All four requests supplied form fields without forcing GET, while the successful
 **Why:** REJECT at n=4 from four repository request subjects; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api -X GET repos/OWNER/REPO/commits -f per_page=5`, omit pagination for a small check, or encode the query in a quoted GET endpoint, then require a nonempty commits response.
 
-### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 5 hard-coded branch mismatches
+### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 6 hard-coded branch mismatches
 
 **verified:** 2026-10-05, `gh repo view` reported `Gsync/jobsync` default branch `main`, then `gh api repos/Gsync/jobsync/git/trees/master?recursive=1` returned HTTP 404
 **verified:** 2026-10-05 at about 10:16 pm Pacific, repository view reported `NullSpace-BitCradle/ats-resume-agent` default branch `master`, then `gh api repos/NullSpace-BitCradle/ats-resume-agent/git/trees/main?recursive=1` returned HTTP 404
 **verified:** 2026-10-06, repository metadata reported `sp6370/Job-Application-Tracker` default branch `main`, a tree request for `master` returned HTTP 404, and retrying with the metadata-provided branch succeeded
 **verified:** 2026-10-06, `gh repo view rpunia29/applic --json defaultBranchRef` returned `{"name":"master"}` immediately before the quoted `main?recursive=1` tree request returned HTTP 404 Not Found
 **verified:** 2026-10-06, repository metadata reported `benidevo/vega-ai` default branch `master`, then its `main?recursive=1` tree request returned HTTP 404
-**where:** five official GitHub API tree requests across five repositories
+**verified:** 2026-10-06, `gh repo view sliday/resume-job-matcher --json defaultBranchRef` returned `master` after a tree request hard-coded `main`; the quoted corrected `master?recursive=1` GET returned 49 tree paths in 997 bytes
+**where:** six official GitHub API tree requests across six repositories
 
-Each failed request hard-coded a branch that differed from repository metadata, while the one corrected retry used the metadata value and succeeded.
+Each failed request hard-coded a branch that differed from repository metadata, while two corrected retries used the metadata value and succeeded.
 
-**Why:** still held back at n=5 from five repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** read `defaultBranchRef.name`, quote the query-bearing endpoint that uses that exact branch, and require a nonempty tree response; the corrected `sp6370/Job-Application-Tracker` retry verifies this recovery.
+**Why:** still held back at n=6 from six repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** read `defaultBranchRef.name`, quote the query-bearing endpoint that uses that exact branch, and require a nonempty tree response; corrected retries for `sp6370/Job-Application-Tracker` and `sliday/resume-job-matcher` verify this recovery.
 
 ### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
 

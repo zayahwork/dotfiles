@@ -278,16 +278,17 @@ The fallback directory was available but did not contain these two Poppler progr
 **Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
 **Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.
 
-### artifact-tool copy operations lost formatting or corrupted overlapping sources on 4 observations from one workbook
+### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 6 observations from one workbook
 
 **verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row
 **verified:** 2026-10-05, overlapping `A49:J52.copyTo(A50:J53, "all")` on four individually merged rows made all four destination rows contain `Take-home estimate assumptions`, replacing the three distinct body rows
+**verified:** 2026-10-05, overlapping `copyFrom(A51:J54 -> A54:J57, "all")` corrupted the last copied note row; its copied formats also retained existing A:J merges in the destination, so inspection contained written B:J values while the render hid them
 **where:** one imported tracker workbook edited with artifact-tool
 
-The evidence establishes all four copy results in this workbook but does not establish their cause or behavior in other workbooks.
+The evidence establishes all six copy results in this workbook but does not establish their cause or behavior in other workbooks.
 
-**Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
-**Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.
+**Why:** REJECT after six observations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** avoid overlapping copies or stage through a non-overlapping range, explicitly unmerge target rows with `sheet.unmergeCells`, rewrite values and formats, then inspect the values and render every affected column.
 
 ### Git push failed twice over SSH and 3 times over HTTPS, then the same SSH push succeeded at n=1
 

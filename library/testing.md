@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -77,18 +77,19 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `fill`, `getState`, `domContentLoaded`, and `waitForTimeout` were not functions on 9 calls from 3 documented tab subjects
+### BrowserTab `getSnapshot`, `fill`, `getState`, `domContentLoaded`, and `waitForTimeout` were not functions on 10 calls from 3 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
 **verified:** 2026-10-05 at the 10:32 am Pacific heartbeat, `gmailTab.getState()` returned exactly `gmailTab.getState is not a function` immediately and changed no external state
 **verified:** 2026-10-05, after `cua.createBrowserTab()` returned the Gmail inbox tab binding, `mailTab.getSnapshot()` returned exactly `mailTab.getSnapshot is not a function`; the already verified snapshot method is `tab.playwright.domSnapshot()`
 **verified:** 2026-10-05, after `let inboxTab = await cua.createBrowserTab(...)` returned a live Gmail tab, `await inboxTab.getState()` returned exactly `inboxTab.getState is not a function`; `cua.rewriteDocumentation()` listed `getAXState(options?)`, and `await inboxTab.getAXState({disableDiffing:true})` then returned the Gmail search results
+**verified:** 2026-10-05, `gmailTab.getSnapshot()` returned exactly `gmailTab.getSnapshot is not a function`, and refreshed documentation listed `Target.getAXState(options?)`; the same BrowserTab method had already returned a fresh Gmail accessibility tree as `await inboxTab.getAXState({disableDiffing:true})`
 **where:** three unified-computer-use BrowserTab subjects across application and Gmail workflows
 
 The returned tab objects did not expose those methods; direct accessibility input uses `setValue(elementIndex, value)`, while `fill` belongs to a Playwright locator.
 
-**Why:** still held back after nine calls from three documented tab subjects; there are not five observations from five different subjects.
+**Why:** still held back after ten calls from three documented tab subjects; there are not five observations from five different subjects.
 **Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or Playwright locator `fill` in a Playwright context; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; for load waits, `tab.playwright.waitForLoadState({state:"domcontentloaded", timeoutMs:...})` remains UNCONFIRMED until run; for a timed delay, `await new Promise(r => setTimeout(r, ms))` in the CUA JS runtime remains UNCONFIRMED until followed by a successful snapshot.
 
 ### `No browser is available` at n=1
@@ -197,6 +198,7 @@ The failed import and passing registered-module run isolate the observed failure
 **verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
 **verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
 **verified:** 2026-10-05 at 4:24 pm Pacific, default `/opt/homebrew/bin/python3` 3.14.7 running `python3 -m unittest job-pipeline/tests/test_pipeline.py` failed with `ModuleNotFoundError: No module named 'docx'`, and a `python3` PDF validation snippet failed with exactly `ModuleNotFoundError: No module named 'pypdf'`; a paired check showed the bundled Python imported `docx` 1.2.0 and `pypdf` 6.10.0, then ran `job-pipeline/tests/test_pipeline.py -q` with `Ran 18 tests in 0.843s`, `OK`, and exit 0
+**verified:** 2026-10-05 at about 5:08 pm Pacific, `/opt/homebrew/bin/python3` 3.14.7 running both `python3 job-pipeline/pipeline.py run` and `python3 -m unittest discover -s job-pipeline/tests -v` failed with exactly `ModuleNotFoundError: No module named 'docx'`; this repeats the same runtime and workspace subject
 **where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.
@@ -204,17 +206,18 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** run dependency-bearing tests, pipeline commands, and PDF validation with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=7 across 4 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=8 across 5 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
 **verified:** 2026-10-05, one library/web.md patch expected a generated Markdown anchor containing `reactive-resume-reactive-resume`, while the current line contained `reactive-resumereactive-resume`; `apply_patch` returned `Failed to find expected lines` and changed no file
-**where:** seven patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, and `library/web.md`
+**verified:** 2026-10-05, one library/testing.md patch expected `Why: REJECT after nine calls` while the current entry said `Why: still held back after nine calls`; `apply_patch` returned `Failed to find expected lines` and changed no file
+**where:** eight patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, and `library/testing.md`
 
-All seven failures mean the hunk context did not match the named target file; they cover four file subjects, not five independent subjects.
+All eight failures mean the hunk context did not match the named target file; they cover five file subjects.
 
-**Why:** still held back at n=7 across four file subjects; there are not five observations from five different subjects.
-**Fix:** read each target immediately before editing, patch stable source separately from generated state, and use a minimal whole-file patch based on current content when a small generated file must be reset.
+**Why:** still held back at n=8 across five file subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
+**Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
 
@@ -259,3 +262,13 @@ The failures and later recovery establish a transient write wall in this session
 
 **Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
 **Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.
+
+### `mark_artifact_operation_started.mjs` with no arguments printed usage and exited 1 at n=1
+
+**verified:** 2026-10-05, running `mark_artifact_operation_started.mjs` with no arguments exited 1 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
+**where:** one spreadsheet artifact marker invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The output proves that all three named arguments are required before the marker can record an operation.
+
+**Why:** REJECT at n=1 from one marker invocation and workspace subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; for one tracker edit, run the marker with `--operation-kind edit --expected-output-count 1 --output-format xlsx` and require exit 0 before authoring.

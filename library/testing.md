@@ -93,6 +93,16 @@ The returned tab objects did not expose those methods; direct accessibility inpu
 **Why:** still held back after eleven calls from four documented tab subjects; there are not five observations from five different subjects.
 **Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or Playwright locator `fill` in a Playwright context; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; for load waits, `tab.playwright.waitForLoadState({state:"domcontentloaded", timeoutMs:...})` remains UNCONFIRMED until run; for a timed delay, `await new Promise(r => setTimeout(r, ms))` in the CUA JS runtime remains UNCONFIRMED until followed by a successful snapshot.
 
+### `setValue(15, "All job types")` returned `Select did not retain the requested option` at n=1
+
+**verified:** 2026-10-05 at about 5:48 pm Pacific, the YMCA of Snohomish County SaaS HR category control appeared as an accessibility pop-up button with Value `Housekeeping`; `tab.setValue(15, "All job types")` returned exactly `Select did not retain the requested option`, and `performSecondaryAction(..., "Expand")` returned no expanded state
+**where:** one unified-computer-use category-filter interaction on the YMCA of Snohomish County careers site
+
+The accessibility control did not retain the requested option or expose an expanded state in this interaction; its underlying widget implementation is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one control and site subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; target the control with a Playwright DOM locator or use site-specific visible navigation, then verify both the displayed filter label and result count.
+
 ### `No browser is available` at n=1
 
 **verified:** 2026-09-22, the first `cua.getBrowser({ url: "https://pump.fun/" })` call returned exactly `No browser is available`, and no browser state changed

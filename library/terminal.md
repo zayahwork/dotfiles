@@ -11,6 +11,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 36 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
+- [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
 
 ---
@@ -208,6 +209,17 @@ Both successful exits produced malformed timestamps because this environment's `
 
 **Why:** REJECT at n=2 from one date binary and environment subject; there are not five observations from five different subjects.
 **Fix:** format the offset with `%z`, verify the output is nonempty, then insert the colon with zsh substring expansion as shown in the verified command and require a final `-07:00` or `-08:00` suffix for Pacific time.
+
+### macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed
+
+**verified:** 2026-10-06, `date -u +%Y-%m-%dT%H:%M:%S.%3NZ` exited 0 and printed exactly `2026-10-06T14:09:30.3NZ`, after which the pipeline reported exactly `Invalid end timestamp`; two isolated reruns printed `2026-10-06T14:09:48.3NZ` and `2026-10-06T14:10:10.3NZ`, and Node `Date.parse("2026-10-06T14:09:30.3NZ")` returned `NaN`
+**verified:** 2026-10-06, `node -e 'console.log(new Date().toISOString())'` printed `2026-10-06T14:09:49.316Z`; a second Node run printed `2026-10-06T14:10:10.118Z` and confirmed `Number.isFinite(Date.parse(value))` was `true`
+**where:** three macOS UTC timestamp-formatting invocations and two Node replacement invocations in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The three successful `date` exits all contained a literal `.3NZ`, but the evidence does not establish behavior outside this date binary and machine environment.
+
+**Why:** REJECT at n=3 from one date binary and environment subject; there are not five observations from five different subjects.
+**Fix:** generate millisecond UTC timestamps with `node -e 'console.log(new Date().toISOString())'`, then require a finite `Date.parse` result before using the value; both Node replacement outputs were verified.
 
 ### macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp
 

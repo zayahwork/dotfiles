@@ -218,7 +218,7 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** run dependency-bearing tests, pipeline commands, and PDF validation with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=10 across 5 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=11 across 6 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
@@ -226,11 +226,12 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **verified:** 2026-10-05, one library/testing.md patch expected `Why: REJECT after nine calls` while the current entry said `Why: still held back after nine calls`; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one library/web.md patch expected the truncation-entry Fix without its current `UNCONFIRMED;` prefix; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one library/testing.md patch expected the patch-context entry to be followed by the openpyxl entry, while the current file placed `listen EPERM` next; `apply_patch` returned `Failed to find expected lines` and changed no file
-**where:** ten patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, and `library/testing.md`
+**verified:** 2026-10-05, one library/terminal.md patch expected the indexed detailed Held back contents row while the working file contained a broader generic row; `apply_patch` returned `Failed to find expected lines` and changed no file
+**where:** eleven patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, `library/testing.md`, and `library/terminal.md`
 
-All ten failures mean the hunk context did not match the named target file; they cover five file subjects.
+All eleven failures mean the hunk context did not match the named target file; they cover six file subjects.
 
-**Why:** still held back at n=10 across five file subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
+**Why:** still held back at n=11 across six file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging

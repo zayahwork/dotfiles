@@ -323,3 +323,13 @@ Bare-package resolution failed from the eval context and from a symlink whose ta
 
 **Why:** REJECT after two failed setups from one machine and package subject; there are not five observations from five different subjects.
 **Fix:** symlink `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified.
+
+### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`
+
+**verified:** 2026-10-05, artifact-tool wrote `new Date('2026-10-05T18:20:29-07:00')` and the XLSX displayed `10/06/26 1:20 AM`; writing `new Date('2026-10-05T18:20:29Z')` displayed the intended `10/05/26 6:20 PM`
+**where:** one date-cell edit in an artifact-tool XLSX workflow
+
+The paired display values establish that this workbook used the serialized UTC components as an Excel wall-clock value, but not a universal rule for every spreadsheet engine.
+
+**Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
+**Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.

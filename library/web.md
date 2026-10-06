@@ -18,6 +18,7 @@ return, and where they quietly return nothing.
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
 | [`gh api .../contents/LICENSE` returned HTTP 404 while the tree contained `LICENSE.md` at n=1](#gh-api-contentslicense-returned-http-404-while-the-tree-contained-licensemd-at-n1) | The assumed file path was wrong. Inspect the tree or use the repository license API before requesting content. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
+| [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
@@ -303,3 +304,13 @@ The failed request used a filename that did not exist in the inspected tree.
 
 **Why:** REJECT at n=1 from one repository and path subject; there are not five observations from five different subjects.
 **Fix:** inspect the repository tree for the exact license filename before requesting `contents/<path>`, or use the repository license API, then require nonempty content.
+
+### Ashby posting API selection exited 0 with zero output for one board and job ID
+
+**verified:** 2026-10-05 at about 9:19 pm Pacific, `curl -fsSL https://api.ashbyhq.com/posting-api/job-board/snapdocs | jq '.jobs[] | select(.id=="fab8e4d6-2fdb-42e4-93f9-5887c64ae3da") | {...}'` exited 0 with empty stdout
+**where:** one official Ashby posting API board and job-ID selection
+
+The zero-byte result does not distinguish a removed job, a changed board key, a changed job ID, or an unexpected response shape.
+
+**Why:** REJECT at n=1 from one board and job subject; there are not five observations from five different subjects.
+**Fix:** inspect the response byte count, root keys, and returned job IDs before applying `select`, then require a nonempty matched object before treating the lookup as verified.

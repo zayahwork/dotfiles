@@ -17,8 +17,8 @@ return, and where they quietly return nothing.
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
-| [`gh api` returned HTTP 404 for 9 assumed repository file locations; tree or root inspection exposed 8 layouts](#gh-api-returned-http-404-for-9-assumed-repository-file-locations-tree-or-root-inspection-exposed-8-layouts) | Resolve the remote file location from the tree before requesting contents, and do not decode an API error as file data. |
-| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 9 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-9-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; three corrected retries succeeded. |
+| [`gh api` returned HTTP 404 for 10 assumed repository file locations or availability states; inspection exposed 9 layouts](#gh-api-returned-http-404-for-10-assumed-repository-file-locations-or-availability-states-inspection-exposed-9-layouts) | Resolve remote files from the tree and metadata before requesting contents, and do not decode an API error as file data. |
+| [`gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 10 hard-coded branch mismatches](#gh-api-gittreesbranchrecursive1-returned-http-404-on-10-hard-coded-branch-mismatches) | Read `defaultBranchRef.name` and use that exact ref; three corrected retries succeeded. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -289,7 +289,7 @@ All four requests supplied form fields without forcing GET, while the successful
 **Why:** REJECT at n=4 from four repository request subjects; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api -X GET repos/OWNER/REPO/commits -f per_page=5`, omit pagination for a small check, or encode the query in a quoted GET endpoint, then require a nonempty commits response.
 
-### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 9 hard-coded branch mismatches
+### `gh api .../git/trees/<branch>?recursive=1` returned HTTP 404 on 10 hard-coded branch mismatches
 
 **verified:** 2026-10-05, `gh repo view` reported `Gsync/jobsync` default branch `main`, then `gh api repos/Gsync/jobsync/git/trees/master?recursive=1` returned HTTP 404
 **verified:** 2026-10-05 at about 10:16 pm Pacific, repository view reported `NullSpace-BitCradle/ats-resume-agent` default branch `master`, then `gh api repos/NullSpace-BitCradle/ats-resume-agent/git/trees/main?recursive=1` returned HTTP 404
@@ -300,11 +300,12 @@ All four requests supplied form fields without forcing GET, while the successful
 **verified:** 2026-10-06, `gh api 'repos/davidisdeploying/prospect/git/trees/main?recursive=1'` returned HTTP 404 after `gh repo view ... --json defaultBranchRef` showed `master`; the corrected `master?recursive=1` GET returned 109,747 bytes containing 438 paths
 **verified:** 2026-10-06 at about 4:19 am Pacific, `gh repo view Bunsly/JobSpy` resolved to `speedyapply/JobSpy` and reported default branch `main`, then a hard-coded `git/trees/master?recursive=1` request returned HTTP 404; no corrected tree output was supplied for this repository
 **verified:** 2026-10-06, `gh repo view jananthan30/Resume-Builder --json defaultBranchRef` reported `master`, then `gh api 'repos/jananthan30/Resume-Builder/git/trees/main?recursive=1'` returned HTTP 404; no corrected tree output was supplied for this repository
-**where:** nine official GitHub API tree requests across nine repositories
+**verified:** 2026-10-06, `gh repo view p95max/JobApply --json defaultBranchRef,licenseInfo` reported `defaultBranchRef.name` as `master`, then `gh api 'repos/p95max/JobApply/git/trees/main?recursive=1'` returned HTTP 404; no corrected `master` tree output was supplied
+**where:** ten official GitHub API tree requests across ten repositories
 
 Each failed request hard-coded a branch that differed from repository metadata, while three corrected retries used the metadata value and succeeded.
 
-**Why:** still held back at n=9 from nine repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back at n=10 from ten repository and branch-ref subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read `defaultBranchRef.name`, quote the query-bearing endpoint that uses that exact branch, and require a nonempty tree response; corrected retries for `sp6370/Job-Application-Tracker`, `sliday/resume-job-matcher`, and `davidisdeploying/prospect` verify this recovery.
 
 ### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
@@ -388,7 +389,7 @@ The transformed value was not accepted as base64, but the evidence does not esta
 **Why:** REJECT at n=1 from one repository-content subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; request raw README bytes with `gh api -H 'Accept: application/vnd.github.raw+json' repos/OWNER/REPO/readme`, then require nonzero bytes and expected content instead of locally decoding the transformed field.
 
-### `gh api` returned HTTP 404 for 9 assumed repository file locations; tree or root inspection exposed 8 layouts
+### `gh api` returned HTTP 404 for 10 assumed repository file locations or availability states; inspection exposed 9 layouts
 
 **verified:** 2026-10-05 at about 9:14 pm Pacific, fetching `contents/LICENSE` through the official GitHub CLI returned HTTP 404, while repository-tree inspection showed the actual file path was `LICENSE.md`
 **verified:** 2026-10-05, `gh api repos/TusharVashishth/localcv/contents/src/lib/db.ts -H 'Accept: application/vnd.github.raw+json'` and a second request for guessed path `src/lib/db/local-db.ts` each returned exactly `gh: Not Found (HTTP 404)` with nonempty JSON errors; `gh api 'repos/TusharVashishth/localcv/git/trees/HEAD?recursive=1' --jq '.tree[].path' | rg '(^|/)(db|database|dexie|storage)'` returned `src/lib/db/schema.ts`, and fetching that exact contents path succeeded and printed the IndexedDB schema
@@ -398,12 +399,13 @@ The transformed value was not accepted as base64, but the evidence does not esta
 **verified:** 2026-10-06, `gh api repos/adamrangwala/Job-Application-Tracker/contents/ChromeExtension/manifest.json -H 'Accept: application/vnd.github.raw+json'` returned exactly `gh: Not Found (HTTP 404)`; the repository root listing showed Apps Script `.gs` files and no `ChromeExtension` directory
 **verified:** 2026-10-06, `gh api repos/reactive-resume/reactive-resume/contents/libs/schema/src/resume/index.ts` returned exactly `gh: Not Found (HTTP 404)`; the recursive tree showed the schema under `packages/schema/src/resume/` and the application CSV logic at `apps/web/src/features/applications/csv.ts`, and requests for those tree-derived paths succeeded
 **verified:** 2026-10-06, `gh api repos/kngevrything/job-helper/license --jq '.license.name'` returned exactly `gh: Not Found (HTTP 404)` while the repository README said MIT and its recursive tree listed `job-tracker/LICENSE` and `chrome-extension/LICENSE` instead of a root license file
-**where:** nine failed official GitHub CLI repository-file lookups across eight repository subjects, plus three successful tree-first content recoveries
+**verified:** 2026-10-06, `gh repo view p95max/JobApply --json defaultBranchRef,licenseInfo` returned `licenseInfo:null`, then `gh api repos/p95max/JobApply/license` returned HTTP 404; the metadata established that no repository license was available through that endpoint before the request ran
+**where:** ten failed official GitHub CLI repository-file lookups across nine repository subjects, plus three successful tree-first content recoveries
 
-All nine failed requests assumed a file location or layout that differed from the repository tree or root listing.
+All ten failed requests assumed a file location or availability state that differed from the repository tree, root listing, or metadata.
 
-**Why:** still held back at n=9 location failures across eight repository subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** query the recursive tree first, filter its returned paths for the target concept, then pass the exact path to `gh api repos/OWNER/REPO/contents/<path>` and require nonempty expected content. Stop when `gh api` returns nonzero, request raw media for file contents, and never pipe an API error payload into `base64`; use the repository license endpoint only after confirming a root license file, otherwise request the exact nested license path through the contents endpoint.
+**Why:** still held back at n=10 location or availability failures across nine repository subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** query repository metadata and the recursive tree first, then filter returned paths for the target concept and pass the exact path to `gh api repos/OWNER/REPO/contents/<path>` with a nonempty-content requirement. Stop when `gh api` returns nonzero, request raw media for file contents, and never pipe an API error payload into `base64`; skip the repository license endpoint when `licenseInfo` is null, and request an exact nested license path only when the tree exposes one.
 
 ### Ashby posting API selection exited 0 with zero output for one board and job ID
 

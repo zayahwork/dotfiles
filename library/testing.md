@@ -422,16 +422,17 @@ The paired display values establish that this workbook used the serialized UTC c
 **Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
 **Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.
 
-### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=3
+### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=4
 
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py` exited 2 and printed `usage: pipeline.py [-h] {run} ...` followed by exactly `pipeline.py: error: the following arguments are required: command`; the same bundled runtime with `pipeline.py run` had already completed successfully and printed pipeline counts
 **verified:** 2026-10-06, after selecting the bundled Python runtime, invoking `pipeline.py` without `run` again returned exactly `error: the following arguments are required: command`; the same bundled runtime passed the separate 24-test invocation
 **verified:** 2026-10-06 at about 3:25 am Pacific, bundled Python invoked as `job-pipeline/pipeline.py` without a subcommand returned nonempty stderr containing `usage: pipeline.py [-h] {run} ...` and exactly `error: the following arguments are required: command`
-**where:** three job-pipeline CLI invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py` exited 2 with exactly `usage: pipeline.py [-h] {run} ...` and `pipeline.py: error: the following arguments are required: command`; adding `run` exited 0 and produced generated_at `2026-10-06T14:26:51.111617+00:00`, 201 discovered, 184 scored, 17 duplicates skipped, 1 ready, 5 blocked, and `source_failures: []`
+**where:** four job-pipeline CLI invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The nonempty parser stderr establishes that no pipeline run occurred; exit code alone is not execution proof.
 
-**Why:** REJECT at n=3 from one CLI parser subject; there are not five observations from five different subjects.
+**Why:** still held back at n=4 from one CLI parser subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
 ### We Work Remotely returned `TimeoutError: The read operation timed out` once; the pipeline still reported 163 discovered and 147 scored
@@ -554,16 +555,17 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### Git commands exited 128 with `fatal: not a git repository` across 3 job-workspace sessions
+### Git commands exited 128 with `fatal: not a git repository` across 4 job-workspace sessions
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
 **verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
 **verified:** 2026-10-06 at 5:25 am Pacific, `git status --short` from the same directory returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current comparison repeated that error while `git -C /Users/zayah/github/dotfiles rev-parse --show-toplevel` printed `/Users/zayah/github/dotfiles`
-**where:** three command sessions in one non-Git job-applications workspace
+**verified:** 2026-10-06, another compound library lookup ran `git fetch origin`, `git show origin/development:library/testing.md`, and revision lookups from the job-applications directory; each returned `fatal: not a git repository`, while rerunning from `/Users/zayah/github/dotfiles` fetched and printed the expected library subject and branch hashes
+**where:** four command sessions in one non-Git job-applications workspace
 
 Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
 
-**Why:** REJECT at n=3 command sessions from one workspace subject; there are not five observations from five different subjects.
+**Why:** still held back at n=4 command sessions from one workspace subject; there are not five observations from five different subjects.
 **Fix:** check the target with `git -C <candidate> rev-parse --show-toplevel` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut. A reusable preflight guard remains UNCONFIRMED until built and exercised.
 
 ### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1

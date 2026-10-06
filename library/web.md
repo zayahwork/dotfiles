@@ -11,7 +11,7 @@ return, and where they quietly return nothing.
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
-| [`agent-reach` rejected `search` 16 times, `read` 5 times, `get` once, and `search-web` once across 5 dates](#agent-reach-rejected-search-16-times-read-5-times-get-once-and-search-web-once-across-5-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
+| [`agent-reach` rejected `search` 20 times, `read` 5 times, `get` once, and `search-web` once across 5 dates](#agent-reach-rejected-search-20-times-read-5-times-get-once-and-search-web-once-across-5-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
 | [`gh search repos` rejected `nameWithOwner` 10 times, `forkCount` 6 times, and `licenseInfo` 3 times across 12 commands](#gh-search-repos-rejected-namewithowner-10-times-forkcount-6-times-and-licenseinfo-3-times-across-12-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
@@ -185,7 +185,7 @@ permission.
 
 ## Held back
 
-### `agent-reach` rejected `search` 16 times, `read` 5 times, `get` once, and `search-web` once across 5 dates
+### `agent-reach` rejected `search` 20 times, `read` 5 times, `get` once, and `search-web` once across 5 dates
 
 **verified:** 2026-09-30, invoking `search` returned exactly `invalid choice: 'search' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`; 2026-10-03, installed agent-reach v1.5.0 returned the same list for another `search` call, `agent-reach read <Ashby URL> --json` returned the equivalent exact `invalid choice: 'read'` error, and a Hyatt `agent-reach search ... --json` call returned the same `invalid choice: 'search'` list while Exa was explicitly prohibited; 2026-10-04, three more `agent-reach search '...' --json` calls exited 2 with the same exact `invalid choice: 'search'` command list; 2026-10-05, `agent-reach search "Rocket Money Operations Associate Remote Pacific Time Zone" --json` returned the same argparse error and allowed-command list from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 **verified:** 2026-10-05, `agent-reach search --help` from `/Users/zayah/Documents/Codex` returned exactly `invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
@@ -196,11 +196,12 @@ permission.
 **verified:** 2026-10-05, agent-reach v1.5.0 invoked as `agent-reach search-web '<query>' --json` returned `invalid choice: 'search-web'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
 **verified:** 2026-10-05, `agent-reach search --json --limit 12 ...` returned `argument command: invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
 **verified:** 2026-10-06 at 12:35 am Pacific, four Reddit and career `agent-reach search '<query>' --json` calls each returned `invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
-**where:** twenty-three calls covering four missing subcommands in one installed agent-reach 1.5.0 CLI environment
+**verified:** 2026-10-06, four more job-applications heartbeat `agent-reach search '<query>' --json` calls each failed because the same 1.5.0 command list did not include `search`
+**where:** twenty-seven calls covering four missing subcommands in one installed agent-reach 1.5.0 CLI environment
 
 The returned command lists contain neither top-level web command, but the evidence does not establish behavior for other installed versions.
 
-**Why:** still held back at n=23 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
+**Why:** still held back at n=27 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** use `agent-reach doctor --json` only for routing and backend status, the runtime web search tool for broad discovery, an approved platform CLI such as `gh` for GitHub, or direct Jina `curl` for an exact URL; do not invent `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`.
 
 ### `agent-reach skill` required `--install` or `--uninstall` at n=1

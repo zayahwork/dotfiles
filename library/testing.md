@@ -133,18 +133,19 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 6 guessed local paths were absent; `rg --files` found source, tracker, and test paths
+### 7 guessed or stale local paths were absent; `rg --files` found source, tracker, test, and counter paths
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
 **verified:** 2026-10-06, `wc -c job-pipeline/output/application-tracker.xlsx` returned `No such file or directory`, and a later byte-count command against guessed filename `Zayah Nelson - Job Application Tracker.xlsx` returned `open: No such file or directory`; the verified tracker path remained `outputs/job-application-tracker.xlsx`
 **verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
-**where:** six guessed paths across three local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06 at 5:24 am Pacific, Node failed with `MODULE_NOT_FOUND` for stale prior-turn path `job-pipeline/work/heartbeat-2026-10-06-0409/count_tracker.mjs`; a current `rg --files job-pipeline | rg '(^|/)count_tracker\.mjs$'` lookup later returned that path plus the `heartbeat-2026-10-05-2222` and `heartbeat-2026-10-06-0356` copies
+**where:** seven guessed or stale paths across four local path-discovery subjects in the MemeCoin and job-applications workspaces
 
-All six failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
+Six reads used guessed concept paths; the seventh used a prior-turn path that was absent when Node ran but appeared in a later listing, so its cause is UNCONFIRMED.
 
-**Why:** still held back at n=6 from three workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory before reading, measuring, or selecting a test command from an assumed path. Require the resolved file to exist, report a nonzero byte count for artifacts, and run checks only from paths actually returned by the listing.
+**Why:** still held back at n=7 from four workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. Require the resolved file to exist, report a nonzero byte count for artifacts, and invoke only a current path returned by the listing; the counter execution recovery is UNCONFIRMED because only path discovery was rerun.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 

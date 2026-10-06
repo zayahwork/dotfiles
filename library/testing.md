@@ -310,3 +310,15 @@ The output proves that all three named arguments are required before the marker 
 
 **Why:** REJECT at n=1 from one marker invocation and workspace subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; for one tracker edit, run the marker with `--operation-kind edit --expected-output-count 1 --output-format xlsx` and require exit 0 before authoring.
+
+### `@oai/artifact-tool` import failed from eval and a symlink to missing `dependencies/node_modules`; the correct path imported 1,175 exports
+
+**verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
+**verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
+**verified:** 2026-10-05, a temporary directory whose `node_modules` symlink targeted `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` imported the package and printed 1,175 exports; importing its absolute `dist/artifact_tool.mjs` printed the same count
+**where:** two failed spreadsheet import setups and two successful recovery probes on this machine
+
+Bare-package resolution failed from the eval context and from a symlink whose target did not exist; both observed recovery paths resolved the package's actual runtime location.
+
+**Why:** REJECT after two failed setups from one machine and package subject; there are not five observations from five different subjects.
+**Fix:** symlink `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified.

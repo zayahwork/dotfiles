@@ -388,15 +388,16 @@ The paired display values establish that this workbook used the serialized UTC c
 **Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
 **Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.
 
-### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=2
+### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=3
 
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py` exited 2 and printed `usage: pipeline.py [-h] {run} ...` followed by exactly `pipeline.py: error: the following arguments are required: command`; the same bundled runtime with `pipeline.py run` had already completed successfully and printed pipeline counts
 **verified:** 2026-10-06, after selecting the bundled Python runtime, invoking `pipeline.py` without `run` again returned exactly `error: the following arguments are required: command`; the same bundled runtime passed the separate 24-test invocation
-**where:** two job-pipeline CLI invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06 at about 3:25 am Pacific, bundled Python invoked as `job-pipeline/pipeline.py` without a subcommand returned nonempty stderr containing `usage: pipeline.py [-h] {run} ...` and exactly `error: the following arguments are required: command`
+**where:** three job-pipeline CLI invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The parser output establishes that this script requires a subcommand before it performs pipeline work.
+The nonempty parser stderr establishes that no pipeline run occurred; exit code alone is not execution proof.
 
-**Why:** REJECT at n=2 from one CLI parser subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=3 from one CLI parser subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
 ### 4 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files

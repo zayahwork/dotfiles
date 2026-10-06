@@ -166,12 +166,13 @@ The source and output establish the row-66 omission for this one script state bu
 
 **verified:** 2026-10-06, an idempotent tracker update checked only `Applications!A8:J69` for Direct Meds after its first run had inserted that company and role at row 70; the timestamp-patch retry missed row 70, shifted the footer again, and inspection showed Direct Meds in rows 70 and 71 before verification failed with exactly `Assumption footer verification failed` because the footer began at row 72
 **verified:** 2026-10-06, the original insertion loop copied footer rows 73 through 70 downward while the four footer rows occupied 70:73; on retry after the first insertion, the same hard-coded loop shifted only rows 70:73 and overwrote the fourth footer line already at row 74, and cleanup verification returned the footer header, monthly assumptions, hourly assumptions, and `null` instead of the Tax basis row
-**where:** one retry of the Direct Meds update script against `outputs/job-application-tracker.xlsx`
+**verified:** 2026-10-06, the corrected workbook was reopened and visually rendered with exactly one Direct Meds company-and-role match at row 70, all four take-home estimate and footer rows intact through row 74, and a clean layout
+**where:** one failed retry and one corrected export of `outputs/job-application-tracker.xlsx`
 
 The fixed duplicate-check range excluded the script's own insertion row, and the fixed footer range excluded the footer's post-insertion last row; behavior in other update scripts is UNCONFIRMED.
 
 **Why:** REJECT at n=1 from one script and workbook subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED until rerun; scan the full possible application area including the insertion row, remove duplicate company-and-role keys, and reconstruct or shift all four footer rows as one explicit block before export. Reopen the workbook and require exactly one Direct Meds match plus all four exact footer labels and texts at the expected rows.
+**Fix:** scan the full possible application area including the insertion row, remove duplicate company-and-role keys, and reconstruct or shift all four footer rows as one explicit block before export. Reopening and rendering verified exactly one Direct Meds match plus all four footer rows through row 74.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 
@@ -424,16 +425,17 @@ Bare-package resolution failed from eval or script-directory contexts without th
 **Why:** still held back after six failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
-### Artifact Tool Date writes rendered UTC clock components in 2 tracker cells
+### 2 Artifact Tool Date writes rendered UTC clock components; direct serial rendered `10/06/26 8:03 AM`
 
 **verified:** 2026-10-05, artifact-tool wrote `new Date('2026-10-05T18:20:29-07:00')` and the XLSX displayed `10/06/26 1:20 AM`; writing `new Date('2026-10-05T18:20:29Z')` displayed the intended `10/05/26 6:20 PM`
 **verified:** 2026-10-06, an update script wrote `new Date("2026-10-06T15:03:35.791Z")` into a cell formatted `mm/dd/yy h:mm AM/PM`; inspection returned serial `46301.627497581016` and the rendered row 70 showed `10/06/26 3:03 PM` instead of the trigger's intended `8:03:35 am` Pacific wall time
-**where:** two date-cell writes in one Artifact Tool XLSX tracker and runtime subject
+**verified:** 2026-10-06, the corrected workbook wrote the intended Pacific wall-clock components as an explicit Excel serial, then reopening and visually rendering showed Direct Meds row 70 as exactly `10/06/26 8:03 AM`
+**where:** two wrong Date writes and one corrected serial write in one Artifact Tool XLSX tracker and runtime subject
 
 The three rendered display values establish that this tracker path used serialized UTC clock components as timezone-free Excel wall-clock values, but not a universal rule for every spreadsheet engine.
 
 **Why:** still held back at n=2 from one workbook and runtime subject; there are not five observations from five different subjects.
-**Fix:** the verified recovery is to encode the intended displayed wall-clock components as UTC components, then render the formatted cell and verify its exact date and time. The direct serial `Date.UTC(2026,9,6,8,3,35,791) / 86400000 + 25569` is UNCONFIRMED until written and rendered in this tracker.
+**Fix:** write the desired timezone-free wall-clock components as an explicit Excel serial, such as `Date.UTC(2026,9,6,8,3,35,791) / 86400000 + 25569`, then reopen and render the formatted cell. The corrected workbook verified this recovery at `10/06/26 8:03 AM`.
 
 ### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=4
 

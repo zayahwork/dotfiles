@@ -324,17 +324,18 @@ The two failures show that the marker requires all named arguments and did not a
 **Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
 **Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
 
-### `@oai/artifact-tool` import failed from eval and a symlink to missing `dependencies/node_modules`; the correct path imported 1,175 exports
+### `@oai/artifact-tool` import failed in 3 bundled-Node setups; the correct path imported 1,175 exports
 
 **verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
 **verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
 **verified:** 2026-10-05, a temporary directory whose `node_modules` symlink targeted `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` imported the package and printed 1,175 exports; importing its absolute `dist/artifact_tool.mjs` printed the same count
-**where:** two failed spreadsheet import setups and two successful recovery probes on this machine
+**verified:** 2026-10-05, a spreadsheet artifact script run with the bundled Node binary failed with `ERR_MODULE_NOT_FOUND` for `@oai/artifact-tool` because its working directory had no conversation-specific `node_modules` link to the bundled dependencies
+**where:** three failed spreadsheet import setups and two successful recovery probes on this machine
 
 Bare-package resolution failed from the eval context and from a symlink whose target did not exist; both observed recovery paths resolved the package's actual runtime location.
 
-**Why:** REJECT after two failed setups from one machine and package subject; there are not five observations from five different subjects.
-**Fix:** symlink `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified.
+**Why:** REJECT after three failed setups from one machine and package subject; there are not five observations from five different subjects.
+**Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
 ### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`
 
@@ -422,3 +423,49 @@ The retained objects show that a JavaScript binding or `typeof` existence guard 
 
 **Why:** REJECT at n=4 from four tab subjects in one browser-session context; there are not five observations from five different subjects, and one unmarked tab does not establish the general survival cause.
 **Fix:** UNCONFIRMED; call `cua.getState()` at the start of a new heartbeat to rediscover current tabs, then reacquire by current URL or ID or create a fresh tab before using a saved binding; mark an agent-created tab for handoff before ending the turn only after that path is verified on a current tab.
+
+### `pdftotext` was missing on 17 attempts across 4 dates; 3 other PDF text routes were unavailable in one environment
+
+**verified:** 2026-09-29, system `pdftotext` returned exactly `zsh: command not found: pdftotext`, system `python3` failed to import `pypdf` with `ModuleNotFoundError`, and direct `firecrawl` returned `command not found`; `npx firecrawl-cli parse` installed `firecrawl-cli@1.24.6` and produced 2,344 bytes of expected resume text; 2026-10-02, `from pypdf import PdfReader` returned exactly `ModuleNotFoundError: No module named 'pypdf'`, and `mdls -name kMDItemTextContent` returned null for the resume PDFs; 2026-10-03, six separate read-only resume extraction attempts, including `outputs/office-operations/Zayah Nelson - Office Operations resume.pdf` and a 3,565-byte IT Support resume whose `pdfinfo` showed one letter-size page, each returned exactly `zsh:1: command not found: pdftotext`, and a fresh `command -v pdftotext` exited 1; 2026-10-04, three earlier resume checks returned `command not found: pdftotext`, including Office Operations and Palm Springs Guest Service files, and a fresh `command -v pdftotext` exited 1; at 5:29 pm Pacific, another Office Operations check returned exactly `zsh:1: command not found: pdftotext`, `mdls -raw -name kMDItemTextContent` returned exactly `(null)`, and the adjacent `build_resume.py` supplied the usable source text
+**verified:** 2026-10-04, `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/office-operations/Zayah Nelson - Office Operations resume.pdf` existed at 65,337 bytes while its `pdftotext` inspection returned exactly `zsh:1: command not found: pdftotext`; this enriches an already counted Office Operations attempt and does not increase n
+**verified:** 2026-10-04, system `python3` in the same workspace failed to import pypdf with exactly `ModuleNotFoundError: No module named 'pypdf'`; this is a new date for the already counted unavailable pypdf route, not a new environment subject
+**verified:** 2026-10-05, `pdftotext 'outputs/office-operations/Zayah Nelson - Office Operations resume.pdf' -` returned exactly `zsh:1: command not found: pdftotext` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at 9:42 am Pacific, three local-resume inspection invocations returned exactly `zsh: command not found: pdftotext`; counting conservatively, this batch adds two net attempts because one October 5 Office Operations invocation was already recorded
+**verified:** 2026-10-05, two generated-resume verification attempts returned exactly `zsh:1: command not found: pdftotext`, while `pdfinfo` was available and confirmed both outputs were valid one-page tagged PDFs
+**verified:** 2026-10-05, another PDF text check in the job-applications environment returned exactly `zsh: command not found: pdftotext`; the bundled Python runtime with pypdf remained the available extraction route
+**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, PDF resume inspection in one macOS zsh environment
+
+The seventeen `pdftotext` failures establish that the default shell PATH did not provide the command in one environment but do not establish whether the binary is absent elsewhere on the machine; different PDF paths do not provide independent environment subjects.
+
+**Why:** still held back after seventeen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
+**Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
+
+### `git status` and tracker `git log` exited 128 with `fatal: not a git repository` at n=1
+
+**verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
+**where:** one job-applications workspace and tracker-history recovery attempt
+
+Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
+
+**Why:** REJECT at n=1 from one workspace subject; there are not five observations from five different subjects.
+**Fix:** inspect the current workbook, source log, generated artifacts, and any explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+
+### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
+
+**verified:** 2026-10-05, the current `Applications` range `A7:J59` contained no DesignFiles row, while `source-log.json` at 8:43 pm Pacific recorded that DesignFiles was added and tracker sync succeeded; the exact DesignFiles resume PDF existed at 67,781 bytes
+**where:** one `outputs/job-application-tracker.xlsx` state, its source log, and its generated resume artifact
+
+The missing current row and surviving log and artifact establish tracker data loss; whether a later updater's fixed footer rows 57:60 or hard-coded nearby shifts caused this loss is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one missing-row and workbook subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; replace fixed-row footer reconstruction with one dynamic append-before-footer helper, compare the company and role key set before and after every edit, refuse to save if an existing application key disappears, and render the affected boundary rows before accepting the workbook.
+
+### TJX Workday `Decline` matched 1 visible enabled button but timed out in `Input.dispatchMouseEvent` at n=1
+
+**verified:** 2026-10-05 at about 10:27 pm Pacific, Playwright on TJX in-app-browser tab 260 found the cookie `Decline` button with `matchCount 1`, `visibleCount 1`, and `disabled false`, but its click timed out in CDP `Input.dispatchMouseEvent`
+**where:** one TJX Workday cookie-banner interaction through unified computer use
+
+The locator diagnostics establish that the control was matched, visible, and enabled before the input-dispatch timeout, but do not establish why CDP could not complete the click.
+
+**Why:** REJECT at n=1 from one page and interaction subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; confirm the page still responds with a fresh state read, then use the current accessibility element ID for one direct click and verify that the cookie banner disappears before continuing.

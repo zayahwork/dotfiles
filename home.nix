@@ -96,6 +96,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/shell-preflight" = {
+    source = ./home/bin/shell-preflight;
+    executable = true;
+  };
+
   home.file.".local/bin/gnhf" = {
     source = ./home/bin/gnhf;
     executable = true;

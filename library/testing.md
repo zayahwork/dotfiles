@@ -133,19 +133,20 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 7 guessed or stale local paths were absent; `rg --files` found source, tracker, test, and counter paths
+### 8 guessed, stale, or wrong-cwd local paths failed across 9 invocations; current paths found source, tracker, test, and counter targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
 **verified:** 2026-10-06, `wc -c job-pipeline/output/application-tracker.xlsx` returned `No such file or directory`, and a later byte-count command against guessed filename `Zayah Nelson - Job Application Tracker.xlsx` returned `open: No such file or directory`; the verified tracker path remained `outputs/job-application-tracker.xlsx`
 **verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
 **verified:** 2026-10-06 at 5:24 am Pacific, Node failed with `MODULE_NOT_FOUND` for stale prior-turn path `job-pipeline/work/heartbeat-2026-10-06-0409/count_tracker.mjs`; a current `rg --files job-pipeline | rg '(^|/)count_tracker\.mjs$'` lookup later returned that path plus the `heartbeat-2026-10-05-2222` and `heartbeat-2026-10-06-0356` copies
-**where:** seven guessed or stale paths across four local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06, bundled Node in `job-pipeline/work/heartbeat-2026-10-06-0557` ran `FileBlob.load("outputs/job-application-tracker.xlsx")` and returned `ENOENT` with the eval stack rooted in that heartbeat directory; an isolated reproduction returned the same error, while loading `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` from the same cwd printed `{"loaded":true,"size":null}`
+**where:** nine failed reads of eight guessed, stale, or wrong-cwd paths across five local path-discovery subjects in the MemeCoin and job-applications workspaces
 
-Six reads used guessed concept paths; the seventh used a prior-turn path that was absent when Node ran but appeared in a later listing, so its cause is UNCONFIRMED.
+Six reads used guessed concept paths; the seventh used a prior-turn path that was absent when Node ran but appeared later, and the eighth paired a heartbeat-cwd failure with a successful absolute-path load.
 
-**Why:** still held back at n=7 from four workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. Require the resolved file to exist, report a nonzero byte count for artifacts, and invoke only a current path returned by the listing; the counter execution recovery is UNCONFIRMED because only path discovery was rerun.
+**Why:** still held back at n=9 failures from five workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. For artifact paths, run from the repository root or pass the absolute path, require the resolved file to exist, and require nonempty output; the absolute `FileBlob.load` recovery is verified, while the stale counter execution recovery remains UNCONFIRMED.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 

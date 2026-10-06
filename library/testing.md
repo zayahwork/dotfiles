@@ -449,3 +449,13 @@ Git history cannot recover earlier tracker rows from this directory because the 
 
 **Why:** REJECT at n=1 from one workspace subject; there are not five observations from five different subjects.
 **Fix:** inspect the current workbook, source log, generated artifacts, and any explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+
+### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
+
+**verified:** 2026-10-05, the current `Applications` range `A7:J59` contained no DesignFiles row, while `source-log.json` at 8:43 pm Pacific recorded that DesignFiles was added and tracker sync succeeded; the exact DesignFiles resume PDF existed at 67,781 bytes
+**where:** one `outputs/job-application-tracker.xlsx` state, its source log, and its generated resume artifact
+
+The missing current row and surviving log and artifact establish tracker data loss; whether a later updater's fixed footer rows 57:60 or hard-coded nearby shifts caused this loss is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one missing-row and workbook subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; replace fixed-row footer reconstruction with one dynamic append-before-footer helper, compare the company and role key set before and after every edit, refuse to save if an existing application key disappears, and render the affected boundary rows before accepting the workbook.

@@ -403,3 +403,15 @@ The paired checks establish package availability only for these Python runtimes 
 
 **Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
 **Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.
+
+### Saved tabs 133, 114, 160, and 249 failed across 4 heartbeat subjects
+
+**verified:** 2026-10-04, calling `markHandoff` on a saved CUA tab from an earlier heartbeat returned exactly `Tab 133 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and stopped the loop while the JavaScript binding persisted; later that date, waiting on Gmail's Refresh button through saved binding `mailTab` returned exactly `Error: Tab 114 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc`
+**verified:** 2026-10-05 at the 10:38 am Pacific heartbeat, reusing prior-turn Gmail handle `gmailCheck` for `goto(...)` returned exactly `Tab 160 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and changed no external state; the agent-created tab had not been marked for handoff before the earlier turn ended
+**verified:** 2026-10-05 at about 9:16 pm Pacific, `await cua.getTab("249", {browser:"iab"})` returned exactly `Tab not found in browser 2` on the heartbeat after tab 249 had been valid
+**where:** four saved IAB tab handles across heartbeat and browser-session state
+
+The retained objects show that a JavaScript binding or `typeof` existence guard did not prove that a tab still belonged to the current browser session.
+
+**Why:** REJECT at n=4 from four tab subjects in one browser-session context; there are not five observations from five different subjects, and one unmarked tab does not establish the general survival cause.
+**Fix:** UNCONFIRMED; call `cua.getState()` at the start of a new heartbeat to rediscover current tabs, then reacquire by current URL or ID or create a fresh tab before using a saved binding; mark an agent-created tab for handoff before ending the turn only after that path is verified on a current tab.

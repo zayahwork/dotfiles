@@ -12,7 +12,7 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 11 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-11-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, the built-in web search capability, or official APIs. |
-| [`gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1](#gh-search-repos-rejected-namewithowner-forkcount-and-licenseinfo-at-n1) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
+| [`gh search repos` rejected `forkCount` twice and other unsupported JSON fields on 3 commands](#gh-search-repos-rejected-forkcount-twice-and-other-unsupported-json-fields-on-3-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -193,14 +193,16 @@ The returned command lists contain neither top-level web command, but the eviden
 **Why:** still held back at n=18 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, the built-in web search tool for general discovery, or an official API instead of inventing `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`.
 
-### `gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1
+### `gh search repos` rejected `forkCount` twice and other unsupported JSON fields on 3 commands
 
-**verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`; a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
-**where:** one official GitHub CLI repository-search schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
+**verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
+**verified:** 2026-10-05 at 7:05 pm Pacific, `gh search repos ... --json ... forkCount` returned exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the accepted fields
+**where:** three official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The command failed during JSON field validation before repository results could be accepted.
+All three commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** REJECT at n=1 from one CLI and field subject; there are not five observations from five different subjects.
+**Why:** REJECT after three commands from one CLI schema subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; replace `nameWithOwner`, `forkCount`, and `licenseInfo` with `fullName`, `forksCount`, and `license`, then require nonempty output before using the result.
 
 ### `opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension

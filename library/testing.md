@@ -206,17 +206,18 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** run dependency-bearing tests, pipeline commands, and PDF validation with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=7 across 4 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=8 across 5 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
 **verified:** 2026-10-05, one library/web.md patch expected a generated Markdown anchor containing `reactive-resume-reactive-resume`, while the current line contained `reactive-resumereactive-resume`; `apply_patch` returned `Failed to find expected lines` and changed no file
-**where:** seven patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, and `library/web.md`
+**verified:** 2026-10-05, one library/testing.md patch expected `Why: REJECT after nine calls` while the current entry said `Why: still held back after nine calls`; `apply_patch` returned `Failed to find expected lines` and changed no file
+**where:** eight patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, and `library/testing.md`
 
-All seven failures mean the hunk context did not match the named target file; they cover four file subjects, not five independent subjects.
+All eight failures mean the hunk context did not match the named target file; they cover five file subjects.
 
-**Why:** still held back at n=7 across four file subjects; there are not five observations from five different subjects.
-**Fix:** read each target immediately before editing, patch stable source separately from generated state, and use a minimal whole-file patch based on current content when a small generated file must be reset.
+**Why:** still held back at n=8 across five file subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
+**Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
 

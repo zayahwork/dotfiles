@@ -260,16 +260,17 @@ The combined invocation did not print any branch hash, while one invocation per 
 **Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
 **Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
-### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
+### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` twice
 
 **verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
 **verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
+**verified:** 2026-10-05, a separate bundled-Python status comprehension also indexed `r[5]` without checking row length and failed with exactly `IndexError: list index out of range` on the workbook's shorter trailing note rows
 **where:** one `Applications` worksheet and openpyxl read-only subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The short tuples begin immediately after the visible A1:J52 range, but the reason openpyxl emitted them is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one workbook subject; there are not five observations from five different subjects.
-**Fix:** guard `len(row) < 6` before positional access in read-only iteration, then run the repository test file and require exit 0 plus its expected test count.
+**Why:** REJECT after two consumer failures from one workbook subject; there are not five observations from five different subjects.
+**Fix:** require `len(row) > 5` before reading `row[5]` and apply equivalent length guards before every optional positional column, then run the repository test file and require exit 0 plus its expected test count.
 
 ### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
 

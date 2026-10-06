@@ -371,15 +371,16 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
-### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=1
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=4
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
-**where:** one Codex desktop dependency-loader call from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, two consecutive calls returned the same exact error and no dependency paths; a fourth verification call from the dotfiles task returned the same error, while cached `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` printed `Python 3.12.14`, imported `docx` 1.2.0, and the installed Documents skill `SKILL.md` existed at 40,679 bytes
+**where:** four Codex desktop dependency-loader calls across the job-applications and dotfiles tasks on one machine
 
-The tool returned no dependency payload, but the continued runtime use shows that this call failure did not establish missing cached dependencies; its cause is UNCONFIRMED, and official OpenAI documentation searches exposed no loader-specific guidance.
+The four calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one app-tool and workspace subject; there are not five observations from five different subjects.
-**Fix:** retry the loader once; if it still fails, use only previously verified absolute paths under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` and require the selected executable to return its expected version or import before continuing.
+**Why:** still held back at n=4 from one app-tool and machine subject; there are not five observations from five different subjects.
+**Fix:** retry the loader once; if it still fails, use only previously verified absolute paths under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` and installed skill-package paths, then require the selected executable to return its expected version or import and the selected skill file to return nonempty bytes before continuing.
 
 ### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
 

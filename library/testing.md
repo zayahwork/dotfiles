@@ -219,7 +219,7 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** invoke the script and dependency-bearing tests with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=13 across 6 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=14 across 6 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
@@ -230,11 +230,12 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **verified:** 2026-10-05, one library/terminal.md patch expected the indexed detailed Held back contents row while the working file contained a broader generic row; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one temporary indexed library/web.md patch expected Jina OfferUp and Ashby rows that existed only in the dirty working file; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one temporary indexed library/testing.md patch expected an uncommitted artifact-tool module-resolution subject that was absent from the index; `apply_patch` returned `Failed to find expected lines` and changed no file
-**where:** thirteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, `library/testing.md`, and `library/terminal.md`
+**verified:** 2026-10-05, one library/web.md patch expected the GitHub field entry to be followed immediately by OpenCLI while intervening GitHub API subjects were present; `apply_patch` returned `Failed to find expected lines` and changed no file
+**where:** fourteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, `library/testing.md`, and `library/terminal.md`
 
-All thirteen failures mean the hunk context did not match the named target file; they cover six file subjects.
+All fourteen failures mean the hunk context did not match the named target file; they cover six file subjects.
 
-**Why:** still held back at n=13 across six file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back at n=14 across six file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
@@ -335,3 +336,13 @@ The paired display values establish that this workbook used the serialized UTC c
 
 **Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
 **Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.
+
+### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=1
+
+**verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py` exited 2 and printed `usage: pipeline.py [-h] {run} ...` followed by exactly `pipeline.py: error: the following arguments are required: command`; the same bundled runtime with `pipeline.py run` had already completed successfully and printed pipeline counts
+**where:** one job-pipeline CLI invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The parser output establishes that this script requires a subcommand before it performs pipeline work.
+
+**Why:** REJECT at n=1 from one CLI invocation subject; there are not five observations from five different subjects.
+**Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.

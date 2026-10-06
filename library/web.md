@@ -13,6 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 11 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-11-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, the built-in web search capability, or official APIs. |
 | [`gh search repos` rejected `nameWithOwner` 3 times, `forkCount` twice, and `licenseInfo` once across 4 commands](#gh-search-repos-rejected-namewithowner-3-times-forkcount-twice-and-licenseinfo-once-across-4-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
+| [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -206,6 +207,16 @@ All four commands failed during JSON field validation before repository results 
 
 **Why:** REJECT after four commands from one CLI schema subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; replace `nameWithOwner`, `forkCount`, and `licenseInfo` with `fullName`, `forksCount`, and `license`, then require nonempty output before using the result.
+
+### `gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories
+
+**verified:** 2026-10-05, `gh api -X GET search/repositories -f q='resume ATS checker job tracker stars:>100' -f sort=stars -f order=desc -f per_page=10 --jq '.items[] | [...] | @tsv'` exited 0 with exactly 0 output bytes, while the same endpoint with `q='resume ats'` returned 10 repository rows
+**where:** two official GitHub repository-search API calls from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The comparison proves that the first successful exit exposed no usable result rows, but does not establish whether every term or the star qualifier caused the empty set.
+
+**Why:** REJECT at n=1 query-pair subject; there are not five observations from five different subjects.
+**Fix:** treat zero-byte success as untrusted, simplify the query, and require nonempty validated rows before concluding that no repositories match.
 
 ### `opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension
 

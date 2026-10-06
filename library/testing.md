@@ -172,6 +172,16 @@ The source and output establish the row-66 omission for this one script state bu
 **Why:** REJECT at n=1 from one workbook and count-script subject; there are not five observations from five different subjects.
 **Fix:** derive the application-row end from the current used range or table, start below the header, and count only rows with a nonempty status; the current used-range implementation and nonempty rerun are verified.
 
+### `count_tracker.mjs` without its first argument failed with `Invalid end timestamp: undefined` at n=1
+
+**verified:** 2026-10-06, `node job-pipeline/work/heartbeat-2026-10-06-0557/count_tracker.mjs` failed at line 18 with exactly `Error: Invalid end timestamp: undefined`; the 2,192-byte source reads `process.argv[2]`, and rerunning with `2026-10-06T15:00:00.000Z` returned a nonempty report containing 60 tracker rows, 39 submitted, and 4 submitted in the rolling 24-hour window
+**where:** one tracker-count script invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The source and paired execution prove that this script requires a parseable ISO timestamp as its first positional argument; they do not establish the interface of other counter scripts.
+
+**Why:** REJECT at n=1 from one script and argument subject; there are not five observations from five different subjects.
+**Fix:** compute or supply the exact run-end ISO timestamp as the first positional argument, for example `node job-pipeline/work/heartbeat-2026-10-06-0557/count_tracker.mjs "$run_end"`, then require a nonempty JSON count report.
+
 ### Idempotency scan `Applications!A8:J69` duplicated Direct Meds and dropped the Tax basis footer
 
 **verified:** 2026-10-06, an idempotent tracker update checked only `Applications!A8:J69` for Direct Meds after its first run had inserted that company and role at row 70; the timestamp-patch retry missed row 70, shifted the footer again, and inspection showed Direct Meds in rows 70 and 71 before verification failed with exactly `Assumption footer verification failed` because the footer began at row 72

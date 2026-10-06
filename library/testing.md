@@ -67,14 +67,15 @@ Both observations show that reloading the extension does not replace the context
 **Why:** still held back at n=2 from one extension subject; there are not five observations from five different subjects.
 **Fix:** catch Promise rejections at Chrome storage reads, writes, and the scanner entrypoint, then refresh the open target page after reloading the extension; use `chrome://restart` when the browser surfaces remain blank.
 
-### `chromeApp.getState()` failed after compaction; `getAXState({disableDiffing:true})` returned Padre state at n=1
+### App `getState()` was not a function in 2 Chrome sessions; `getAXState({disableDiffing:true})` recovered one
 
 **verified:** 2026-09-22, after task compaction `chromeApp.getState()` failed because the App surface exposes `getAXState()`; `cua.rewriteDocumentation()` restored the API reference and `chromeApp.getAXState({disableDiffing:true})` returned the live Padre state
-**where:** one compacted Computer Use session controlling Chrome
+**verified:** 2026-10-06, in a persistent CUA session, `let app = await cua.getApp("Google Chrome")` returned an App binding and `await app.getState()` then returned exactly `app.getState is not a function`; the proposed documentation refresh and replacement call were not supplied, so recovery in this session is UNCONFIRMED
+**where:** two Computer Use sessions controlling Google Chrome through an App surface
 
-The failure was an API-method mismatch after context loss, not evidence that the Chrome surface had disappeared.
+Both failures were App API-method mismatches, not evidence that the Chrome surface had disappeared.
 
-**Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
+**Why:** still held back at n=2 from two session subjects; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
 ### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 28 calls from 7 documented tab subjects

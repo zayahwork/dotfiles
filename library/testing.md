@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -247,3 +247,14 @@ The evidence establishes all four copy results in this workbook but does not est
 
 **Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.
+
+### Git push failed twice over SSH and 3 times over HTTPS in one repository session at n=1
+
+**verified:** 2026-10-05 at 4:58 pm Pacific, two `git push origin development` attempts returned exactly `git@github.com: Permission denied (publickey)` while `ssh-add -l` listed one ED25519 key; three HTTPS push attempts, including one forced to HTTP/1.1, reached `github.com` but were rejected with exactly `remote: Internal Server Error`
+**verified:** 2026-10-05, HTTPS `git ls-remote` successfully returned development at `15c0988`, while GitHub's public status API returned `indicator: none` and `All Systems Operational`
+**where:** one `/Users/zayah/github/dotfiles` push session for local commit `b8066a1`
+
+The paired failures establish that neither configured write transport completed the push in this session; their cause is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; restore a working GitHub write credential, rerun the scoped development push, and verify the remote ref before promotion.

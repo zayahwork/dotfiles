@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -221,6 +221,17 @@ All ten failures mean the hunk context did not match the named target file; they
 
 **Why:** still held back at n=10 across five file subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
+
+### `git apply --cached --check` rejected 5 generated patches across 4 patch files before staging
+
+**verified:** 2026-10-05, three generated patches returned `corrupt patch` at lines 23, 25, and 12 because their unified-diff hunk counts did not match the lines supplied; correcting each header count made every patch pass `git apply --cached --check` and apply cleanly
+**verified:** 2026-10-05, one zero-context `library/web.md` hunk returned `patch failed: library/web.md:15` twice without `--unidiff-zero`; the same patch passed the check and applied cleanly with `git apply --cached --unidiff-zero`
+**where:** five staging preflight attempts across four generated patch files for scoped dotfiles-library commits
+
+All five failures occurred in the preflight command and left the index unchanged.
+
+**Why:** REJECT after five calls across four patch-file subjects; there are not five observations from five different subjects.
+**Fix:** run `git apply --cached --check` before every scoped patch; correct hunk counts before retrying, and add `--unidiff-zero` to both the check and apply calls only for a deliberately zero-context hunk.
 
 ### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
 

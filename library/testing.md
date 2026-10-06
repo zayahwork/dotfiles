@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -262,3 +262,13 @@ The failures and later recovery establish a transient write wall in this session
 
 **Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
 **Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.
+
+### `mark_artifact_operation_started.mjs` with no arguments printed usage and exited 1 at n=1
+
+**verified:** 2026-10-05, running `mark_artifact_operation_started.mjs` with no arguments exited 1 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
+**where:** one spreadsheet artifact marker invocation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The output proves that all three named arguments are required before the marker can record an operation.
+
+**Why:** REJECT at n=1 from one marker invocation and workspace subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; for one tracker edit, run the marker with `--operation-kind edit --expected-output-count 1 --output-format xlsx` and require exit 0 before authoring.

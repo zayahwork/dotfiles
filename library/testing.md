@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -339,6 +339,16 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=1
+
+**verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
+**where:** one Codex desktop dependency-loader call from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The tool returned no dependency payload, but the continued runtime use shows that this call failure did not establish missing cached dependencies; its cause is UNCONFIRMED, and official OpenAI documentation searches exposed no loader-specific guidance.
+
+**Why:** REJECT at n=1 from one app-tool and workspace subject; there are not five observations from five different subjects.
+**Fix:** retry the loader once; if it still fails, use only previously verified absolute paths under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` and require the selected executable to return its expected version or import before continuing.
+
 ### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
 
 **verified:** 2026-10-06, invoking `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/node/bin/node` for an Artifact Tool read script returned exactly `zsh:1: no such file or directory`; a fresh check found that path absent, found `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node` executable at 121,306,800 bytes, and its `--version` printed `v24.19.0`
@@ -485,18 +495,19 @@ The first JavaScript input failed before the web request could return results, w
 **Why:** REJECT at n=1 from one exec-input subject; there are not five observations from five different subjects.
 **Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.
 
-### Artifact marker paths were missing in 4 lookups across 2 skills; skill-cache paths existed
+### Artifact marker paths were missing in 5 lookups across 3 skills; skill-cache paths existed
 
 **verified:** 2026-10-03, `ls -l container_tools/mark_artifact_operation_started.mjs` returned `No such file or directory`, while `rg --files /Users/zayah/.codex /Users/zayah/.cache/codex-runtimes | rg '/mark_artifact_operation_started\.mjs$'` found `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/pdf/26.905.11957/skills/pdf/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05, the Spreadsheets skill requested `node container_tools/mark_artifact_operation_started.mjs ...`, but `ls` on `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools` returned exactly `No such file or directory`; `rg --files` found the marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05 at about 10:00 pm Pacific, the required runtime Node invocation of `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools/mark_artifact_operation_started.mjs` exited 1 with `MODULE_NOT_FOUND`; the deployed `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` existed at 743 bytes, and invoking it with the same runtime reached the script and printed its usage line
 **verified:** 2026-10-06, the same Spreadsheets plugin-root marker path under `spreadsheets/26.905.11957/container_tools/` again failed under Node v24.19.0 with `MODULE_NOT_FOUND`; the deployed skill-cache path remained the verified recovery
-**where:** four PDF and Spreadsheets skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `node container_tools/mark_artifact_operation_started.mjs ...` failed from the job-applications workspace because it had no `container_tools/` directory; `rg --files` returned `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/documents/26.905.11957/skills/documents/container_tools/mark_artifact_operation_started.mjs` and the analogous PDF skill path
+**where:** five PDF, Spreadsheets, and Documents skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The workspace-relative and spreadsheet plugin-root paths were absent, while skill-specific cache searches returned the marker files.
+The workspace-relative and spreadsheet plugin-root paths were absent, while skill-specific cache searches returned the marker files for three skills.
 
-**Why:** REJECT at n=4 lookups across two skill-path subjects; there are not five observations from five different subjects.
-**Fix:** invoke the verified Spreadsheets marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs`; the third recurrence requires an automated preflight that resolves the marker with `rg --files` and rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=5 lookups across three skill-path subjects; there are not five observations from five different subjects.
+**Fix:** resolve the active skill's marker with `rg --files`, then invoke its absolute skill-package path with the bundled Node runtime. The Spreadsheets recovery is verified; the new Documents and PDF absolute invocations remain UNCONFIRMED until their command output is captured. The third recurrence requires an automated preflight that rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
 
 ### `zsh:1: command not found: python` at n=2
 

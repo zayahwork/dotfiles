@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -287,6 +287,16 @@ The failed import and passing registered-module run isolate the observed failure
 
 **Why:** REJECT at n=1 from one import subject; there are not five observations from five different subjects.
 **Fix:** set `sys.modules[SPEC.name] = module` before `SPEC.loader.exec_module(module)`, then run the test file and require exit 0 plus its expected test count.
+
+### python-docx 1.2.0 raised `ImportError` for `WD_CELL_VERTICAL_ALIGNMENT` from `docx.enum.text`; `docx.enum.table` imported it
+
+**verified:** 2026-10-06, bundled Python 3.12.14 with python-docx 1.2.0 ran `from docx.enum.text import WD_CELL_VERTICAL_ALIGNMENT` and returned exactly `ImportError: cannot import name 'WD_CELL_VERTICAL_ALIGNMENT' from 'docx.enum.text'`; importing the same name from `docx.enum.table` exited 0 and printed module `docx.enum.table` plus name `WD_CELL_VERTICAL_ALIGNMENT`
+**where:** one resume-builder import and one isolated paired import check in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The failed import stopped the builder before output, while the paired check establishes the enum's working module in this installed version.
+
+**Why:** REJECT at n=1 from one python-docx version and import subject; there are not five observations from five different subjects.
+**Fix:** import with `from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT`, then run the builder and require a nonempty document output; the isolated import is verified, while the builder rerun remains UNCONFIRMED.
 
 ### Direct `pipeline.py` execution was denied; system Python lacked `docx` and `pypdf`; bundled Python passed 18 then 24 tests
 

@@ -463,6 +463,17 @@ The paired checks establish package availability only for these Python runtimes 
 **Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
 **Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.
 
+### Spreadsheet plugin Python path was absent on 2 commands; workspace Python 3.12.14 imported `docx` 1.2.0 and `openpyxl` 3.1.5
+
+**verified:** 2026-10-06, `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/python/bin/python3 pipeline.py run` and the same executable path running unittest each exited 127 with exactly `zsh:1: no such file or directory: /Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/python/bin/python3`
+**verified:** 2026-10-06, the verified workspace runtime `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` resolved to Python 3.12.14 and imported `docx` 1.2.0 plus `openpyxl` 3.1.5
+**where:** two job-pipeline commands using one inferred Spreadsheets plugin Python path, plus one workspace-runtime verification
+
+Neither failed command started Python, the pipeline, or unittest; the nonzero shell result and stderr are path-resolution evidence, not test results.
+
+**Why:** REJECT at n=2 commands from one guessed runtime-layout subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then run `pipeline.py run` and the repository's actual tests and require their real nonempty output.
+
 ### Saved tabs 133, 114, 160, and 249 failed across 4 heartbeat subjects
 
 **verified:** 2026-10-04, calling `markHandoff` on a saved CUA tab from an earlier heartbeat returned exactly `Tab 133 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and stopped the loop while the JavaScript binding persisted; later that date, waiting on Gmail's Refresh button through saved binding `mailTab` returned exactly `Error: Tab 114 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc`

@@ -205,20 +205,21 @@ The failed import and passing registered-module run isolate the observed failure
 **Why:** REJECT at n=1 from one import subject; there are not five observations from five different subjects.
 **Fix:** set `sys.modules[SPEC.name] = module` before `SPEC.loader.exec_module(module)`, then run the test file and require exit 0 plus its expected test count.
 
-### `/opt/homebrew` Python 3.14 lacked `docx` and `pypdf`; bundled Python imported both and passed 18 tests
+### Direct `pipeline.py` execution was denied; `/opt/homebrew` Python lacked `docx` and `pypdf`; bundled Python passed 18 tests
 
 **verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
 **verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
 **verified:** 2026-10-05 at 4:24 pm Pacific, default `/opt/homebrew/bin/python3` 3.14.7 running `python3 -m unittest job-pipeline/tests/test_pipeline.py` failed with `ModuleNotFoundError: No module named 'docx'`, and a `python3` PDF validation snippet failed with exactly `ModuleNotFoundError: No module named 'pypdf'`; a paired check showed the bundled Python imported `docx` 1.2.0 and `pypdf` 6.10.0, then ran `job-pipeline/tests/test_pipeline.py -q` with `Ran 18 tests in 0.843s`, `OK`, and exit 0
 **verified:** 2026-10-05 at about 5:08 pm Pacific, `/opt/homebrew/bin/python3` 3.14.7 running both `python3 job-pipeline/pipeline.py run` and `python3 -m unittest discover -s job-pipeline/tests -v` failed with exactly `ModuleNotFoundError: No module named 'docx'`; this repeats the same runtime and workspace subject
+**verified:** 2026-10-05, direct execution of `job-pipeline/pipeline.py` returned `permission denied`; invoking it through system `python3` then failed with `ModuleNotFoundError: No module named 'docx'`, while the bundled Python path remained the verified successful runtime for the script and tests
 **where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.
 
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
-**Fix:** run dependency-bearing tests, pipeline commands, and PDF validation with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then verify the command's real output and exit status.
+**Fix:** invoke the script and dependency-bearing tests with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=12 across 6 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=13 across 6 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
@@ -228,11 +229,12 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **verified:** 2026-10-05, one library/testing.md patch expected the patch-context entry to be followed by the openpyxl entry, while the current file placed `listen EPERM` next; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one library/terminal.md patch expected the indexed detailed Held back contents row while the working file contained a broader generic row; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one temporary indexed library/web.md patch expected Jina OfferUp and Ashby rows that existed only in the dirty working file; `apply_patch` returned `Failed to find expected lines` and changed no file
-**where:** twelve patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, `library/testing.md`, and `library/terminal.md`
+**verified:** 2026-10-05, one temporary indexed library/testing.md patch expected an uncommitted artifact-tool module-resolution subject that was absent from the index; `apply_patch` returned `Failed to find expected lines` and changed no file
+**where:** thirteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, `library/web.md`, `library/testing.md`, and `library/terminal.md`
 
-All twelve failures mean the hunk context did not match the named target file; they cover six file subjects.
+All thirteen failures mean the hunk context did not match the named target file; they cover six file subjects.
 
-**Why:** still held back at n=12 across six file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back at n=13 across six file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
@@ -278,16 +280,17 @@ The fallback directory was available but did not contain these two Poppler progr
 **Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
 **Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.
 
-### artifact-tool copy operations lost formatting or corrupted overlapping sources on 4 observations from one workbook
+### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 6 observations from one workbook
 
 **verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row
 **verified:** 2026-10-05, overlapping `A49:J52.copyTo(A50:J53, "all")` on four individually merged rows made all four destination rows contain `Take-home estimate assumptions`, replacing the three distinct body rows
+**verified:** 2026-10-05, overlapping `copyFrom(A51:J54 -> A54:J57, "all")` corrupted the last copied note row; its copied formats also retained existing A:J merges in the destination, so inspection contained written B:J values while the render hid them
 **where:** one imported tracker workbook edited with artifact-tool
 
-The evidence establishes all four copy results in this workbook but does not establish their cause or behavior in other workbooks.
+The evidence establishes all six copy results in this workbook but does not establish their cause or behavior in other workbooks.
 
-**Why:** REJECT after four observations from one workbook subject; there are not five observations from five different subjects.
-**Fix:** unmerge and reconstruct destination rows with explicit values and formatting instead of using one overlapping copy range, then inspect the destination values immediately.
+**Why:** REJECT after six observations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** avoid overlapping copies or stage through a non-overlapping range, explicitly unmerge target rows with `sheet.unmergeCells`, rewrite values and formats, then inspect the values and render every affected column.
 
 ### Git push failed twice over SSH and 3 times over HTTPS, then the same SSH push succeeded at n=1
 
@@ -310,3 +313,25 @@ The output proves that all three named arguments are required before the marker 
 
 **Why:** REJECT at n=1 from one marker invocation and workspace subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; for one tracker edit, run the marker with `--operation-kind edit --expected-output-count 1 --output-format xlsx` and require exit 0 before authoring.
+
+### `@oai/artifact-tool` import failed from eval and a symlink to missing `dependencies/node_modules`; the correct path imported 1,175 exports
+
+**verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
+**verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
+**verified:** 2026-10-05, a temporary directory whose `node_modules` symlink targeted `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` imported the package and printed 1,175 exports; importing its absolute `dist/artifact_tool.mjs` printed the same count
+**where:** two failed spreadsheet import setups and two successful recovery probes on this machine
+
+Bare-package resolution failed from the eval context and from a symlink whose target did not exist; both observed recovery paths resolved the package's actual runtime location.
+
+**Why:** REJECT after two failed setups from one machine and package subject; there are not five observations from five different subjects.
+**Fix:** symlink `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified.
+
+### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`
+
+**verified:** 2026-10-05, artifact-tool wrote `new Date('2026-10-05T18:20:29-07:00')` and the XLSX displayed `10/06/26 1:20 AM`; writing `new Date('2026-10-05T18:20:29Z')` displayed the intended `10/05/26 6:20 PM`
+**where:** one date-cell edit in an artifact-tool XLSX workflow
+
+The paired display values establish that this workbook used the serialized UTC components as an Excel wall-clock value, but not a universal rule for every spreadsheet engine.
+
+**Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
+**Fix:** treat Excel serials as timezone-free wall-clock values and encode the intended displayed components in UTC, then render the formatted cell and verify its exact date and time.

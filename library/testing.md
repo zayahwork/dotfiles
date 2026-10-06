@@ -459,3 +459,13 @@ The missing current row and surviving log and artifact establish tracker data lo
 
 **Why:** REJECT at n=1 from one missing-row and workbook subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; replace fixed-row footer reconstruction with one dynamic append-before-footer helper, compare the company and role key set before and after every edit, refuse to save if an existing application key disappears, and render the affected boundary rows before accepting the workbook.
+
+### TJX Workday `Decline` matched 1 visible enabled button but timed out in `Input.dispatchMouseEvent` at n=1
+
+**verified:** 2026-10-05 at about 10:27 pm Pacific, Playwright on TJX in-app-browser tab 260 found the cookie `Decline` button with `matchCount 1`, `visibleCount 1`, and `disabled false`, but its click timed out in CDP `Input.dispatchMouseEvent`
+**where:** one TJX Workday cookie-banner interaction through unified computer use
+
+The locator diagnostics establish that the control was matched, visible, and enabled before the input-dispatch timeout, but do not establish why CDP could not complete the click.
+
+**Why:** REJECT at n=1 from one page and interaction subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; confirm the page still responds with a fresh state read, then use the current accessibility element ID for one direct click and verify that the cookie banner disappears before continuing.

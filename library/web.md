@@ -12,7 +12,7 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 12 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-12-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
-| [`gh search repos` rejected `nameWithOwner` 7 times, `forkCount` 4 times, and `licenseInfo` twice across 8 commands](#gh-search-repos-rejected-namewithowner-7-times-forkcount-4-times-and-licenseinfo-twice-across-8-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner` 7 times, `forkCount` 5 times, and `licenseInfo` twice across 9 commands](#gh-search-repos-rejected-namewithowner-7-times-forkcount-5-times-and-licenseinfo-twice-across-9-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 3 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-3-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
@@ -200,7 +200,7 @@ The returned command lists contain neither top-level web command, but the eviden
 **Why:** still held back at n=19 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** use `agent-reach doctor --json` only for routing and backend status, the runtime web search tool for broad discovery, an approved platform CLI such as `gh` for GitHub, or direct Jina `curl` for an exact URL; do not invent `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`.
 
-### `gh search repos` rejected `nameWithOwner` 7 times, `forkCount` 4 times, and `licenseInfo` twice across 8 commands
+### `gh search repos` rejected `nameWithOwner` 7 times, `forkCount` 5 times, and `licenseInfo` twice across 9 commands
 
 **verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
 **verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
@@ -210,11 +210,12 @@ The returned command lists contain neither top-level web command, but the eviden
 **verified:** 2026-10-05 at about 9:12 pm Pacific, `gh search repos 'resume ATS checker job matching in:name,description,readme' --sort updated --order desc --limit 15 --json nameWithOwner,description,stargazersCount,forkCount,updatedAt,pushedAt,url,licenseInfo` returned `Unknown JSON field: "nameWithOwner"` and listed accepted equivalents including `fullName`, `forksCount`, and `license`
 **verified:** 2026-10-05, `gh search repos 'resume job matcher' --limit 12 --sort updated --json nameWithOwner,description,stargazersCount,forksCount,updatedAt,url` returned `Unknown JSON field: "nameWithOwner"` and listed `fullName` as the supported repository identity field
 **verified:** 2026-10-05 at about 10:15 pm Pacific, `gh search repos 'resume ATS checker job tracker' --sort stars --limit 10 --json nameWithOwner,...` exited 1 with `Unknown JSON field: "nameWithOwner"` and listed `fullName` as supported
-**where:** eight official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05, `gh search repos --json forkCount` failed with exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the available fields
+**where:** nine official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All eight commands failed during JSON field validation before repository results could be accepted.
+All nine commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** still held back after eight commands from one CLI schema subject; there are not five observations from five different subjects.
+**Why:** still held back after nine commands from one CLI schema subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `fullName` for repository identity, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output before using the result.
 
 ### `gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories

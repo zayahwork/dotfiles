@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool row and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -353,6 +353,17 @@ The evidence establishes all seven copy results in this workbook but does not es
 
 **Why:** REJECT after seven observations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** read source values into a JavaScript matrix before mutation and write that matrix to the shifted destination; copy formatting only from non-overlapping template rows or reconstruct it, explicitly unmerge target rows with `sheet.unmergeCells`, then inspect values and render every affected column.
+
+### `table.rows.add` overwrote 3 non-table rows once and blanked the last table row once in one workbook
+
+**verified:** 2026-10-05, `table.rows.add(null, [[...], [...], [...]])` extended an imported Applications table into occupied worksheet rows 35:37 and replaced three non-table Coalition Technologies records; a rendered PNG showed the earlier Remote Office Assistant, Digital Producer Trainee, and Remote Recruiter rows missing
+**verified:** 2026-10-06, `job-pipeline/work/heartbeat-2026-10-06-0557/update_tracker.mjs` called `table.rows.add(null, [[null, ...]])` when the Applications table address was `A7:J43` and 24 Hour Fitness Sales and Service Associate occupied the last data row; reopening the export showed row 43 empty, rows 44 onward unchanged, the submitted record missing, dashboard submitted total still 39, and source-log evidence for its October 5, 2026 10:34 pm Pacific submission
+**where:** two artifact-tool row-add operations in `outputs/job-application-tracker.xlsx`
+
+The two operations establish destructive row changes in this workbook but do not establish artifact-tool behavior in other workbooks.
+
+**Why:** REJECT at n=2 operations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** do not use `table.rows.add` when worksheet content or a footer exists outside the table. Shift explicit worksheet ranges, restore overwritten rows from durable source data, write the new row, then reopen the exported workbook and verify the exact previous row, new row, table address, dashboard total, and footer rows.
 
 ### Git SSH operations failed 4 times and HTTPS push failed 3 times across 2 sessions, then unchanged SSH retries succeeded
 

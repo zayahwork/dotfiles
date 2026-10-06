@@ -13,7 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 20 times, `read` 5 times, `get` once, and `search-web` once across 5 dates](#agent-reach-rejected-search-20-times-read-5-times-get-once-and-search-web-once-across-5-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
-| [`gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 8 times, and `licenseInfo` 3 times across 15 commands](#gh-search-repos-rejected-namewithowner-11-times-forkcount-8-times-and-licenseinfo-3-times-across-15-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 9 times, and `licenseInfo` 3 times across 16 commands](#gh-search-repos-rejected-namewithowner-11-times-forkcount-9-times-and-licenseinfo-3-times-across-16-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
@@ -22,7 +22,7 @@ return, and where they quietly return nothing.
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
-| [`opencli reddit search` blocked for 15 to 35 seconds on 5 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-5-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
+| [`opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-7-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
@@ -216,7 +216,7 @@ The result shows that this command performs skill installation management rather
 **Why:** REJECT at n=1 from one command and installed CLI subject; there are not five observations from five different subjects.
 **Fix:** read the installed Agent Reach `SKILL.md` and invoke its documented backend-specific commands; do not use `agent-reach skill` as search documentation.
 
-### `gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 8 times, and `licenseInfo` 3 times across 15 commands
+### `gh search repos` rejected `nameWithOwner` 11 times, `forkCount` 9 times, and `licenseInfo` 3 times across 16 commands
 
 **verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
 **verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
@@ -233,11 +233,12 @@ The result shows that this command performs skill installation management rather
 **verified:** 2026-10-06, `gh search repos 'job application tracker duplicate detection resume ATS' --sort updated --limit 10 --json ...` returned nonempty stderr containing exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the valid fields
 **verified:** 2026-10-06, `gh search repos 'job application tracker duplicate detection resume' --sort updated --order desc --limit 10 --json nameWithOwner,description,stargazersCount,forksCount,updatedAt,url` returned output beginning exactly `Unknown JSON field: "nameWithOwner"` and listed `fullName` among the available fields
 **verified:** 2026-10-06, `gh search repos ... --json owner,name,description,stargazersCount,forkCount,pushedAt,updatedAt,url` returned exactly `Unknown JSON field: "forkCount"` and listed `forksCount` and `fullName`; a corrected `gh search repos 'resume' --sort updated --limit 10 --json owner,name,description,stargazersCount,forksCount,pushedAt,updatedAt,url` retry returned 3,686 bytes containing 10 repository rows
-**where:** fifteen official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06 at 2:55 am Pacific, another `gh search repos ... --json ... forkCount` command returned exactly `Unknown JSON field: "forkCount"`; the CLI again listed `forksCount` as valid
+**where:** sixteen official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All fifteen commands failed during JSON field validation before repository results could be accepted.
+All sixteen commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** still held back after fifteen commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
+**Why:** still held back after sixteen commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
 **Fix:** use `fullName` for repository identity, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output. The repeated recurrence requires a wrapper or preflight that maps or rejects `nameWithOwner`, `forkCount`, and `licenseInfo` before execution; that check remains UNCONFIRMED until built and exercised.
 
 ### 2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories
@@ -251,18 +252,19 @@ Both constrained searches exposed no usable result rows, but the comparison does
 **Why:** REJECT at n=2 constrained-query subjects with one shorter control; there are not five observations from five different subjects.
 **Fix:** split a constrained search into shorter independent queries and require nonempty validated rows before concluding that no repositories match; whether this recovers results for the second query is UNCONFIRMED.
 
-### `opencli reddit search` blocked for 15 to 35 seconds on 5 queries with no connected extension
+### `opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension
 
 **verified:** 2026-10-05, `agent-reach doctor --json` reported Reddit status `warn`, `active_backend: null`, OpenCLI installed, and no connected browser extension; `opencli reddit search "jobs hiring Snohomish Lake Stevens Bothell 2026" -f yaml` produced 0 output bytes and was still running after 30.2 seconds, `pgrep -af "opencli reddit search"` returned PID 6008, and `kill 6008` exited 0
 **verified:** 2026-10-05, `opencli reddit search 'jobs hiring Washington remote entry level gym retail 2026' -f yaml` printed only `Waiting for Chrome/Chromium extension to connect... Make sure Chrome or Chromium is open and the OpenCLI extension is enabled.` and remained blocked for 30 seconds until interrupted
 **verified:** 2026-10-05, Doctor again reported Reddit `active_backend: null` because no OpenCLI browser extension was connected; `opencli reddit search 'Everett Washington hiring seasonal retail October 2026' -f yaml` produced zero bytes for 35 seconds, was interrupted, and exited 130
 **verified:** 2026-10-05 at about 10:24 pm Pacific, after Doctor had reported Reddit `active_backend: null` and no connected extension, another `opencli reddit search ... -f yaml` call printed only `Waiting for Chrome/Chromium extension to connect`, remained blocked for 15 seconds, and required Ctrl-C
 **verified:** 2026-10-06 at 12:36 am Pacific, after Doctor reported Reddit OpenCLI installed with no connected browser extension, `opencli reddit search 'Coachella Valley seasonal jobs October 2026' -f yaml` ran for 30.2 seconds and returned zero bytes
-**where:** five required-platform Reddit query subjects from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06 at 2:55 am Pacific, after Doctor reported Reddit `active_backend: null` because no OpenCLI Reddit extension was connected, two `opencli reddit search 'Palm Springs jobs hiring seasonal October 2026' -f yaml` attempts hung with zero output; the second was manually interrupted and exited 130
+**where:** seven required-platform Reddit query calls from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All five read-only commands establish that this OpenCLI route was unavailable for the pass, while an empty or waiting probe supplied no search result.
+All seven read-only commands establish that this OpenCLI route was unavailable for the pass, while an empty or waiting probe supplied no search result.
 
-**Why:** still held back at n=5 query subjects in one environment because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back at n=7 query calls in one environment because no untouched control was measured; the call count alone does not pass the causal bar.
 **Fix:** the repeated recurrence requires a reusable launch guard that runs Doctor first and refuses `opencli reddit search` when `active_backend` is null or the extension is disconnected; this guard is UNCONFIRMED until built and exercised. Until then, interrupt an empty hanging probe and use the runtime web search for public Reddit discovery while keeping posts UNCONFIRMED.
 
 ### `gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET

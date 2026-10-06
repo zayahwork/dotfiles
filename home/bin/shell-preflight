@@ -75,6 +75,22 @@ def violations(command: str) -> list[str]:
     if open_quote:
         errors.append(f"unterminated {open_quote} quote")
 
+    command_position = True
+    for token in tokens:
+        if token.text in {";", "|", "&", "&&", "\n"}:
+            command_position = True
+            continue
+        if not command_position:
+            continue
+        if "=" in token.text and token.text.split("=", 1)[0].isidentifier():
+            continue
+        command_name = os.path.basename(token.text)
+        if command_name == "rm":
+            errors.append(
+                "rm commands are blocked; use a fresh output path or mktemp -d"
+            )
+        command_position = command_name in {"command", "env", "sudo"}
+
     for index in range(len(tokens) - 2):
         command_name = os.path.basename(tokens[index].text)
         if command_name in {"gh", "gh-axi"} and tokens[index + 1].text == "api":
@@ -148,6 +164,8 @@ def self_test() -> int:
         "rg -n needle applications* .",
         "gh search repos resume --json nameWithOwner,url",
         "gh-axi search repos resume --json=forkCount,licenseInfo",
+        "rm -rf job-pipeline/work/qa-output",
+        "/bin/rm -f output.inspect.ndjson",
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -158,6 +176,8 @@ def self_test() -> int:
         "gh api 'repos/a/b/issues?state=open&per_page=5'",
         "gh search repos resume --json fullName,forksCount,license",
         "gh-axi search repos resume --json=fullName,url",
+        "mktemp -d /tmp/qa-output.XXXXXX",
+        "printf 'rm -rf example\\n'",
     ]
     failures: list[str] = []
     for command in blocked:
@@ -169,7 +189,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 16 fixtures passed")
+    print("shell-preflight: 20 fixtures passed")
     return 0
 
 

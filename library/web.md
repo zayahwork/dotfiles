@@ -23,6 +23,7 @@ return, and where they quietly return nothing.
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 15 to 35 seconds on 4 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-4-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
+| [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
@@ -294,6 +295,16 @@ The response establishes an anti-bot interstitial for this page and route, but n
 
 **Why:** REJECT at n=1 from one page and backend subject; there are not five observations from five different subjects.
 **Fix:** use search-indexed official content or the employer's linked ATS through normal visible navigation; never retry or bypass the challenge.
+
+### Sprouts store-operations reader returned HTTP 403 Forbidden at n=1
+
+**verified:** 2026-10-05, the official `https://www.sprouts.com/careers/` page exposed its Store & Field Team target as `https://jobs.sprouts.com/store-operations/jobs`, and opening that target through the web reader returned `Failed to fetch ... (403) Forbidden`
+**where:** one web-reader request for the official Sprouts store-operations job index
+
+The response proves that this reader route did not expose the official listings, while public search content did not verify any individual role.
+
+**Why:** REJECT at n=1 from one page and reader subject; there are not five observations from five different subjects.
+**Fix:** keep every specific role UNCONFIRMED unless another official surface or normal visible browser verifies it; do not treat third-party snippets as official-listing confirmation.
 
 ### GitHub README decode returned `is not valid base64 data` at n=1
 

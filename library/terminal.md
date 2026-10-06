@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed backticked commands twice, and bare zsh globs stopped 2 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 4 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 2 commands before execution.](#held-back)
 
 ---
 
@@ -102,6 +102,18 @@ Never trust an empty `ls` from a script.
 
 ## Held back
 
+### `path` replaced `PATH` and made 8 commands unavailable across 4 zsh subjects
+
+**verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
+**verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
+**verified:** 2026-10-05 at about 6:40 pm Pacific, `for path in ...` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed `zsh:4: command not found` for `gh`, `base64`, and `sed` on every iteration after assigning `path`
+**where:** four zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and a job-application file loop
+
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all four observations.
+
+**Why:** REJECT at n=4 from four zsh subjects; there are not five observations from five different subjects.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name.
+
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 
 **verified:** 2026-10-05, bundled Python invoked through zsh as `python3 -c ${JSON.stringify(code)}` exited 1 and printed the full escaped script beginning with literal `\nfrom pathlib...`, followed by exactly `SyntaxError: unexpected character after line continuation character`; a second workbook-inspection invocation with literal `\n` sequences returned the same exact SyntaxError before reading the workbook, while rewriting it as one list comprehension with no literal `\n` succeeded and printed `{"summary_tailored": 37, "summary_submitted": 35, "matches": []}`
@@ -112,16 +124,17 @@ The observed script began with backslash and `n` characters instead of a real ne
 **Why:** REJECT at n=2 from two invocation subjects in one environment; there are not five observations from five different subjects.
 **Fix:** use a real single-line expression for short `python3 -c` work, as confirmed by the list-comprehension output; for nontrivial logic, write a file in the writable work directory with `apply_patch`, then run the bundled Python executable on that file.
 
-### Backticks inside double-quoted `rg` patterns executed `pdftotext` and `AttributeError` at n=2
+### Backticks inside double-quoted `rg` patterns executed 4 substitutions across 3 shell invocations
 
 **verified:** 2026-10-03, a zsh command passed a backtick-wrapped `pdftotext` token inside a double-quoted `rg` pattern and printed exactly `zsh:2: command not found: pdftotext` before the search results
 **verified:** 2026-10-05, a dotfiles-library lookup used a double-quoted `rg` pattern containing backticks around `AttributeError`, printed exactly `zsh:1: command not found: AttributeError`, and then returned the remaining search matches
-**where:** two dotfiles-library verification commands in macOS zsh
+**verified:** 2026-10-05, one dotfiles-library lookup invoked two double-quoted `rg` patterns containing backticks around `path`; zsh printed exactly `zsh:1: command not found: path` twice before returning the remaining search matches
+**where:** four substitutions across three dotfiles-library verification shell invocations in macOS zsh
 
 The shell executed the backtick contents as command substitution before `rg` received the pattern.
 
-**Why:** REJECT at n=2 from two shell-command subjects; there are not five observations from five different subjects.
-**Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh.
+**Why:** REJECT after four substitutions across three shell-invocation subjects; there are not five observations from five different subjects.
+**Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### zsh `no matches found` stopped bare `*.md` and `?per_page=5` arguments before execution at n=2
 

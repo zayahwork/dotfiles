@@ -133,16 +133,18 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 2 guessed local paths were absent; `rg --files` found `research-indicator.ts` and a 17,517-byte tracker XLSX
+### 6 guessed local paths were absent; `rg --files` found source, tracker, and test paths
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
-**where:** two local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06, `wc -c job-pipeline/output/application-tracker.xlsx` returned `No such file or directory`, and a later byte-count command against guessed filename `Zayah Nelson - Job Application Tracker.xlsx` returned `open: No such file or directory`; the verified tracker path remained `outputs/job-application-tracker.xlsx`
+**verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
+**where:** six guessed paths across three local path-discovery subjects in the MemeCoin and job-applications workspaces
 
-Both failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
+All six failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
 
-**Why:** REJECT at n=2 from two workspace and path subjects; there are not five observations from five different subjects.
-**Fix:** run `rg --files` in the narrow source directory before reading or measuring an assumed path, then require the resolved file to exist and report a nonzero byte count.
+**Why:** still held back at n=6 from three workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory before reading, measuring, or selecting a test command from an assumed path. Require the resolved file to exist, report a nonzero byte count for artifacts, and run checks only from paths actually returned by the listing.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 

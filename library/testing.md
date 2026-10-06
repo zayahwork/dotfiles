@@ -353,17 +353,18 @@ The evidence establishes all seven copy results in this workbook but does not es
 **Why:** REJECT after seven observations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** read source values into a JavaScript matrix before mutation and write that matrix to the shifted destination; copy formatting only from non-overlapping template rows or reconstruct it, explicitly unmerge target rows with `sheet.unmergeCells`, then inspect values and render every affected column.
 
-### Git push failed twice over SSH and 3 times over HTTPS, then the same SSH push succeeded at n=1
+### Git SSH operations failed 4 times and HTTPS push failed 3 times across 2 sessions, then unchanged SSH retries succeeded
 
 **verified:** 2026-10-05 at 4:58 pm Pacific, two `git push origin development` attempts returned exactly `git@github.com: Permission denied (publickey)` while `ssh-add -l` listed one ED25519 key; three HTTPS push attempts, including one forced to HTTP/1.1, reached `github.com` but were rejected with exactly `remote: Internal Server Error`
 **verified:** 2026-10-05, HTTPS `git ls-remote` successfully returned development at `15c0988`, while GitHub's public status API returned `indicator: none` and `All Systems Operational`
 **verified:** 2026-10-05, a later identical `git push origin development` succeeded without a configuration change and advanced the remote from `15c0988` to `3d2ea69`
-**where:** one `/Users/zayah/github/dotfiles` push session for local commit `b8066a1`
+**verified:** 2026-10-06, two unchanged `git fetch origin` attempts returned exactly `git@github.com: Permission denied (publickey)` while HTTPS `git ls-remote` returned development, staging, and main; a later SSH push advanced development from `3c06ee6` to `454c2da`, and the following unchanged SSH fetch succeeded and resolved origin/development to `454c2da`
+**where:** two `/Users/zayah/github/dotfiles` Git transport sessions
 
-The failures and later recovery establish a transient write wall in this session, but its cause is UNCONFIRMED.
+The failures and later recoveries establish transient SSH and HTTPS walls in these sessions, but their cause is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
-**Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.
+**Why:** REJECT at n=2 sessions from one repository and authentication environment subject; there are not five observations from five different subjects.
+**Fix:** retry the same scoped SSH fetch or push after the credential path recovers, then require the exact fetched SHA or pushed remote ref range before promotion; both unchanged SSH recoveries are verified.
 
 ### `mark_artifact_operation_started.mjs` rejected `docx,pdf`; the single-DOCX marker exited 0 and produced 37,821-byte DOCX plus 67,804-byte PDF
 

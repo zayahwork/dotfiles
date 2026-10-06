@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push transport failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -233,6 +233,16 @@ All eight failures occurred in the preflight command and left the index unchange
 
 **Why:** REJECT after eight calls across six patch-file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** run `git apply --cached --check` before every scoped patch; correct hunk counts before retrying and use `--unidiff-zero` only for deliberate zero-context hunks; if an exact preimage still fails, export only the indexed file with `git checkout-index`, edit the copy, stage its verified blob for that path, and inspect `git diff --cached --check` plus the full cached diff before committing.
+
+### `git rev-parse --short` with 3 refs returned `fatal: Needed a single revision` at n=1
+
+**verified:** 2026-10-05, `git rev-parse --short origin/development origin/staging origin/main` returned exactly `fatal: Needed a single revision`; three separate `git rev-parse --short` calls then printed `7603bef`, `c37ac01`, and `40170b4`
+**where:** one post-promotion branch verification in `/Users/zayah/github/dotfiles`
+
+The combined invocation did not print any branch hash, while one invocation per ref returned all three abbreviated revisions.
+
+**Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
+**Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
 ### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
 

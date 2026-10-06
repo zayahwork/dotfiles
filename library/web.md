@@ -12,10 +12,13 @@ return, and where they quietly return nothing.
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 11 times, `read` 5 times, `get` once, and `search-web` once across 4 dates](#agent-reach-rejected-search-11-times-read-5-times-get-once-and-search-web-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, the built-in web search capability, or official APIs. |
-| [`gh search repos` rejected `nameWithOwner` 4 times, `forkCount` 3 times, and `licenseInfo` once across 5 commands](#gh-search-repos-rejected-namewithowner-4-times-forkcount-3-times-and-licenseinfo-once-across-5-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner` 5 times, `forkCount` 4 times, and `licenseInfo` twice across 6 commands](#gh-search-repos-rejected-namewithowner-5-times-forkcount-4-times-and-licenseinfo-twice-across-6-commands) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 2 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-2-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `-X GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
+| [`gh api .../contents/LICENSE` returned HTTP 404 while the tree contained `LICENSE.md` at n=1](#gh-api-contentslicense-returned-http-404-while-the-tree-contained-licensemd-at-n1) | The assumed file path was wrong. Inspect the tree or use the repository license API before requesting content. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
+| [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
@@ -195,18 +198,19 @@ The returned command lists contain neither top-level web command, but the eviden
 **Why:** still held back at n=18 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
 **Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, the built-in web search tool for general discovery, or an official API instead of inventing `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`.
 
-### `gh search repos` rejected `nameWithOwner` 4 times, `forkCount` 3 times, and `licenseInfo` once across 5 commands
+### `gh search repos` rejected `nameWithOwner` 5 times, `forkCount` 4 times, and `licenseInfo` twice across 6 commands
 
 **verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
 **verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
 **verified:** 2026-10-05 at 7:05 pm Pacific, `gh search repos ... --json ... forkCount` returned exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the accepted fields
 **verified:** 2026-10-05, `gh search repos 'resume ATS application tracker job search' --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"` and listed `fullName` among the accepted fields
 **verified:** 2026-10-05, `gh search repos 'job search agent application tracker duplicate ATS' --sort updated --order desc --limit 10 --json nameWithOwner,description,stargazersCount,forkCount,updatedAt,url` returned `Unknown JSON field: "nameWithOwner"` and listed valid fields including `fullName` and `forksCount`
-**where:** five official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at about 9:12 pm Pacific, `gh search repos 'resume ATS checker job matching in:name,description,readme' --sort updated --order desc --limit 15 --json nameWithOwner,description,stargazersCount,forkCount,updatedAt,pushedAt,url,licenseInfo` returned `Unknown JSON field: "nameWithOwner"` and listed accepted equivalents including `fullName`, `forksCount`, and `license`
+**where:** six official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All five commands failed during JSON field validation before repository results could be accepted.
+All six commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** still held back after five commands from one CLI schema subject; there are not five observations from five different subjects.
+**Why:** still held back after six commands from one CLI schema subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; replace `nameWithOwner`, `forkCount`, and `licenseInfo` with `fullName`, `forksCount`, and `license`, then require nonempty output before using the result.
 
 ### `gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories
@@ -280,3 +284,33 @@ The response establishes an anti-bot interstitial for this page and route, but n
 
 **Why:** REJECT at n=1 from one page and backend subject; there are not five observations from five different subjects.
 **Fix:** use search-indexed official content or the employer's linked ATS through normal visible navigation; never retry or bypass the challenge.
+
+### GitHub README decode returned `is not valid base64 data` at n=1
+
+**verified:** 2026-10-05 at about 9:14 pm Pacific, `gh api repos/espin086/GPT-Jobhunter/readme --jq '{...,content}' | jq -r '...(.content | @base64d)'` failed with exactly `string (...) is not valid base64 data` even though the API object exposed a `content` value
+**where:** one official GitHub CLI README-content inspection
+
+The transformed value was not accepted as base64, but the evidence does not establish which transformation changed it.
+
+**Why:** REJECT at n=1 from one repository-content subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; request raw README bytes with `gh api -H 'Accept: application/vnd.github.raw+json' repos/OWNER/REPO/readme`, then require nonzero bytes and expected content instead of locally decoding the transformed field.
+
+### `gh api .../contents/LICENSE` returned HTTP 404 while the tree contained `LICENSE.md` at n=1
+
+**verified:** 2026-10-05 at about 9:14 pm Pacific, fetching `contents/LICENSE` through the official GitHub CLI returned HTTP 404, while repository-tree inspection showed the actual file path was `LICENSE.md`
+**where:** one official GitHub CLI repository-content lookup
+
+The failed request used a filename that did not exist in the inspected tree.
+
+**Why:** REJECT at n=1 from one repository and path subject; there are not five observations from five different subjects.
+**Fix:** inspect the repository tree for the exact license filename before requesting `contents/<path>`, or use the repository license API, then require nonempty content.
+
+### Ashby posting API selection exited 0 with zero output for one board and job ID
+
+**verified:** 2026-10-05 at about 9:19 pm Pacific, `curl -fsSL https://api.ashbyhq.com/posting-api/job-board/snapdocs | jq '.jobs[] | select(.id=="fab8e4d6-2fdb-42e4-93f9-5887c64ae3da") | {...}'` exited 0 with empty stdout
+**where:** one official Ashby posting API board and job-ID selection
+
+The zero-byte result does not distinguish a removed job, a changed board key, a changed job ID, or an unexpected response shape.
+
+**Why:** REJECT at n=1 from one board and job subject; there are not five observations from five different subjects.
+**Fix:** inspect the response byte count, root keys, and returned job IDs before applying `select`, then require a nonempty matched object before treating the lookup as verified.

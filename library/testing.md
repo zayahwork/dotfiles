@@ -352,15 +352,16 @@ The parser output establishes that this script requires a subcommand before it p
 **Why:** REJECT at n=1 from one CLI invocation subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
-### `jq '.[-12:]'` returned `Cannot index object with object`; `.checked_domains[-12:]` returned 12 entries
+### jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
-**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline/state/source-log.json`
+**verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
+**where:** `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The root value was an object, so the array slice had to target its `checked_domains` array rather than the root.
+The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them.
 
-**Why:** REJECT at n=1 from one JSON file and schema subject; there are not five observations from five different subjects.
-**Fix:** inspect the root shape first, then use `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` and require 12 returned entries.
+**Why:** REJECT at n=2 from two JSON file and schema subjects; there are not five observations from five different subjects.
+**Fix:** inspect the root type and keys first; use `jq '.checked_domains[-12:]'` for the object-root source log and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require nonempty expected output.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1
 

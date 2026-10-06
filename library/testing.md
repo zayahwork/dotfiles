@@ -77,7 +77,7 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 12 calls from 5 documented tab subjects
+### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 13 calls from 5 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
@@ -87,11 +87,12 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **verified:** 2026-10-05, after `let inboxTab = await cua.createBrowserTab(...)` returned a live Gmail tab, `await inboxTab.getState()` returned exactly `inboxTab.getState is not a function`; `cua.rewriteDocumentation()` listed `getAXState(options?)`, and `await inboxTab.getAXState({disableDiffing:true})` then returned the Gmail search results
 **verified:** 2026-10-05, `gmailTab.getSnapshot()` returned exactly `gmailTab.getSnapshot is not a function`, and refreshed documentation listed `Target.getAXState(options?)`; the same BrowserTab method had already returned a fresh Gmail accessibility tree as `await inboxTab.getAXState({disableDiffing:true})`
 **verified:** 2026-10-05, after `cua.createBrowserTab("iab", ...)` returned the YMCA careers tab and its accessibility tree exposed an `Okay` button ID, `ymcaTab.getByRole("button", {name:"Okay"}).click()` returned exactly `ymcaTab.getByRole is not a function`; current CUA documentation lists no `getByRole` method on `Tab` and routes DOM selectors through Playwright locators
+**verified:** 2026-10-05 at 9:18 pm Pacific, after a Gmail BrowserTab was created, `await mailTab.snapshot()` returned exactly `mailTab.snapshot is not a function`; `getAXState({disableDiffing:true})` remains the observed accessibility-state method
 **where:** five unified-computer-use BrowserTab subjects across application, Gmail, job-search, and careers workflows
 
 The returned tab objects did not expose those methods; direct accessibility actions use element IDs, while `fill` and `getByRole` belong under the tab's Playwright interface.
 
-**Why:** still held back after twelve calls from five documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back after thirteen calls from five documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; the YMCA `tab.playwright.getByRole("button", {name:"Okay"}).click()` result remains UNCONFIRMED until run and visibly verified.
 
 ### `setValue(15, "All job types")` returned `Select did not retain the requested option` at n=1
@@ -261,17 +262,18 @@ The combined invocation did not print any branch hash, while one invocation per 
 **Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
 **Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
-### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` twice
+### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; positional reads failed 3 times
 
 **verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
 **verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
 **verified:** 2026-10-05, a separate bundled-Python status comprehension also indexed `r[5]` without checking row length and failed with exactly `IndexError: list index out of range` on the workbook's shorter trailing note rows
+**verified:** 2026-10-05 at about 9:12 pm Pacific, iterating `ws.iter_rows(min_row=8, values_only=True)` and unpacking application columns raised exactly `ValueError: not enough values to unpack (expected at least 6, got 5)` on a short row; 2026-10-05 at about 9:20 pm Pacific, another read-only load returned `max_row` and `max_column` as `None`, so `min(ws.max_row, 5)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`
 **where:** one `Applications` worksheet and openpyxl read-only subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The short tuples begin immediately after the visible A1:J52 range, but the reason openpyxl emitted them is UNCONFIRMED.
 
-**Why:** REJECT after two consumer failures from one workbook subject; there are not five observations from five different subjects.
-**Fix:** require `len(row) > 5` before reading `row[5]` and apply equivalent length guards before every optional positional column, then run the repository test file and require exit 0 plus its expected test count.
+**Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
+**Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
 ### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
 
@@ -401,3 +403,15 @@ The paired checks establish package availability only for these Python runtimes 
 
 **Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
 **Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.
+
+### Saved tabs 133, 114, 160, and 249 failed across 4 heartbeat subjects
+
+**verified:** 2026-10-04, calling `markHandoff` on a saved CUA tab from an earlier heartbeat returned exactly `Tab 133 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and stopped the loop while the JavaScript binding persisted; later that date, waiting on Gmail's Refresh button through saved binding `mailTab` returned exactly `Error: Tab 114 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc`
+**verified:** 2026-10-05 at the 10:38 am Pacific heartbeat, reusing prior-turn Gmail handle `gmailCheck` for `goto(...)` returned exactly `Tab 160 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and changed no external state; the agent-created tab had not been marked for handoff before the earlier turn ended
+**verified:** 2026-10-05 at about 9:16 pm Pacific, `await cua.getTab("249", {browser:"iab"})` returned exactly `Tab not found in browser 2` on the heartbeat after tab 249 had been valid
+**where:** four saved IAB tab handles across heartbeat and browser-session state
+
+The retained objects show that a JavaScript binding or `typeof` existence guard did not prove that a tab still belonged to the current browser session.
+
+**Why:** REJECT at n=4 from four tab subjects in one browser-session context; there are not five observations from five different subjects, and one unmarked tab does not establish the general survival cause.
+**Fix:** UNCONFIRMED; call `cua.getState()` at the start of a new heartbeat to rediscover current tabs, then reacquire by current URL or ID or create a fresh tab before using a saved binding; mark an agent-created tab for handoff before ending the turn only after that path is verified on a current tab.

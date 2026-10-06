@@ -9,7 +9,8 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 6 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 7 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 6 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 8 commands before execution.](#held-back)
+- [macOS `date %:z` exited 0 and printed `2026-10-05T21:30:53:z` at n=1.](#macos-date-z-exited-0-and-printed-2026-10-05t213053z-at-n1)
 
 ---
 
@@ -138,7 +139,7 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **Why:** REJECT after four substitutions across three shell-invocation subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
-### zsh `no matches found` stopped 7 bare glob and query arguments before execution
+### zsh `no matches found` stopped 8 bare glob and query arguments before execution
 
 **verified:** 2026-10-03, an `rg` command with bare unmatched `*.md *.json` arguments returned exactly `zsh:1: no matches found: *.md` before `rg` executed
 **verified:** 2026-10-05, unquoted `gh api repos/Gsync/jobsync/commits?per_page=5` failed before `gh` ran because zsh treated `?` as a glob and printed `no matches found`
@@ -147,9 +148,20 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **verified:** 2026-10-05 at 7:06 pm Pacific, unquoted `gh api repos/TusharVashishth/localcv/git/trees/main?recursive=1` failed before `gh` ran with exactly `zsh: no matches found`
 **verified:** 2026-10-05, after preceding commands printed valid ResumeForge metadata and README content, unquoted `gh api repos/magicapple123/ResumeForge/git/trees/main?recursive=1 --jq '.tree[].path'` failed before `gh` ran with exactly `zsh:1: no matches found: repos/magicapple123/ResumeForge/git/trees/main?recursive=1`
 **verified:** 2026-10-05, unquoted `gh api repos/career-ops-hq/career-ops/git/trees/main?recursive=1` failed before `gh` ran with exactly `zsh: no matches found:` followed by the endpoint
-**where:** seven zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at 9:17 pm Pacific, unquoted `gh api repos/AloysJehwin/job-app/git/trees/HEAD?recursive=1` failed before `gh` ran with exactly `zsh:1: no matches found: repos/AloysJehwin/job-app/git/trees/HEAD?recursive=1`
+**where:** eight zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All seven failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
+All eight failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
-**Why:** still held back at n=7 from seven shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, pass file filters through quoted `rg --glob` arguments, and run `rg --files` before uncertain path targets. The required preflight must tokenize the planned zsh command, reject an unquoted `?` or `&` in a `gh api` endpoint and unquoted glob metacharacters in `rg` path arguments, and pass fixtures for all seven failed commands plus their quoted corrections; this prevention check remains UNCONFIRMED until implemented and exercised.
+**Why:** still held back at n=8 from eight shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, pass file filters through quoted `rg --glob` arguments, and run `rg --files` before uncertain path targets. The required preflight must tokenize the planned zsh command, reject an unquoted `?` or `&` in a `gh api` endpoint and unquoted glob metacharacters in `rg` path arguments, and pass fixtures for all eight failed commands plus their quoted corrections; this prevention check remains UNCONFIRMED until implemented and exercised.
+
+### macOS `date %:z` exited 0 and printed `2026-10-05T21:30:53:z` at n=1
+
+**verified:** 2026-10-05 at 9:30 pm Pacific, `TZ=America/Los_Angeles date '+%Y-%m-%dT%H:%M:%S%:z'` exited 0 and printed exactly `2026-10-05T21:30:53:z`; `raw_stamp=$(TZ=America/Los_Angeles date '+%Y-%m-%dT%H:%M:%S%z'); print -r -- "${raw_stamp:0:22}:${raw_stamp:22:2}"` printed exactly `2026-10-05T21:30:58-07:00`
+**where:** one macOS zsh timestamp-formatting subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The successful first exit did not make its malformed timestamp usable, and this macOS `date` did not interpret the GNU `%:z` directive.
+
+**Why:** REJECT at n=1 from one date binary and environment subject; there are not five observations from five different subjects.
+**Fix:** format the offset with `%z`, then insert the colon with zsh substring expansion as shown in the verified command and require a final `-07:00` or `-08:00` suffix for Pacific time.

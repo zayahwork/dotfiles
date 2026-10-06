@@ -505,14 +505,15 @@ The two files use different root shapes, so neither an object-key assumption nor
 **Why:** still held back at n=6 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
 **Fix:** inspect the root type and keys first; use `jq '.checked_domains[-12:]'` for the object-root source-log tail and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
 
-### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1
+### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=2
 
 **verified:** 2026-10-05, a `functions.exec` call containing a direct `web__run` request failed with exactly `Script error: SyntaxError: Unexpected string` and returned zero results; retrying as `const args={search_query:[...],response_length:"long"}; await tools.web__run(args);` succeeded
-**where:** one hourly-application-questions heartbeat web-search input
+**verified:** 2026-10-06, `await tools.web__run({open:[...],response_length:"short"})` returned exactly `Script error: SyntaxError: Unexpected string`; assigning the same request first as `const args={open:[...],response_length:"short"};` then calling `await tools.web__run(args)` succeeded and returned both Kroger page results
+**where:** two functions-exec web request inputs across job-search and library-verification workflows
 
-The first JavaScript input failed before the web request could return results, while the explicit object binding produced a valid tool call in the same workflow.
+Both direct JavaScript inputs failed before the web request could return results, while an explicit object binding produced a valid tool call in each workflow.
 
-**Why:** REJECT at n=1 from one exec-input subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=2 from two exec-input subjects; there are not five observations from five different subjects.
 **Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.
 
 ### Artifact marker paths were missing in 5 lookups across 3 skills; skill-cache paths existed

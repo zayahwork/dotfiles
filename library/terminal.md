@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 32 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, bare zsh globs stopped 32 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
 
@@ -103,6 +103,17 @@ Never trust an empty `ls` from a script.
 ---
 
 ## Held back
+
+### `rm -f style commands are not permitted. Use a safer approach` at n=2
+
+**verified:** 2026-10-04, `exec_command` rejected a multiline DOCX render command containing `rm -rf work/welo-cv-render` with exactly `rm -f style commands are not permitted. Use a safer approach`
+**verified:** 2026-10-06, the execution layer rejected explicit single-file command `rm -f /Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx.inspect.ndjson` with exactly `rm -f style commands are not permitted. Use a safer approach`; the target was a generated inspection sidecar
+**where:** two removal commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, covering one recursive render directory and one explicit generated file
+
+Both commands were rejected before removal, but the evidence does not establish the execution layer's complete deletion policy.
+
+**Why:** REJECT at n=2 from two command subjects in one execution layer; there are not five observations from five different subjects.
+**Fix:** use a fresh explicit output directory or `mktemp -d` instead of recursively removing a render directory. No single-file recovery was verified; leave the generated sidecar in place rather than bypassing the command gate.
 
 ### `path` replaced `PATH` and made 8 command names unavailable across 8 zsh subjects
 

@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool row and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, pipeline partial-source timeouts, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool row and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -429,6 +429,16 @@ The nonempty parser stderr establishes that no pipeline run occurred; exit code 
 
 **Why:** REJECT at n=3 from one CLI parser subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
+
+### We Work Remotely returned `TimeoutError: The read operation timed out` once; the pipeline still reported 163 discovered and 147 scored
+
+**verified:** 2026-10-06, `python3 job-pipeline/pipeline.py run` exited 0 with nonempty output containing `discovered_count 163`, `scored_count 147`, `skipped_duplicate_count 16`, `ready_count 1`, `blocked_count 5`, and a We Work Remotely source failure of exactly `TimeoutError: The read operation timed out`; `job-pipeline/state/approval-batch.json` recorded the same counts and exact source failure at `2026-10-06T13:35:51.055240+00:00`
+**where:** one job-pipeline run and its generated approval batch in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The completed run proves that one source can fail while the pipeline still returns a nonempty batch, but it does not establish whether a retry would recover that source.
+
+**Why:** REJECT at n=1 from one source and pipeline-run subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED for the source timeout; inspect `source_failures` even when the command exits 0, retain the run's verified counts, and mark We Work Remotely coverage unavailable for that run rather than treating exit 0 as proof that every source succeeded.
 
 ### 5 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 

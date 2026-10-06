@@ -19,7 +19,7 @@ return, and where they quietly return nothing.
 | [`gh api contents` returned HTTP 404 for 3 guessed paths; tree inspection found exact files across 2 repositories](#gh-api-contents-returned-http-404-for-3-guessed-paths-tree-inspection-found-exact-files-across-2-repositories) | Resolve the remote path from the tree before requesting repository contents. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
-| [ADP Workforce Now opening link returned HTTP 400 `Redirect loop detected` at n=1](#adp-workforce-now-opening-link-returned-http-400-redirect-loop-detected-at-n1) | The runtime reader could not follow this official portal link. Use an interactive browser; the recovery is UNCONFIRMED. |
+| [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 30 to 35 seconds on 3 queries with no connected extension](#opencli-reddit-search-blocked-for-30-to-35-seconds-on-3-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
@@ -321,12 +321,13 @@ The zero-byte result does not distinguish a removed job, a changed board key, a 
 **Why:** REJECT at n=1 from one board and job subject; there are not five observations from five different subjects.
 **Fix:** inspect the response byte count, root keys, and returned job IDs before applying `select`, then require a nonempty matched object before treating the lookup as verified.
 
-### ADP Workforce Now opening link returned HTTP 400 `Redirect loop detected` at n=1
+### ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings
 
 **verified:** 2026-10-05, the runtime web reader clicked Brown Bear Car Wash's official `View Our Current Openings` link to `https://workforcenow.adp.com/jobs/apply/posting.html?ccId=395193921_1559&client=carwashent&lang=en_US&type=MP` and returned HTTP 400 with exactly `Redirect loop detected`
-**where:** one runtime-reader fetch of the employer-linked ADP Workforce Now entry URL
+**verified:** 2026-10-05, opening that exact legacy URL in the interactive in-app browser reached ADP's `This Career Center Link Has Changed` page and exposed `https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=622f924f-be26-466c-bb1a-20afe3df6205&ccId=395193921_1559&lang=en_US&type=MP`; opening the replacement loaded 15 current openings, including Everett Customer Service Representative requisition 1924, jobId 597116, with nonempty job detail
+**where:** one runtime-reader and interactive-browser pair for the employer-linked ADP Workforce Now portal
 
-The error establishes that this reader could not complete the redirect chain for this exact ADP URL, not that the employer portal was absent.
+The legacy link was real but moved, and the reader's redirect loop hid the replacement URL that the interactive page exposed.
 
-**Why:** REJECT at n=1 from one URL and reader subject; there are not five observations from five different subjects.
-**Fix:** use the official employer page to verify the portal destination, then open the exact ADP URL in an interactive browser for current listings instead of retrying the reader; the browser result remains UNCONFIRMED until loaded.
+**Why:** REJECT at n=1 from one employer portal subject; there are not five observations from five different subjects.
+**Fix:** open the official legacy link in an interactive browser, follow the exact replacement URL from `This Career Center Link Has Changed`, and require a nonzero opening count plus nonempty job detail; this recovery is verified.

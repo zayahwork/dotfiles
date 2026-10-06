@@ -10,7 +10,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [Held back: `path` replaced `PATH` across 6 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 11 commands before execution.](#held-back)
-- [macOS `date %:z` exited 0 and printed `2026-10-05T21:30:53:z` at n=1.](#macos-date-z-exited-0-and-printed-2026-10-05t213053z-at-n1)
+- [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
 
 ---
 
@@ -158,12 +158,13 @@ All eleven failures occurred while zsh parsed unquoted glob or query metacharact
 **Why:** still held back at n=11 from eleven shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** quote every `gh api` endpoint containing `?` or `&`, pass file filters through quoted `rg --glob` arguments, and run `rg --files` before uncertain path targets. The required preflight must tokenize the planned zsh command, reject an unquoted `?` or `&` in a `gh api` endpoint and unquoted glob metacharacters in `rg` path arguments, and pass fixtures for all eleven failed commands plus their quoted corrections; this prevention check remains UNCONFIRMED until implemented and exercised.
 
-### macOS `date %:z` exited 0 and printed `2026-10-05T21:30:53:z` at n=1
+### macOS `date %:z` exited 0 with literal `:z` suffixes at n=2
 
 **verified:** 2026-10-05 at 9:30 pm Pacific, `TZ=America/Los_Angeles date '+%Y-%m-%dT%H:%M:%S%:z'` exited 0 and printed exactly `2026-10-05T21:30:53:z`; `raw_stamp=$(TZ=America/Los_Angeles date '+%Y-%m-%dT%H:%M:%S%z'); print -r -- "${raw_stamp:0:22}:${raw_stamp:22:2}"` printed exactly `2026-10-05T21:30:58-07:00`
-**where:** one macOS zsh timestamp-formatting subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05 at 11:19 pm Pacific, the same `%:z` command exited 0 and printed exactly `2026-10-05T23:19:02:z`
+**where:** two macOS zsh timestamp-formatting invocations in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The successful first exit did not make its malformed timestamp usable, and this macOS `date` did not interpret the GNU `%:z` directive.
+Both successful exits produced malformed timestamps because this environment's `date` did not interpret `%:z`; the evidence does not independently establish the GNU-versus-BSD implementation distinction as the cause.
 
-**Why:** REJECT at n=1 from one date binary and environment subject; there are not five observations from five different subjects.
-**Fix:** format the offset with `%z`, then insert the colon with zsh substring expansion as shown in the verified command and require a final `-07:00` or `-08:00` suffix for Pacific time.
+**Why:** REJECT at n=2 from one date binary and environment subject; there are not five observations from five different subjects.
+**Fix:** format the offset with `%z`, verify the output is nonempty, then insert the colon with zsh substring expansion as shown in the verified command and require a final `-07:00` or `-08:00` suffix for Pacific time.

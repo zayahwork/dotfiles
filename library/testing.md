@@ -77,7 +77,7 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `fill`, `getState`, `domContentLoaded`, and `waitForTimeout` were not functions on 11 calls from 4 documented tab subjects
+### BrowserTab `getSnapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 12 calls from 5 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
@@ -86,12 +86,13 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **verified:** 2026-10-05, after `cua.createBrowserTab()` returned the Gmail inbox tab binding, `mailTab.getSnapshot()` returned exactly `mailTab.getSnapshot is not a function`; the already verified snapshot method is `tab.playwright.domSnapshot()`
 **verified:** 2026-10-05, after `let inboxTab = await cua.createBrowserTab(...)` returned a live Gmail tab, `await inboxTab.getState()` returned exactly `inboxTab.getState is not a function`; `cua.rewriteDocumentation()` listed `getAXState(options?)`, and `await inboxTab.getAXState({disableDiffing:true})` then returned the Gmail search results
 **verified:** 2026-10-05, `gmailTab.getSnapshot()` returned exactly `gmailTab.getSnapshot is not a function`, and refreshed documentation listed `Target.getAXState(options?)`; the same BrowserTab method had already returned a fresh Gmail accessibility tree as `await inboxTab.getAXState({disableDiffing:true})`
-**where:** four unified-computer-use BrowserTab subjects across application, Gmail, and job-search workflows
+**verified:** 2026-10-05, after `cua.createBrowserTab("iab", ...)` returned the YMCA careers tab and its accessibility tree exposed an `Okay` button ID, `ymcaTab.getByRole("button", {name:"Okay"}).click()` returned exactly `ymcaTab.getByRole is not a function`; current CUA documentation lists no `getByRole` method on `Tab` and routes DOM selectors through Playwright locators
+**where:** five unified-computer-use BrowserTab subjects across application, Gmail, job-search, and careers workflows
 
-The returned tab objects did not expose those methods; direct accessibility input uses `setValue(elementIndex, value)`, while `fill` belongs to a Playwright locator.
+The returned tab objects did not expose those methods; direct accessibility actions use element IDs, while `fill` and `getByRole` belong under the tab's Playwright interface.
 
-**Why:** still held back after eleven calls from four documented tab subjects; there are not five observations from five different subjects.
-**Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or Playwright locator `fill` in a Playwright context; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; for load waits, `tab.playwright.waitForLoadState({state:"domcontentloaded", timeoutMs:...})` remains UNCONFIRMED until run; for a timed delay, `await new Promise(r => setTimeout(r, ms))` in the CUA JS runtime remains UNCONFIRMED until followed by a successful snapshot.
+**Why:** still held back after twelve calls from five documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; the YMCA `tab.playwright.getByRole("button", {name:"Okay"}).click()` result remains UNCONFIRMED until run and visibly verified.
 
 ### `setValue(15, "All job types")` returned `Select did not retain the requested option` at n=1
 

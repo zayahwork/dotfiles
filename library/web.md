@@ -16,6 +16,7 @@ return, and where they quietly return nothing.
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
+| [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
 | [Reddit returns 403 and an HTML block page to every unauthenticated request, whatever the user agent](#reddit-returns-403-and-an-html-block-page-to-every-unauthenticated-request-whatever-the-user-agent) | `www.reddit.com/...json` is 403 for both a bot UA and a Chrome UA. OAuth is mandatory even to read. `old.reddit.com` 302s instead. |
 | [Reddit gates app creation behind the Responsible Builder Policy, so "the app is already set up" may mean no app exists](#reddit-gates-app-creation-behind-the-responsible-builder-policy-so-the-app-is-already-set-up-may-mean-no-app-exists) | The create-app form sits behind a policy acknowledgement. An account can have Reddit login and no registered app, which is the same as no API access. |
@@ -228,3 +229,13 @@ The shell exposed no `gh-axi` command; why the active rule and installed command
 
 **Why:** REJECT at n=1 from one shell and tool subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; reconcile the active GitHub CLI rule with the installed tool before running GitHub commands.
+
+### `web__run` completed 4 long search queries with zero text or image content at n=1
+
+**verified:** 2026-10-05, `web__run` accepted four job and Reddit `search_query` items with `response_length` set to `long`, completed successfully, and returned no text or image content
+**where:** one multi-query job and Reddit web-search call
+
+The successful completion establishes no search result because the response exposed zero content blocks; why the content was empty is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one call subject; there are not five observations from five different subjects.
+**Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.

@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""Reject zsh command text that exposes glob metacharacters before execution."""
+
+from __future__ import annotations
+
+import os
+import sys
+from dataclasses import dataclass
+
+
+@dataclass
+class Token:
+    text: str
+    unquoted_globs: set[str]
+
+
+def tokenize(command: str) -> tuple[list[Token], str | None]:
+    tokens: list[Token] = []
+    text: list[str] = []
+    globs: set[str] = set()
+    quote: str | None = None
+    escaped = False
+
+    def finish() -> None:
+        nonlocal text, globs
+        if text:
+            tokens.append(Token("".join(text), set(globs)))
+            text = []
+            globs = set()
+
+    index = 0
+    while index < len(command):
+        char = command[index]
+        if escaped:
+            text.append(char)
+            escaped = False
+        elif char == "\\" and quote != "'":
+            escaped = True
+        elif quote:
+            if char == quote:
+                quote = None
+            else:
+                text.append(char)
+        elif char in "'\"":
+            quote = char
+        elif char == "#" and not text:
+            finish()
+            while index < len(command) and command[index] != "\n":
+                index += 1
+            continue
+        elif char.isspace():
+            finish()
+        elif char in ";|&\n":
+            finish()
+            operator = char
+            if char == "&" and index + 1 < len(command) and command[index + 1] == "&":
+                index += 1
+                operator = "&&"
+            tokens.append(Token(operator, set()))
+        else:
+            text.append(char)
+            if char in "?*[":
+                globs.add(char)
+        index += 1
+
+    if escaped:
+        text.append("\\")
+    finish()
+    return tokens, quote
+
+
+def violations(command: str) -> list[str]:
+    tokens, open_quote = tokenize(command)
+    errors: list[str] = []
+    if open_quote:
+        errors.append(f"unterminated {open_quote} quote")
+
+    for index in range(len(tokens) - 2):
+        command_name = os.path.basename(tokens[index].text)
+        if command_name in {"gh", "gh-axi"} and tokens[index + 1].text == "api":
+            endpoint = tokens[index + 2]
+            exposed = endpoint.unquoted_globs.intersection({"?", "[", "*"})
+            if exposed:
+                errors.append(
+                    "quote the full gh api endpoint: "
+                    + repr(endpoint.text)
+                    + " exposes "
+                    + ", ".join(sorted(exposed))
+                )
+            if index + 3 < len(tokens) and tokens[index + 3].text in {"&", "&&"}:
+                errors.append(
+                    "quote the full gh api endpoint before an &: " + repr(endpoint.text)
+                )
+
+    for index, token in enumerate(tokens):
+        if os.path.basename(token.text) != "rg":
+            continue
+        next_index = index + 1
+        while next_index < len(tokens) and tokens[next_index].text not in {";", "|", "&", "&&", "\n"}:
+            argument = tokens[next_index]
+            exposed = argument.unquoted_globs.intersection({"?", "[", "*"})
+            if exposed:
+                errors.append(
+                    "quote the rg argument: "
+                    + repr(argument.text)
+                    + " exposes "
+                    + ", ".join(sorted(exposed))
+                )
+            next_index += 1
+    return errors
+
+
+def self_test() -> int:
+    blocked = [
+        "gh api repos/a/b/commits?per_page=6",
+        "gh-axi api repos/a/b/git/trees/main?recursive=1",
+        "gh api repos/a/b/issues?state=open&per_page=5",
+        "gh api repos/a/b/issues&per_page=5",
+        "rg needle *.md",
+        "rg -n needle applications* .",
+    ]
+    allowed = [
+        "gh api 'repos/a/b/commits?per_page=6'",
+        'gh-axi api "repos/a/b/git/trees/main?recursive=1"',
+        "rg needle '*.md'",
+        "rg -n needle 'applications*' .",
+        "rg --glob '!**/.git/**' needle .",
+        "gh api 'repos/a/b/issues?state=open&per_page=5'",
+    ]
+    failures: list[str] = []
+    for command in blocked:
+        if not violations(command):
+            failures.append(f"expected rejection: {command}")
+    for command in allowed:
+        if violations(command):
+            failures.append(f"expected acceptance: {command}")
+    if failures:
+        print("\n".join(failures), file=sys.stderr)
+        return 1
+    print("shell-preflight: 12 fixtures passed")
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) == 2 and sys.argv[1] == "--self-test":
+        return self_test()
+    if len(sys.argv) > 1:
+        command = " ".join(sys.argv[1:])
+    elif not sys.stdin.isatty():
+        command = sys.stdin.read()
+    else:
+        print("usage: shell-preflight '<zsh command>'", file=sys.stderr)
+        return 2
+
+    errors = violations(command)
+    if errors:
+        for error in errors:
+            print(f"shell-preflight: {error}", file=sys.stderr)
+        return 1
+    print("shell-preflight: safe")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

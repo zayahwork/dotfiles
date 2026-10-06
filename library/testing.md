@@ -157,7 +157,7 @@ The failed attachment and absent tab prove that no fresh Gmail state was read in
 **Why:** REJECT at n=1 from one browser session and Gmail subject; there are not five observations from five different subjects.
 **Fix:** treat inbox review as unavailable for that run, preserve the previous verified inbox state, and state explicitly that no fresh check occurred; retry only in a later browser-enabled run.
 
-### 8 guessed, stale, or wrong-cwd local paths failed across 9 invocations; current paths found source, tracker, test, and counter targets
+### 9 guessed, stale, or wrong-cwd local paths failed across 10 invocations; current paths found source, tracker, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -165,12 +165,13 @@ The failed attachment and absent tab prove that no fresh Gmail state was read in
 **verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
 **verified:** 2026-10-06 at 5:24 am Pacific, Node failed with `MODULE_NOT_FOUND` for stale prior-turn path `job-pipeline/work/heartbeat-2026-10-06-0409/count_tracker.mjs`; a current `rg --files job-pipeline | rg '(^|/)count_tracker\.mjs$'` lookup later returned that path plus the `heartbeat-2026-10-05-2222` and `heartbeat-2026-10-06-0356` copies
 **verified:** 2026-10-06, bundled Node in `job-pipeline/work/heartbeat-2026-10-06-0557` ran `FileBlob.load("outputs/job-application-tracker.xlsx")` and returned `ENOENT` with the eval stack rooted in that heartbeat directory; an isolated reproduction returned the same error, while loading `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` from the same cwd printed `{"loaded":true,"size":null}`
-**where:** nine failed reads of eight guessed, stale, or wrong-cwd paths across five local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06, reading Firecrawl `SKILL.md` through mistyped plugin id `app-6a314a73f8ac8191b8b47dc98fe5a052` returned `No such file or directory`; the catalog path with id `app-6a314a73f8ac819195b0d55e36b9c609` existed at 3,181 bytes and was read successfully
+**where:** ten failed reads of nine guessed, stale, wrong-cwd, or mistyped paths across six local path-discovery subjects in the MemeCoin, job-applications, and Codex skill-cache trees
 
-Six reads used guessed concept paths; the seventh used a prior-turn path that was absent when Node ran but appeared later, and the eighth paired a heartbeat-cwd failure with a successful absolute-path load.
+The failures used guessed concept paths, stale work paths, wrong cwd resolution, or a retyped catalog identifier; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=9 failures from five workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. For artifact paths, run from the repository root or pass the absolute path, require the resolved file to exist, and require nonempty output; the absolute `FileBlob.load` recovery is verified, while the stale counter execution recovery remains UNCONFIRMED.
+**Why:** still held back at n=10 failures from six workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command, and copy long skill paths exactly from the catalog rather than retyping identifiers. For artifact paths, run from the repository root or pass the absolute path, require the resolved file to exist, and require nonempty output; the absolute `FileBlob.load` and catalog-path recoveries are verified, while the stale counter execution recovery remains UNCONFIRMED.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 
@@ -500,7 +501,7 @@ The completed run proves that one source can fail while the pipeline still retur
 **Why:** REJECT at n=1 from one source and pipeline-run subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED for the source timeout; inspect `source_failures` even when the command exits 0, retain the run's verified counts, and mark We Work Remotely coverage unavailable for that run rather than treating exit 0 as proof that every source succeeded.
 
-### 6 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
+### 7 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
 **verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
@@ -508,12 +509,13 @@ The completed run proves that one source can fail while the pipeline still retur
 **verified:** 2026-10-06, `jq 'length, .[-2:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-2,"end":null})` because the source-log root is an object
 **verified:** 2026-10-06, `jq '.[-8:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-8,"end":null})`; this was one command reported twice, and the verified nested array remains `checked_domains`
 **verified:** 2026-10-06, `jq 'keys, (.[-12:] // empty)' job-pipeline/state/source-log.json` exited 5 with exactly `Cannot index object with object ({"start":-12,"end":null})`; the replacement `jq '{last_run, checked_domains_type:(.checked_domains|type), checked_domains_length:(.checked_domains|length), last_entries:(.checked_domains[-12:])}' ...` exited 0, reported `checked_domains_type` as `array`, length 617, and returned 12 entries
-**where:** six jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `jq -r '.entries[-24:][]' job-pipeline/state/source-log.json` failed with exactly `Cannot iterate over null (null)`; `jq 'keys'` returned `checked_domains` and `last_run`, and `jq '.checked_domains[-1] | keys'` returned the actual entry fields `domain`, `result`, and `track`
+**where:** seven jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them; the source-log array field remains `checked_domains` in the verified inspection.
 
-**Why:** still held back at n=6 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
-**Fix:** inspect the root type and keys first; use `jq '.checked_domains[-12:]'` for the object-root source-log tail and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
+**Why:** still held back at n=7 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
+**Fix:** inspect the root type and keys first; use `.checked_domains[-N:]` for the object-root source-log tail, inspect `.checked_domains[-1] | keys` before selecting entry fields, and use `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=2
 

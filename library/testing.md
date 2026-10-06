@@ -377,3 +377,14 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 
 **Why:** REJECT at n=2 from two skill-path subjects; there are not five observations from five different subjects.
 **Fix:** resolve `mark_artifact_operation_started.mjs` with `rg --files` and invoke the absolute path under the active skill's `skills/<skill>/container_tools/` directory rather than assuming a workspace-relative or plugin-root `container_tools/` path.
+
+### `zsh:1: command not found: python` at n=2
+
+**verified:** 2026-10-04 at 10:21 am Pacific, `python - <<'PY'` returned exactly `zsh:1: command not found: python`
+**verified:** 2026-10-05 at about 8:00 pm Pacific, another `python - <<'PY'` invocation returned exactly `zsh:1: command not found: python`, exited 127, while `command -v python3` resolved `/opt/homebrew/bin/python3` and the bundled Python reported version 3.12.14
+**where:** two source-inspection commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The shell did not expose a command named `python` in either invocation.
+
+**Why:** REJECT at n=2 from one machine environment subject; there are not five observations from five different subjects.
+**Fix:** use `python3` or `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, select the runtime that contains the required dependency, and verify the replacement command's real output.

@@ -20,7 +20,7 @@ return, and where they quietly return nothing.
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
-| [`opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension](#opencli-reddit-search-blocked-for-30-seconds-on-2-reddit-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. Do not wait on this route during a heartbeat; use public indexed leads as UNCONFIRMED. |
+| [`opencli reddit search` blocked for 30 to 35 seconds on 3 queries with no connected extension](#opencli-reddit-search-blocked-for-30-to-35-seconds-on-3-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
 | [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
@@ -225,16 +225,17 @@ The comparison proves that the first successful exit exposed no usable result ro
 **Why:** REJECT at n=1 query-pair subject; there are not five observations from five different subjects.
 **Fix:** treat zero-byte success as untrusted, simplify the query, and require nonempty validated rows before concluding that no repositories match.
 
-### `opencli reddit search` blocked for 30 seconds on 2 Reddit queries with no connected extension
+### `opencli reddit search` blocked for 30 to 35 seconds on 3 queries with no connected extension
 
 **verified:** 2026-10-05, `agent-reach doctor --json` reported Reddit status `warn`, `active_backend: null`, OpenCLI installed, and no connected browser extension; `opencli reddit search "jobs hiring Snohomish Lake Stevens Bothell 2026" -f yaml` produced 0 output bytes and was still running after 30.2 seconds, `pgrep -af "opencli reddit search"` returned PID 6008, and `kill 6008` exited 0
 **verified:** 2026-10-05, `opencli reddit search 'jobs hiring Washington remote entry level gym retail 2026' -f yaml` printed only `Waiting for Chrome/Chromium extension to connect... Make sure Chrome or Chromium is open and the OpenCLI extension is enabled.` and remained blocked for 30 seconds until interrupted
-**where:** two required-platform Reddit query subjects from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-05, Doctor again reported Reddit `active_backend: null` because no OpenCLI browser extension was connected; `opencli reddit search 'Everett Washington hiring seasonal retail October 2026' -f yaml` produced zero bytes for 35 seconds, was interrupted, and exited 130
+**where:** three required-platform Reddit query subjects from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-Both read-only commands establish that this OpenCLI route was unavailable for the pass; the second output explicitly named the missing browser-extension connection.
+All three read-only commands establish that this OpenCLI route was unavailable for the pass, while an empty still-running probe supplied no search result or usable error.
 
-**Why:** REJECT at n=2 query subjects in one environment; there are not five observations from five different subjects or an untouched control.
-**Fix:** when Doctor reports `active_backend: null` and no connected extension, do not wait on native Reddit search during a heartbeat; terminate a blocked process and use public search results only as UNCONFIRMED anecdotes, never as application evidence.
+**Why:** REJECT at n=3 query subjects in one environment; there are not five observations from five different subjects or an untouched control.
+**Fix:** the third recurrence requires a reusable launch guard that runs Doctor first and refuses `opencli reddit search` when `active_backend` is null or the extension is disconnected; this guard is UNCONFIRMED until built and exercised. Until then, interrupt an empty hanging probe and use the runtime web search for public Reddit discovery while keeping posts UNCONFIRMED.
 
 ### `gh api` form fields returned HTTP 404 on 3 commit-list requests without forced GET
 

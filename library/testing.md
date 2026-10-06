@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, tracker count bounds, missing PDF fallback paths, Python runtime, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -133,18 +133,29 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 6 guessed local paths were absent; `rg --files` found source, tracker, and test paths
+### 7 guessed or stale local paths were absent; `rg --files` found source, tracker, test, and counter paths
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
 **verified:** 2026-10-06, `wc -c job-pipeline/output/application-tracker.xlsx` returned `No such file or directory`, and a later byte-count command against guessed filename `Zayah Nelson - Job Application Tracker.xlsx` returned `open: No such file or directory`; the verified tracker path remained `outputs/job-application-tracker.xlsx`
 **verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
-**where:** six guessed paths across three local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06 at 5:24 am Pacific, Node failed with `MODULE_NOT_FOUND` for stale prior-turn path `job-pipeline/work/heartbeat-2026-10-06-0409/count_tracker.mjs`; a current `rg --files job-pipeline | rg '(^|/)count_tracker\.mjs$'` lookup later returned that path plus the `heartbeat-2026-10-05-2222` and `heartbeat-2026-10-06-0356` copies
+**where:** seven guessed or stale paths across four local path-discovery subjects in the MemeCoin and job-applications workspaces
 
-All six failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
+Six reads used guessed concept paths; the seventh used a prior-turn path that was absent when Node ran but appeared in a later listing, so its cause is UNCONFIRMED.
 
-**Why:** still held back at n=6 from three workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory before reading, measuring, or selecting a test command from an assumed path. Require the resolved file to exist, report a nonzero byte count for artifacts, and run checks only from paths actually returned by the listing.
+**Why:** still held back at n=7 from four workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command. Require the resolved file to exist, report a nonzero byte count for artifacts, and invoke only a current path returned by the listing; the counter execution recovery is UNCONFIRMED because only path discovery was rerun.
+
+### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
+
+**verified:** 2026-10-06 at 5:25 am Pacific, the then-current `count_tracker.mjs` read fixed range `Applications!A7:J65` and printed 55 tracker rows plus 21 blocked after Nordstrom was added at row 66; the current script reads `sheet.getUsedRange().rowCount`, selects `A8:J${usedRowCount}`, filters for nonempty status, and a same-window rerun printed 55 tracker rows plus 22 blocked
+**where:** one tracker-count script and `outputs/job-application-tracker.xlsx` state
+
+The source and output establish the row-66 omission for this one script state but do not establish behavior in other workbooks.
+
+**Why:** REJECT at n=1 from one workbook and count-script subject; there are not five observations from five different subjects.
+**Fix:** derive the application-row end from the current used range or table, start below the header, and count only rows with a nonempty status; the current used-range implementation and nonempty rerun are verified.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 
@@ -514,16 +525,17 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### Git commands exited 128 with `fatal: not a git repository` across 2 job-workspace sessions
+### Git commands exited 128 with `fatal: not a git repository` across 3 job-workspace sessions
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
 **verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
-**where:** two command sessions in one non-Git job-applications workspace
+**verified:** 2026-10-06 at 5:25 am Pacific, `git status --short` from the same directory returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current comparison repeated that error while `git -C /Users/zayah/github/dotfiles rev-parse --show-toplevel` printed `/Users/zayah/github/dotfiles`
+**where:** three command sessions in one non-Git job-applications workspace
 
 Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
 
-**Why:** REJECT at n=2 command sessions from one workspace subject; there are not five observations from five different subjects.
-**Fix:** resolve the intended repository with `git -C <repo> rev-parse --show-toplevel` before repository operations. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+**Why:** REJECT at n=3 command sessions from one workspace subject; there are not five observations from five different subjects.
+**Fix:** check the target with `git -C <candidate> rev-parse --show-toplevel` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut. A reusable preflight guard remains UNCONFIRMED until built and exercised.
 
 ### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
 

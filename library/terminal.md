@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, bare zsh globs stopped 35 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 35 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
 
@@ -152,16 +152,17 @@ The observed script began with backslash and `n` characters instead of a real ne
 **Why:** REJECT at n=2 from two invocation subjects in one environment; there are not five observations from five different subjects.
 **Fix:** use a real single-line expression for short `python3 -c` work, as confirmed by the list-comprehension output; for nontrivial logic, write a file in the writable work directory with `apply_patch`, then run the bundled Python executable on that file.
 
-### Backticks inside double-quoted `rg` patterns executed 4 substitutions across 3 shell invocations
+### Backticks inside double-quoted `rg` patterns executed 5 substitutions across 4 shell invocations
 
 **verified:** 2026-10-03, a zsh command passed a backtick-wrapped `pdftotext` token inside a double-quoted `rg` pattern and printed exactly `zsh:2: command not found: pdftotext` before the search results
 **verified:** 2026-10-05, a dotfiles-library lookup used a double-quoted `rg` pattern containing backticks around `AttributeError`, printed exactly `zsh:1: command not found: AttributeError`, and then returned the remaining search matches
 **verified:** 2026-10-05, one dotfiles-library lookup invoked two double-quoted `rg` patterns containing backticks around `path`; zsh printed exactly `zsh:1: command not found: path` twice before returning the remaining search matches
-**where:** four substitutions across three dotfiles-library verification shell invocations in macOS zsh
+**verified:** 2026-10-06, a dotfiles-library staged-file check used a double-quoted `rg` pattern containing backticks around `docx`, printed exactly `zsh:6: command not found: docx`, and the corrected single-quoted pattern returned the intended heading and evidence lines
+**where:** five substitutions across four dotfiles-library verification shell invocations in macOS zsh
 
 The shell executed the backtick contents as command substitution before `rg` received the pattern.
 
-**Why:** REJECT after four substitutions across three shell-invocation subjects; there are not five observations from five different subjects.
+**Why:** still held back after five substitutions across four shell-invocation subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
 ### zsh `no matches found` stopped 35 bare glob and query arguments before execution

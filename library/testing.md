@@ -247,6 +247,16 @@ All fifteen failures mean the hunk context did not match the named target file; 
 **Why:** still held back at n=15 across seven file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
+### `rm -f style commands are not permitted` rejected one narrow QA cleanup before execution
+
+**verified:** 2026-10-06, a resume QA command containing `rm -rf job-pipeline/work/qa-home-depot-2026-10-06-0014` returned exactly `rm -f style commands are not permitted. Use a safer approach`, with no child-process output
+**where:** one exec command-gate decision in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The gate rejected the full command before the intended QA work ran, even though the removal target was one named work directory.
+
+**Why:** REJECT at n=1 from one command and gate subject; there are not five observations from five different subjects.
+**Fix:** create a fresh unique output directory or use `mktemp -d`, leave the old directory in place, and run QA against the new path without destructive cleanup.
+
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
 
 **verified:** 2026-10-05, three generated patches returned `corrupt patch` at lines 23, 25, and 12 because their unified-diff hunk counts did not match the lines supplied; correcting each header count made every patch pass `git apply --cached --check` and apply cleanly

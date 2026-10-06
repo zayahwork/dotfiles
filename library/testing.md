@@ -220,15 +220,16 @@ The repository test file imports `unittest` and calls `unittest.main()`, so dire
 **Why:** REJECT at n=1 from one repository and runtime subject; there are not five observations from five different subjects.
 **Fix:** run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tests/test_pipeline.py -q` and require exit 0 plus the expected test count; do not install pytest without approval.
 
-### `mallTab.click(18)` returned `Could not check the click target's shadow root` at n=1
+### BrowserTab `click(...)` returned `Could not check the click target's shadow root` on 2 job links
 
 **verified:** 2026-10-05, on `https://shopsatpalmdesert.com/careers`, `await mallTab.click(18)` returned exactly `Could not check the click target's shadow root`; `await mallTab.goto("https://shopsatpalmdesert.com/job/part-time-seasonal-associate")` followed by `await mallTab.getAXState(...)` succeeded
-**where:** one unified-computer-use navigation subject on The Shops at Palm Desert careers site
+**verified:** 2026-10-06 at about 7:04 am Pacific, BrowserTab `click(54)` on a Dayforce job-card link failed immediately with exactly `Could not check the click target's shadow root`; the AX state exposed direct href `https://jobs.dayforcehcm.com/en-US/goodwillhome/CANDIDATEPORTAL/jobs/23715`
+**where:** two unified-computer-use navigation subjects on The Shops at Palm Desert and Dayforce careers sites
 
-The failed accessibility click did not establish whether the page or tool caused the shadow-root check failure, while direct navigation reached the intended visible job URL.
+Both accessibility clicks failed at the shadow-root check, but the evidence does not establish whether the page, target structure, or tool caused the failure.
 
-**Why:** REJECT at n=1 from one page and click subject; there are not five observations from five different subjects.
-**Fix:** when this exact click fails and the intended visible link URL is known, navigate the same tab directly to that URL and verify the destination with `getAXState(...)`.
+**Why:** still held back at n=2 from two page and click subjects; there are not five observations from five different subjects.
+**Fix:** when this exact click fails and the intended visible link URL is known, navigate the same tab directly to that URL and verify the destination with `getAXState(...)`. This recovery succeeded for The Shops at Palm Desert; the Dayforce recovery remains UNCONFIRMED until its detail page is loaded and inspected.
 
 ### `exec_module` without `sys.modules` registration raised `AttributeError: 'NoneType' object has no attribute '__dict__'` at n=1
 

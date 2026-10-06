@@ -222,16 +222,17 @@ All ten failures mean the hunk context did not match the named target file; they
 **Why:** still held back at n=10 across five file subjects because no untouched control was measured; the five-subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
-### `git apply --cached --check` rejected 5 generated patches across 4 patch files before staging
+### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
 
 **verified:** 2026-10-05, three generated patches returned `corrupt patch` at lines 23, 25, and 12 because their unified-diff hunk counts did not match the lines supplied; correcting each header count made every patch pass `git apply --cached --check` and apply cleanly
 **verified:** 2026-10-05, one zero-context `library/web.md` hunk returned `patch failed: library/web.md:15` twice without `--unidiff-zero`; the same patch passed the check and applied cleanly with `git apply --cached --unidiff-zero`
-**where:** five staging preflight attempts across four generated patch files for scoped dotfiles-library commits
+**verified:** 2026-10-05, an OpenCLI Reddit two-hunk patch returned `patch failed: library/web.md:204` twice, and a split entry-only patch returned the same failure once even though its preimage matched the index; exporting the index file with `git checkout-index`, editing that copy, hashing it, and updating only the named index path produced the intended cached diff and passed `git diff --cached --check`
+**where:** eight staging preflight attempts across six generated patch files for scoped dotfiles-library commits
 
-All five failures occurred in the preflight command and left the index unchanged.
+All eight failures occurred in the preflight command and left the index unchanged; why the three OpenCLI patches failed despite a matching preimage is UNCONFIRMED.
 
-**Why:** REJECT after five calls across four patch-file subjects; there are not five observations from five different subjects.
-**Fix:** run `git apply --cached --check` before every scoped patch; correct hunk counts before retrying, and add `--unidiff-zero` to both the check and apply calls only for a deliberately zero-context hunk.
+**Why:** REJECT after eight calls across six patch-file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** run `git apply --cached --check` before every scoped patch; correct hunk counts before retrying and use `--unidiff-zero` only for deliberate zero-context hunks; if an exact preimage still fails, export only the indexed file with `git checkout-index`, edit the copy, stage its verified blob for that path, and inspect `git diff --cached --check` plus the full cached diff before committing.
 
 ### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
 

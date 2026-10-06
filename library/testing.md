@@ -493,15 +493,16 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### `git status` and tracker `git log` exited 128 with `fatal: not a git repository` at n=1
+### Git commands exited 128 with `fatal: not a git repository` across 2 job-workspace sessions
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
-**where:** one job-applications workspace and tracker-history recovery attempt
+**verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
+**where:** two command sessions in one non-Git job-applications workspace
 
 Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
 
-**Why:** REJECT at n=1 from one workspace subject; there are not five observations from five different subjects.
-**Fix:** inspect the current workbook, source log, generated artifacts, and any explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+**Why:** REJECT at n=2 command sessions from one workspace subject; there are not five observations from five different subjects.
+**Fix:** resolve the intended repository with `git -C <repo> rev-parse --show-toplevel` before repository operations. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
 
 ### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
 

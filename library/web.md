@@ -16,7 +16,7 @@ return, and where they quietly return nothing.
 | [`gh api search/repositories` exited 0 with 0 bytes for a constrained query; `resume ats` returned 10 repositories](#gh-api-searchrepositories-exited-0-with-0-bytes-for-a-constrained-query-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Simplify the query and require nonempty rows. |
 | [`gh api` form fields returned HTTP 404 on 2 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-2-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `-X GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [GitHub README decode returned `is not valid base64 data` at n=1](#github-readme-decode-returned-is-not-valid-base64-data-at-n1) | The transformed API value did not decode. Request the raw media type and require nonempty expected content; the retry is UNCONFIRMED. |
-| [`gh api .../contents/LICENSE` returned HTTP 404 while the tree contained `LICENSE.md` at n=1](#gh-api-contentslicense-returned-http-404-while-the-tree-contained-licensemd-at-n1) | The assumed file path was wrong. Inspect the tree or use the repository license API before requesting content. |
+| [`gh api contents` returned HTTP 404 for 3 guessed paths; tree inspection found exact files across 2 repositories](#gh-api-contents-returned-http-404-for-3-guessed-paths-tree-inspection-found-exact-files-across-2-repositories) | Resolve the remote path from the tree before requesting repository contents. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [Ashby posting API selection exited 0 with zero output for one board and job ID](#ashby-posting-api-selection-exited-0-with-zero-output-for-one-board-and-job-id) | An empty successful pipeline is not a verified missing job. Inspect response bytes and available keys before trusting the selection. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
@@ -295,15 +295,16 @@ The transformed value was not accepted as base64, but the evidence does not esta
 **Why:** REJECT at n=1 from one repository-content subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; request raw README bytes with `gh api -H 'Accept: application/vnd.github.raw+json' repos/OWNER/REPO/readme`, then require nonzero bytes and expected content instead of locally decoding the transformed field.
 
-### `gh api .../contents/LICENSE` returned HTTP 404 while the tree contained `LICENSE.md` at n=1
+### `gh api contents` returned HTTP 404 for 3 guessed paths; tree inspection found exact files across 2 repositories
 
 **verified:** 2026-10-05 at about 9:14 pm Pacific, fetching `contents/LICENSE` through the official GitHub CLI returned HTTP 404, while repository-tree inspection showed the actual file path was `LICENSE.md`
-**where:** one official GitHub CLI repository-content lookup
+**verified:** 2026-10-05, `gh api repos/TusharVashishth/localcv/contents/src/lib/db.ts -H 'Accept: application/vnd.github.raw+json'` and a second request for guessed path `src/lib/db/local-db.ts` each returned exactly `gh: Not Found (HTTP 404)` with nonempty JSON errors; `gh api 'repos/TusharVashishth/localcv/git/trees/HEAD?recursive=1' --jq '.tree[].path' | rg '(^|/)(db|database|dexie|storage)'` returned `src/lib/db/schema.ts`, and fetching that exact contents path succeeded and printed the IndexedDB schema
+**where:** three failed official GitHub CLI content-path lookups across two repositories, plus one successful tree-first recovery
 
-The failed request used a filename that did not exist in the inspected tree.
+All three failed requests used paths that differed from the exact filenames exposed by their repository trees.
 
-**Why:** REJECT at n=1 from one repository and path subject; there are not five observations from five different subjects.
-**Fix:** inspect the repository tree for the exact license filename before requesting `contents/<path>`, or use the repository license API, then require nonempty content.
+**Why:** REJECT at n=3 path failures across two repository subjects; there are not five observations from five different subjects.
+**Fix:** query the recursive tree first, filter its returned paths for the target concept, then pass the exact path to `gh api repos/OWNER/REPO/contents/<path>` and require nonempty expected content; use the repository license API when the target is a license.
 
 ### Ashby posting API selection exited 0 with zero output for one board and job ID
 

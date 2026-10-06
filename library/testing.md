@@ -346,3 +346,13 @@ The parser output establishes that this script requires a subcommand before it p
 
 **Why:** REJECT at n=1 from one CLI invocation subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
+
+### `jq '.[-12:]'` returned `Cannot index object with object`; `.checked_domains[-12:]` returned 12 entries
+
+**verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
+**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline/state/source-log.json`
+
+The root value was an object, so the array slice had to target its `checked_domains` array rather than the root.
+
+**Why:** REJECT at n=1 from one JSON file and schema subject; there are not five observations from five different subjects.
+**Fix:** inspect the root shape first, then use `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` and require 12 returned entries.

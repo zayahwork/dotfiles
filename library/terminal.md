@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 6 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 24 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 7 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 28 commands before execution.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
 
 ---
@@ -103,19 +103,20 @@ Never trust an empty `ls` from a script.
 
 ## Held back
 
-### `path` replaced `PATH` and made 8 command names unavailable across 6 zsh subjects
+### `path` replaced `PATH` and made 8 command names unavailable across 7 zsh subjects
 
 **verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
 **verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
 **verified:** 2026-10-05 at about 6:40 pm Pacific, `for path in ...` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed `zsh:4: command not found` for `gh`, `base64`, and `sed` on every iteration after assigning `path`
 **verified:** 2026-10-05 at 7:07 pm Pacific, another `for path in ...` tooling loop printed `zsh: command not found: gh` and `sed` for every item immediately after assigning `path`
 **verified:** 2026-10-05, `for path in Argus/store.py ...; do ...; done` in the job-applications heartbeat printed `zsh:1: command not found: gh`, `base64`, and `sed` for every item after the first `path` assignment, exited 127, and produced 570 output bytes
-**where:** six zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and three job-application tooling loops
+**verified:** 2026-10-06, another `for path in ...; do ...; gh ... | sed ...; done` research loop returned `command not found: gh` and `command not found: sed` on every iteration after assigning the special lowercase `path` variable
+**where:** seven zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and four job-application tooling loops
 
-Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all six observations.
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all seven observations.
 
-**Why:** still held back at n=6 from six zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. The required preflight must reject assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME` and pass fixtures for all six `path` failures; it remains UNCONFIRMED until implemented and exercised.
+**Why:** still held back at n=7 from seven zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. The required preflight must reject assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME` and pass fixtures for all seven `path` failures; it remains UNCONFIRMED until implemented and exercised.
 
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 
@@ -139,7 +140,7 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **Why:** REJECT after four substitutions across three shell-invocation subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
-### zsh `no matches found` stopped 24 bare glob and query arguments before execution
+### zsh `no matches found` stopped 28 bare glob and query arguments before execution
 
 **verified:** 2026-10-03, an `rg` command with bare unmatched `*.md *.json` arguments returned exactly `zsh:1: no matches found: *.md` before `rg` executed
 **verified:** 2026-10-05, unquoted `gh api repos/Gsync/jobsync/commits?per_page=5` failed before `gh` ran because zsh treated `?` as a glob and printed `no matches found`
@@ -159,12 +160,13 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **verified:** 2026-10-06, unquoted `gh api repos/sliday/resume-job-matcher/commits?per_page=5` and `gh api repos/sliday/resume-job-matcher/git/trees/main?recursive=1` each returned `zsh: no matches found`; quoted GET retries using the verified default branch `master` returned 5 commit SHAs in 205 bytes and 49 tree paths in 997 bytes
 **verified:** 2026-10-06, unquoted `gh api repos/magicapple123/ResumeForge/commits?per_page=10` returned exactly `zsh: no matches found`; the quoted GET retry returned 54,679 bytes containing 10 commits
 **verified:** 2026-10-06 at 2:55 am Pacific, unquoted `gh api repos/selfishprimate/seekter/git/trees/main?recursive=1` returned exactly `zsh: no matches found: repos/selfishprimate/seekter/git/trees/main?recursive=1`; quoting the endpoint fixed the shell failure
-**where:** twenty-four zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, unquoted `gh api` endpoints for `bananatruck/clanker.tracker` tree recursion, `eric-muganga/jobApplicationTrackerApi` commits, `TusharVashishth/localcv` tree recursion, and `rendercv/rendercv` tree recursion each returned `zsh: no matches found` before `gh` ran; the clanker error identified shell line 11, and the other supplied corrections quote the entire endpoint
+**where:** twenty-eight zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All twenty-four failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
+All twenty-eight failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
-**Why:** still held back at n=24 from twenty-four shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. The required preflight must tokenize the planned zsh command, reject an unquoted `?` or `&` in a `gh api` endpoint and unquoted glob metacharacters in `rg` path arguments, and pass fixtures for all twenty-four failed commands plus their quoted corrections; this prevention check remains UNCONFIRMED until implemented and exercised.
+**Why:** still held back at n=28 from twenty-eight shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. The required preflight must tokenize the planned zsh command, reject an unquoted `?` or `&` in a `gh api` endpoint and unquoted glob metacharacters in `rg` path arguments, and pass fixtures for all twenty-eight failed commands plus their quoted corrections; this prevention check remains UNCONFIRMED until implemented and exercised.
 
 ### macOS `date %:z` exited 0 with literal `:z` suffixes at n=2
 

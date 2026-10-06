@@ -77,7 +77,7 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 24 calls from 7 documented tab subjects
+### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 25 calls from 7 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
@@ -95,11 +95,12 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **verified:** 2026-10-06, while continuing a summarized Computer Use context on hidden Gmail tab `mailTab2`, `mailTab2.playwright.domContentLoaded()`, `mailTab2.getState()`, and `mailTab2.snapshot()` each returned an exact error ending `is not a function`
 **verified:** 2026-10-06, after `cua.createBrowserTab` returned hidden IAB binding `paycomTab` on a JavaScript Paycom careers page, `await paycomTab.getState()` returned exactly `paycomTab.getState is not a function`; no Paycom recovery call was supplied
 **verified:** 2026-10-06 at 2:55 am Pacific, `gmailTab.getState()` returned exactly `gmailTab.getState is not a function`; `gmailTab.getAXState({disableDiffing:true})` then succeeded and returned the complete Gmail search results
+**verified:** 2026-10-06 at about 4:19 am Pacific, after `cua.createBrowserTab(...)` returned an initial accessibility snapshot, `gmail.snapshot()` returned exactly `gmail.snapshot is not a function`; no recovery call was supplied in that observation
 **where:** seven unified-computer-use BrowserTab subjects across application, Gmail, job-search, and careers workflows
 
 The returned tab objects did not expose those methods; direct accessibility actions use element IDs, while `fill` and `getByRole` belong under the tab's Playwright interface.
 
-**Why:** still held back after twenty-four calls from seven documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back after twenty-five calls from seven documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** after a summarized Computer Use task, call `cua.rewriteDocumentation()` before interacting. Wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()`. Use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; the Paycom recovery and the YMCA and Home Depot role-click results remain UNCONFIRMED until run and visibly verified.
 
 ### ALDI AX tree exposed 2 `APPLY` links while the exact Playwright role locator matched 0 at n=1
@@ -132,16 +133,18 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 2 guessed local paths were absent; `rg --files` found `research-indicator.ts` and a 17,517-byte tracker XLSX
+### 6 guessed local paths were absent; `rg --files` found source, tracker, and test paths
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
-**where:** two local path-discovery subjects in the MemeCoin and job-applications workspaces
+**verified:** 2026-10-06, `wc -c job-pipeline/output/application-tracker.xlsx` returned `No such file or directory`, and a later byte-count command against guessed filename `Zayah Nelson - Job Application Tracker.xlsx` returned `open: No such file or directory`; the verified tracker path remained `outputs/job-application-tracker.xlsx`
+**verified:** 2026-10-06, a test-command lookup found neither `job-pipeline/package.json` nor `job-pipeline/scripts/`; `rg --files job-pipeline` instead returned `job-pipeline/tests/test_pipeline.py` and no package or scripts path
+**where:** six guessed paths across three local path-discovery subjects in the MemeCoin and job-applications workspaces
 
-Both failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
+All six failed reads used guessed concept-based paths instead of enumerating the workspace's current files.
 
-**Why:** REJECT at n=2 from two workspace and path subjects; there are not five observations from five different subjects.
-**Fix:** run `rg --files` in the narrow source directory before reading or measuring an assumed path, then require the resolved file to exist and report a nonzero byte count.
+**Why:** still held back at n=6 from three workspace and path subjects because no untouched control was measured; the path count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory before reading, measuring, or selecting a test command from an assumed path. Require the resolved file to exist, report a nonzero byte count for artifacts, and run checks only from paths actually returned by the listing.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 
@@ -362,7 +365,7 @@ The two failures show that the marker requires all named arguments and did not a
 **Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
 **Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
 
-### `@oai/artifact-tool` import failed in 5 bundled-Node setups; a local symlink produced 1,426 bytes
+### `@oai/artifact-tool` import failed in 6 bundled-Node setups; a local symlink produced 1,426 bytes
 
 **verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
 **verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
@@ -371,11 +374,12 @@ The two failures show that the marker requires all named arguments and did not a
 **verified:** 2026-10-06, a builder under `job-pipeline/work/heartbeat-2026-10-06-0014` returned `ERR_MODULE_NOT_FOUND` for `@oai/artifact-tool` even with `ARTIFACT_TOOL_NODE_MODULES` set; only the prior work directory had a script-directory `node_modules` symlink to the bundled `dependencies/node/node_modules`
 **verified:** 2026-10-06, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node job-pipeline/work/heartbeat-2026-10-06-0124/inspect_peopleready.mjs` returned `Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@oai/artifact-tool' imported from .../inspect_peopleready.mjs`; the script directory had no `node_modules`
 **verified:** 2026-10-06, copying the same script to a temporary directory with `node_modules` symlinked to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` made the bundled Node command exit 0 and produce 1,426 bytes of expected PeopleReady tracker JSON
-**where:** five failed spreadsheet import setups and three successful recovery probes on this machine
+**verified:** 2026-10-06, bundled Node v24.19.0 running a workspace `.mjs` with `NODE_PATH=/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` still returned `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'` and suggested its `dist/artifact_tool.mjs` entry; this one failure was reported twice
+**where:** six failed spreadsheet import setups and three successful recovery probes on this machine
 
 Bare-package resolution failed from eval or script-directory contexts without the correct local symlink and from a symlink whose target did not exist; setting `ARTIFACT_TOOL_NODE_MODULES` did not change the observed ESM lookup, while both recovery paths resolved the package's actual runtime location.
 
-**Why:** still held back after five failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back after six failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
 ### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`
@@ -400,17 +404,18 @@ The nonempty parser stderr establishes that no pipeline run occurred; exit code 
 **Why:** REJECT at n=3 from one CLI parser subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
-### 4 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
+### 5 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
 **verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
 **verified:** 2026-10-06, `jq '.[-4:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-4,"end":null})`; the earlier verified root keys were `last_run` and `checked_domains`, not `entries`
 **verified:** 2026-10-06, `jq 'length, .[-2:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-2,"end":null})` because the source-log root is an object
-**where:** four jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `jq '.[-8:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-8,"end":null})`; this was one command reported twice, and the verified nested array remains `checked_domains`
+**where:** five jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them; the source-log array field remains `checked_domains` in the verified inspection.
 
-**Why:** REJECT at n=4 command observations across two JSON file and schema subjects; there are not five observations from five different subjects.
+**Why:** still held back at n=5 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
 **Fix:** inspect the root type and keys first; use `jq '.checked_domains[-2:]'` for the requested object-root source-log slice and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require nonempty expected output.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1
@@ -423,16 +428,17 @@ The first JavaScript input failed before the web request could return results, w
 **Why:** REJECT at n=1 from one exec-input subject; there are not five observations from five different subjects.
 **Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.
 
-### Artifact marker paths were missing in 3 lookups across 2 skills; skill-cache paths existed
+### Artifact marker paths were missing in 4 lookups across 2 skills; skill-cache paths existed
 
 **verified:** 2026-10-03, `ls -l container_tools/mark_artifact_operation_started.mjs` returned `No such file or directory`, while `rg --files /Users/zayah/.codex /Users/zayah/.cache/codex-runtimes | rg '/mark_artifact_operation_started\.mjs$'` found `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/pdf/26.905.11957/skills/pdf/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05, the Spreadsheets skill requested `node container_tools/mark_artifact_operation_started.mjs ...`, but `ls` on `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools` returned exactly `No such file or directory`; `rg --files` found the marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05 at about 10:00 pm Pacific, the required runtime Node invocation of `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools/mark_artifact_operation_started.mjs` exited 1 with `MODULE_NOT_FOUND`; the deployed `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` existed at 743 bytes, and invoking it with the same runtime reached the script and printed its usage line
-**where:** three PDF and Spreadsheets skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, the same Spreadsheets plugin-root marker path under `spreadsheets/26.905.11957/container_tools/` again failed under Node v24.19.0 with `MODULE_NOT_FOUND`; the deployed skill-cache path remained the verified recovery
+**where:** four PDF and Spreadsheets skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The workspace-relative and spreadsheet plugin-root paths were absent, while skill-specific cache searches returned the marker files.
 
-**Why:** REJECT at n=3 lookups across two skill-path subjects; there are not five observations from five different subjects.
+**Why:** REJECT at n=4 lookups across two skill-path subjects; there are not five observations from five different subjects.
 **Fix:** invoke the verified Spreadsheets marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs`; the third recurrence requires an automated preflight that resolves the marker with `rg --files` and rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
 
 ### `zsh:1: command not found: python` at n=2
@@ -456,6 +462,17 @@ The paired checks establish package availability only for these Python runtimes 
 
 **Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
 **Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.
+
+### Spreadsheet plugin Python path was absent on 2 commands; workspace Python 3.12.14 imported `docx` 1.2.0 and `openpyxl` 3.1.5
+
+**verified:** 2026-10-06, `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/python/bin/python3 pipeline.py run` and the same executable path running unittest each exited 127 with exactly `zsh:1: no such file or directory: /Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/python/bin/python3`
+**verified:** 2026-10-06, the verified workspace runtime `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` resolved to Python 3.12.14 and imported `docx` 1.2.0 plus `openpyxl` 3.1.5
+**where:** two job-pipeline commands using one inferred Spreadsheets plugin Python path, plus one workspace-runtime verification
+
+Neither failed command started Python, the pipeline, or unittest; the nonzero shell result and stderr are path-resolution evidence, not test results.
+
+**Why:** REJECT at n=2 commands from one guessed runtime-layout subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then run `pipeline.py run` and the repository's actual tests and require their real nonempty output.
 
 ### Saved tabs 133, 114, 160, and 249 failed across 4 heartbeat subjects
 

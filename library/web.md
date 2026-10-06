@@ -14,6 +14,7 @@ return, and where they quietly return nothing.
 | [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
 | [`gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1](#gh-search-repos-rejected-namewithowner-forkcount-and-licenseinfo-at-n1) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
+| [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` returned 0 bytes and still ran after 30.2 seconds at n=1](#opencli-reddit-search-returned-0-bytes-and-still-ran-after-302-seconds-at-n1) | Doctor showed warn, null active backend, and no connected extension. The read-only command itself hung; terminate it and use public indexed leads as UNCONFIRMED. |
 | [`web__run` completed 4 long search queries with zero text or image content at n=1](#web__run-completed-4-long-search-queries-with-zero-text-or-image-content-at-n1) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
@@ -219,6 +220,16 @@ The supplied run establishes the 404 and the CLI's `-f` method behavior, but no 
 
 **Why:** REJECT at n=1 from one repository and request subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; use `gh api --method GET repos/OWNER/REPO/commits -f per_page=5` or encode the query in the endpoint, then require a nonempty commits response.
+
+### `gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1
+
+**verified:** 2026-10-05, `gh repo view` reported `Gsync/jobsync` default branch `main`, then `gh api repos/Gsync/jobsync/git/trees/master?recursive=1` returned HTTP 404
+**where:** one official GitHub API tree request for `Gsync/jobsync`
+
+The request named `master` after repository metadata had identified `main`; no corrected tree response was supplied.
+
+**Why:** REJECT at n=1 from one repository and branch-ref subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; read `defaultBranchRef.name`, use that exact branch in the tree endpoint, and require a nonempty tree response.
 
 ### `gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1
 

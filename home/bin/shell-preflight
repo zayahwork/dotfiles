@@ -92,6 +92,34 @@ def violations(command: str) -> list[str]:
                     "quote the full gh api endpoint before an &: " + repr(endpoint.text)
                 )
 
+        if (
+            command_name in {"gh", "gh-axi"}
+            and tokens[index + 1].text == "search"
+            and tokens[index + 2].text == "repos"
+        ):
+            replacements = {
+                "nameWithOwner": "fullName",
+                "forkCount": "forksCount",
+                "licenseInfo": "license",
+            }
+            search_end = index + 3
+            while search_end < len(tokens) and tokens[search_end].text not in {";", "|", "&", "&&", "\n"}:
+                argument = tokens[search_end].text
+                field_text = ""
+                if argument == "--json" and search_end + 1 < len(tokens):
+                    field_text = tokens[search_end + 1].text
+                elif argument.startswith("--json="):
+                    field_text = argument.removeprefix("--json=")
+                for field in field_text.split(","):
+                    if field in replacements:
+                        errors.append(
+                            "replace gh search repos JSON field "
+                            + repr(field)
+                            + " with "
+                            + repr(replacements[field])
+                        )
+                search_end += 1
+
     for index, token in enumerate(tokens):
         if os.path.basename(token.text) != "rg":
             continue
@@ -118,6 +146,8 @@ def self_test() -> int:
         "gh api repos/a/b/issues&per_page=5",
         "rg needle *.md",
         "rg -n needle applications* .",
+        "gh search repos resume --json nameWithOwner,url",
+        "gh-axi search repos resume --json=forkCount,licenseInfo",
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -126,6 +156,8 @@ def self_test() -> int:
         "rg -n needle 'applications*' .",
         "rg --glob '!**/.git/**' needle .",
         "gh api 'repos/a/b/issues?state=open&per_page=5'",
+        "gh search repos resume --json fullName,forksCount,license",
+        "gh-axi search repos resume --json=fullName,url",
     ]
     failures: list[str] = []
     for command in blocked:
@@ -137,7 +169,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 12 fixtures passed")
+    print("shell-preflight: 16 fixtures passed")
     return 0
 
 

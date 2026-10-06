@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 7 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 30 commands before execution.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 4 substitutions, and bare zsh globs stopped 30 commands before execution.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=2.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n2)
 
 ---
@@ -103,7 +103,7 @@ Never trust an empty `ls` from a script.
 
 ## Held back
 
-### `path` replaced `PATH` and made 8 command names unavailable across 7 zsh subjects
+### `path` replaced `PATH` and made 8 command names unavailable across 8 zsh subjects
 
 **verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
 **verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
@@ -111,12 +111,13 @@ Never trust an empty `ls` from a script.
 **verified:** 2026-10-05 at 7:07 pm Pacific, another `for path in ...` tooling loop printed `zsh: command not found: gh` and `sed` for every item immediately after assigning `path`
 **verified:** 2026-10-05, `for path in Argus/store.py ...; do ...; done` in the job-applications heartbeat printed `zsh:1: command not found: gh`, `base64`, and `sed` for every item after the first `path` assignment, exited 127, and produced 570 output bytes
 **verified:** 2026-10-06, another `for path in ...; do ...; gh ... | sed ...; done` research loop returned `command not found: gh` and `command not found: sed` on every iteration after assigning the special lowercase `path` variable
-**where:** seven zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and four job-application tooling loops
+**verified:** 2026-10-06, `for path in ...; do gh ... | base64 ... | sed ...; done` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed exactly `command not found: gh`, `command not found: base64`, and `command not found: sed` for every iteration; the `repo_file` retry restored all three commands, and a current `whence -p` control returned `/opt/homebrew/bin/gh`, `/usr/bin/base64`, and `/usr/bin/sed`
+**where:** eight zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and five job-application tooling loops
 
-Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all seven observations.
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all eight observations.
 
-**Why:** still held back at n=7 from seven zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. The required preflight must reject assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME` and pass fixtures for all seven `path` failures; it remains UNCONFIRMED until implemented and exercised.
+**Why:** still held back at n=8 from eight zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. The required preflight must reject assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME` and pass fixtures for all eight `path` failures; it remains UNCONFIRMED until implemented and exercised.
 
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 

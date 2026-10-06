@@ -365,7 +365,7 @@ The two failures show that the marker requires all named arguments and did not a
 **Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
 **Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
 
-### `@oai/artifact-tool` import failed in 5 bundled-Node setups; a local symlink produced 1,426 bytes
+### `@oai/artifact-tool` import failed in 6 bundled-Node setups; a local symlink produced 1,426 bytes
 
 **verified:** 2026-09-29, bundled Node v24.19.0 run with `--input-type=module -e` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 1 with `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'`; `import.meta.resolve` from the sibling `work` directory resolved `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs`
 **verified:** 2026-10-05, importing `@oai/artifact-tool` returned `ERR_MODULE_NOT_FOUND` when `node_modules` was symlinked to missing `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules`; the package existed under `dependencies/node/node_modules/@oai/artifact-tool`
@@ -374,11 +374,12 @@ The two failures show that the marker requires all named arguments and did not a
 **verified:** 2026-10-06, a builder under `job-pipeline/work/heartbeat-2026-10-06-0014` returned `ERR_MODULE_NOT_FOUND` for `@oai/artifact-tool` even with `ARTIFACT_TOOL_NODE_MODULES` set; only the prior work directory had a script-directory `node_modules` symlink to the bundled `dependencies/node/node_modules`
 **verified:** 2026-10-06, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node job-pipeline/work/heartbeat-2026-10-06-0124/inspect_peopleready.mjs` returned `Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@oai/artifact-tool' imported from .../inspect_peopleready.mjs`; the script directory had no `node_modules`
 **verified:** 2026-10-06, copying the same script to a temporary directory with `node_modules` symlinked to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` made the bundled Node command exit 0 and produce 1,426 bytes of expected PeopleReady tracker JSON
-**where:** five failed spreadsheet import setups and three successful recovery probes on this machine
+**verified:** 2026-10-06, bundled Node v24.19.0 running a workspace `.mjs` with `NODE_PATH=/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` still returned `ERR_MODULE_NOT_FOUND: Cannot find package '@oai/artifact-tool'` and suggested its `dist/artifact_tool.mjs` entry; this one failure was reported twice
+**where:** six failed spreadsheet import setups and three successful recovery probes on this machine
 
 Bare-package resolution failed from eval or script-directory contexts without the correct local symlink and from a symlink whose target did not exist; setting `ARTIFACT_TOOL_NODE_MODULES` did not change the observed ESM lookup, while both recovery paths resolved the package's actual runtime location.
 
-**Why:** still held back after five failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back after six failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
 ### `2026-10-05T18:20:29-07:00` rendered as `10/06/26 1:20 AM`; UTC wall-clock components rendered `10/05/26 6:20 PM`

@@ -9,7 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 42 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 2 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -166,7 +166,7 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **Why:** still held back after five substitutions across four shell-invocation subjects; there are not five observations from five different subjects.
 **Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
 
-### zsh `no matches found` stopped 42 bare glob and query arguments before execution
+### zsh `no matches found` stopped 44 bare glob and query arguments before execution
 
 **verified:** 2026-10-03, an `rg` command with bare unmatched `*.md *.json` arguments returned exactly `zsh:1: no matches found: *.md` before `rg` executed
 **verified:** 2026-10-05, unquoted `gh api repos/Gsync/jobsync/commits?per_page=5` failed before `gh` ran because zsh treated `?` as a glob and printed `no matches found`
@@ -195,13 +195,14 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **verified:** 2026-10-06, after `gh repo view` and README inspection established that `AmruthPillai/Reactive-Resume` moved to `reactive-resume/reactive-resume`, unquoted `gh api repos/AmruthPillai/Reactive-Resume/commits?per_page=5` printed exactly `zsh:8: no matches found: repos/AmruthPillai/Reactive-Resume/commits?per_page=5`, and the unquoted `git/trees/v4?recursive=1` endpoint likewise returned `zsh: no matches found` before `gh` ran
 **verified:** 2026-10-06, unquoted `gh api repos/hugounoclaw/ats-checker/commits?per_page=5` failed before `gh` ran with exactly `zsh:1: no matches found`; the endpoint's `?` was exposed to zsh filename generation
 **verified:** 2026-10-06 at about 9:00 am Pacific, unquoted `gh api repos/kotarowatanabe107/ats-resume-checker/git/trees/main?recursive=1` failed before `gh` ran with `zsh: no matches found`; repository metadata had already reported default branch `master`, and the quoted `master?recursive=1` retry returned 28 paths
-**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` now rejected unquoted query endpoints, accepted their quoted forms, and printed `shell-preflight: 12 fixtures passed`
-**where:** forty-two zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, plus the reusable `home/bin/shell-preflight` check in the dotfiles repository
+**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` rejected unquoted query endpoints, accepted their quoted forms, and its expanded query-glob plus GitHub-field suite printed `shell-preflight: 16 fixtures passed`
+**verified:** 2026-10-06, unquoted `gh api repos/.../commits?per_page=5` and `gh api repos/.../issues?state=all&per_page=10` each failed before `gh` ran with `zsh: no matches found`; quoting the complete endpoint is the verified recovery class already exercised by the preflight fixtures
+**where:** forty-four zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, plus the reusable `home/bin/shell-preflight` check in the dotfiles repository
 
-All forty-two failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
+All forty-four failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
-**Why:** still held back at n=42 from forty-two shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its 12 representative fixtures pass. Exact historical fixture parity for all forty-two failures remains UNCONFIRMED.
+**Why:** still held back at n=44 from forty-four shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its expanded 16-fixture suite passes. Exact historical fixture parity for all forty-four failures remains UNCONFIRMED.
 
 ### macOS `date %:z` exited 0 with literal `:z` suffixes at n=3
 

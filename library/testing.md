@@ -162,15 +162,16 @@ The source and output establish the row-66 omission for this one script state bu
 **Why:** REJECT at n=1 from one workbook and count-script subject; there are not five observations from five different subjects.
 **Fix:** derive the application-row end from the current used range or table, start below the header, and count only rows with a nonempty status; the current used-range implementation and nonempty rerun are verified.
 
-### Idempotency scan `Applications!A8:J69` missed row 70 and duplicated Direct Meds at row 71
+### Idempotency scan `Applications!A8:J69` duplicated Direct Meds and dropped the Tax basis footer
 
 **verified:** 2026-10-06, an idempotent tracker update checked only `Applications!A8:J69` for Direct Meds after its first run had inserted that company and role at row 70; the timestamp-patch retry missed row 70, shifted the footer again, and inspection showed Direct Meds in rows 70 and 71 before verification failed with exactly `Assumption footer verification failed` because the footer began at row 72
+**verified:** 2026-10-06, the original insertion loop copied footer rows 73 through 70 downward while the four footer rows occupied 70:73; on retry after the first insertion, the same hard-coded loop shifted only rows 70:73 and overwrote the fourth footer line already at row 74, and cleanup verification returned the footer header, monthly assumptions, hourly assumptions, and `null` instead of the Tax basis row
 **where:** one retry of the Direct Meds update script against `outputs/job-application-tracker.xlsx`
 
-The fixed duplicate-check range excluded the script's own insertion row in this workbook; behavior in other update scripts is UNCONFIRMED.
+The fixed duplicate-check range excluded the script's own insertion row, and the fixed footer range excluded the footer's post-insertion last row; behavior in other update scripts is UNCONFIRMED.
 
 **Why:** REJECT at n=1 from one script and workbook subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED until rerun; scan the full possible application area including the insertion row, remove duplicate company-and-role keys before export, then reopen the workbook and require exactly one Direct Meds match plus the footer at its expected rows.
+**Fix:** UNCONFIRMED until rerun; scan the full possible application area including the insertion row, remove duplicate company-and-role keys, and reconstruct or shift all four footer rows as one explicit block before export. Reopen the workbook and require exactly one Direct Meds match plus all four exact footer labels and texts at the expected rows.
 
 ### On Padre, `ctrl+l` typed `/extensions` into page search instead of Chrome's address bar at n=1
 

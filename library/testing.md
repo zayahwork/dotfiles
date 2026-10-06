@@ -310,16 +310,17 @@ The failures and later recovery establish a transient write wall in this session
 **Why:** REJECT at n=1 from one repository and authentication environment subject; there are not five observations from five different subjects.
 **Fix:** retry the same scoped SSH push after the credential path recovers, and require output showing the exact remote ref range before promotion.
 
-### `mark_artifact_operation_started.mjs` rejected no arguments and `--output-format docx,pdf` across 2 invocations
+### `mark_artifact_operation_started.mjs` rejected `docx,pdf`; the single-DOCX marker exited 0 and produced 37,821-byte DOCX plus 67,804-byte PDF
 
 **verified:** 2026-10-05, running `mark_artifact_operation_started.mjs` with no arguments exited 1 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
 **verified:** 2026-10-05, `mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 2 --output-format docx,pdf` failed and printed only the same usage text; the combined comma-separated output-format token was not accepted
+**verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /Users/zayah/.codex/plugins/cache/openai-primary-runtime/documents/26.905.11957/container_tools/mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 1 --output-format docx` exited 0 with no output, followed by successful creation of a 37,821-byte DOCX and a 67,804-byte rendered PDF
 **where:** spreadsheet and document artifact marker invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The two failures show that the marker requires all named arguments and did not accept two formats encoded as one comma-separated value.
 
 **Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx` and require exit 0, then treat the rendered PDF as renderer output or mark it separately only when the tool explicitly requires another marker operation.
+**Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
 
 ### `@oai/artifact-tool` import failed from eval and a symlink to missing `dependencies/node_modules`; the correct path imported 1,175 exports
 

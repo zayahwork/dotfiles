@@ -77,7 +77,7 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **Why:** REJECT at n=1 from one session subject; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 13 calls from 5 documented tab subjects
+### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 15 calls from 5 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
@@ -88,12 +88,13 @@ The failure was an API-method mismatch after context loss, not evidence that the
 **verified:** 2026-10-05, `gmailTab.getSnapshot()` returned exactly `gmailTab.getSnapshot is not a function`, and refreshed documentation listed `Target.getAXState(options?)`; the same BrowserTab method had already returned a fresh Gmail accessibility tree as `await inboxTab.getAXState({disableDiffing:true})`
 **verified:** 2026-10-05, after `cua.createBrowserTab("iab", ...)` returned the YMCA careers tab and its accessibility tree exposed an `Okay` button ID, `ymcaTab.getByRole("button", {name:"Okay"}).click()` returned exactly `ymcaTab.getByRole is not a function`; current CUA documentation lists no `getByRole` method on `Tab` and routes DOM selectors through Playwright locators
 **verified:** 2026-10-05 at 9:18 pm Pacific, after a Gmail BrowserTab was created, `await mailTab.snapshot()` returned exactly `mailTab.snapshot is not a function`; `getAXState({disableDiffing:true})` remains the observed accessibility-state method
+**verified:** 2026-10-05, `await gmailTab.waitForTimeout(1500); await gmailTab.snapshot();` stopped with exactly `gmailTab.waitForTimeout is not a function`; replacing only the wait with `await new Promise(resolve => setTimeout(resolve, 1500))` completed the timer, then the subsequent `await gmailTab.snapshot()` returned exactly `gmailTab.snapshot is not a function`
 **where:** five unified-computer-use BrowserTab subjects across application, Gmail, job-search, and careers workflows
 
 The returned tab objects did not expose those methods; direct accessibility actions use element IDs, while `fill` and `getByRole` belong under the tab's Playwright interface.
 
-**Why:** still held back after thirteen calls from five documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot; the YMCA `tab.playwright.getByRole("button", {name:"Okay"}).click()` result remains UNCONFIRMED until run and visibly verified.
+**Why:** still held back after fifteen calls from five documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()`. Use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; the YMCA role-click result remains UNCONFIRMED until run and visibly verified.
 
 ### `setValue(15, "All job types")` returned `Select did not retain the requested option` at n=1
 
@@ -351,15 +352,16 @@ The parser output establishes that this script requires a subcommand before it p
 **Why:** REJECT at n=1 from one CLI invocation subject; there are not five observations from five different subjects.
 **Fix:** invoke `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 job-pipeline/pipeline.py run`, then require exit 0 and inspect the printed counts.
 
-### `jq '.[-12:]'` returned `Cannot index object with object`; `.checked_domains[-12:]` returned 12 entries
+### jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
-**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline/state/source-log.json`
+**verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
+**where:** `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The root value was an object, so the array slice had to target its `checked_domains` array rather than the root.
+The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them.
 
-**Why:** REJECT at n=1 from one JSON file and schema subject; there are not five observations from five different subjects.
-**Fix:** inspect the root shape first, then use `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` and require 12 returned entries.
+**Why:** REJECT at n=2 from two JSON file and schema subjects; there are not five observations from five different subjects.
+**Fix:** inspect the root type and keys first; use `jq '.checked_domains[-12:]'` for the object-root source log and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require nonempty expected output.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=1
 

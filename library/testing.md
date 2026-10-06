@@ -439,3 +439,13 @@ The seventeen `pdftotext` failures establish that the default shell PATH did not
 
 **Why:** still held back after seventeen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
+
+### `git status` and tracker `git log` exited 128 with `fatal: not a git repository` at n=1
+
+**verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
+**where:** one job-applications workspace and tracker-history recovery attempt
+
+Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
+
+**Why:** REJECT at n=1 from one workspace subject; there are not five observations from five different subjects.
+**Fix:** inspect the current workbook, source log, generated artifacts, and any explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.

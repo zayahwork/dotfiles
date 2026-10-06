@@ -13,7 +13,7 @@ return, and where they quietly return nothing.
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
 | [`agent-reach` rejected `search` 23 times, `read` 5 times, `get` once, and `search-web` once across 5 dates](#agent-reach-rejected-search-23-times-read-5-times-get-once-and-search-web-once-across-5-dates) | The installed CLI exposes none of those top-level web commands. Use doctor for routing status, the runtime web search tool, or an approved platform CLI. |
 | [`agent-reach skill` required `--install` or `--uninstall` at n=1](#agent-reach-skill-required---install-or---uninstall-at-n1) | This command manages the skill installation and is not usage documentation. Read `SKILL.md` for backend-specific search routes. |
-| [`gh search repos` rejected `nameWithOwner` 15 times, `forkCount` 13 times, and `licenseInfo` 5 times across 22 commands](#gh-search-repos-rejected-namewithowner-15-times-forkcount-13-times-and-licenseinfo-5-times-across-22-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
+| [`gh search repos` rejected `nameWithOwner` 16 times, `forkCount` 13 times, and `licenseInfo` 5 times across 23 commands](#gh-search-repos-rejected-namewithowner-16-times-forkcount-13-times-and-licenseinfo-5-times-across-23-commands) | Its accepted fields include `fullName`, `forksCount`, `pushedAt`, and `license`. A field-mapping preflight is required but UNCONFIRMED. |
 | [2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories](#2-constrained-github-repository-searches-exited-0-with-zero-rows-resume-ats-returned-10-repositories) | A successful exit with empty output is not a completed search result. Split the query and require nonempty rows. |
 | [`gh search repos 'job application tracker stars:>100'` returned irrelevant, truncated description output at n=1](#gh-search-repos-job-application-tracker-stars100-returned-irrelevant-truncated-description-output-at-n1) | One narrow query produced no usable shortlist. Select one candidate and inspect its repository and exact files directly; that recovery is UNCONFIRMED. |
 | [`gh api` form fields returned HTTP 404 on 4 commit-list requests without forced GET](#gh-api-form-fields-returned-http-404-on-4-commit-list-requests-without-forced-get) | Adding `-f` or `-F` without `--method GET` can select write-method behavior. The successful retry is UNCONFIRMED. |
@@ -220,7 +220,7 @@ The result shows that this command performs skill installation management rather
 **Why:** REJECT at n=1 from one command and installed CLI subject; there are not five observations from five different subjects.
 **Fix:** read the installed Agent Reach `SKILL.md` and invoke its documented backend-specific commands; do not use `agent-reach skill` as search documentation.
 
-### `gh search repos` rejected `nameWithOwner` 15 times, `forkCount` 13 times, and `licenseInfo` 5 times across 22 commands
+### `gh search repos` rejected `nameWithOwner` 16 times, `forkCount` 13 times, and `licenseInfo` 5 times across 23 commands
 
 **verified:** 2026-10-05 at 4:00 pm Pacific, `gh search repos ... --json nameWithOwner,...` returned exactly `Unknown JSON field: "nameWithOwner"`
 **verified:** 2026-10-05, a later repository-search query requested `nameWithOwner`, `forkCount`, and `licenseInfo`, failed field validation, and printed accepted fields including `fullName`, `forksCount`, and `license`
@@ -244,12 +244,13 @@ The result shows that this command performs skill installation management rather
 **verified:** 2026-10-06, `gh search repos 'job application tracker ATS resume automation' --sort updated --order desc --limit 10 --json fullName,description,stargazersCount,forkCount,updatedAt,pushedAt,isArchived,license,url` exited 1 with exactly `Unknown JSON field: "forkCount"` and listed `forksCount` among the available fields
 **verified:** 2026-10-06, `gh search repos 'job application tracker ats resume duplicate detection' --sort updated --order desc --limit 10 --json nameWithOwner,description,stargazersCount,updatedAt,url` exited 1 with exactly `Unknown JSON field: "nameWithOwner"` and listed `fullName` among the available fields
 **verified:** 2026-10-06, `gh search repos 'resume ATS checker local in:name,description,readme' --limit 10 --json nameWithOwner,description,stargazersCount,forkCount,updatedAt,pushedAt,licenseInfo,url` failed JSON-field validation and listed the accepted replacements `fullName`, `forksCount`, and `license`
-**where:** twenty-two official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-06, `gh search repos 'resume ATS checker job application tracker' --sort stars --limit 8 --json nameWithOwner,description,stargazersCount,updatedAt,url` failed because `nameWithOwner` was unsupported and the CLI listed `fullName` as the supported equivalent
+**where:** twenty-three official GitHub CLI repository-search commands in one schema subject from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-All twenty-two commands failed during JSON field validation before repository results could be accepted.
+All twenty-three commands failed during JSON field validation before repository results could be accepted.
 
-**Why:** still held back after twenty-two commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
-**Fix:** use `fullName` for repository identity, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output. The repeated recurrence requires a wrapper or preflight that maps or rejects `nameWithOwner`, `forkCount`, and `licenseInfo` before execution; that check remains UNCONFIRMED until built and exercised.
+**Why:** still held back after twenty-three commands from one CLI schema subject; the output proves this surface rejects the named fields, but not why other GitHub surfaces use different field names.
+**Fix:** use `fullName` for repository identity in `gh search repos`, `forksCount` for forks, `pushedAt` for the requested activity time, and `license` for license metadata, then require nonempty output. Use `nameWithOwner` with `gh repo view` only after that subcommand lists it as accepted; this observation did not include that verification. The repeated recurrence requires a wrapper or preflight that maps or rejects `nameWithOwner`, `forkCount`, and `licenseInfo` before execution; that check remains UNCONFIRMED until built and exercised.
 
 ### 2 constrained GitHub repository searches exited 0 with zero rows; `resume ats` returned 10 repositories
 

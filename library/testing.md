@@ -388,3 +388,14 @@ The shell did not expose a command named `python` in either invocation.
 
 **Why:** REJECT at n=2 from one machine environment subject; there are not five observations from five different subjects.
 **Fix:** use `python3` or `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, select the runtime that contains the required dependency, and verify the replacement command's real output.
+
+### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
+
+**verified:** 2026-10-02, system `python3` failed with exactly `ModuleNotFoundError: No module named 'openpyxl'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` successfully imported `openpyxl` and read the tracker
+**verified:** 2026-10-05, system `python3` again failed with exactly `ModuleNotFoundError: No module named 'openpyxl'` and exited 1 in the same workspace; the bundled Python imported openpyxl and printed version 3.1.5
+**where:** two spreadsheet-inspection invocations in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The paired checks establish package availability only for these Python runtimes on this machine and dates.
+
+**Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.

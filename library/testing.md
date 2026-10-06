@@ -292,6 +292,16 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
+### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
+
+**verified:** 2026-10-06, invoking `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/node/bin/node` for an Artifact Tool read script returned exactly `zsh:1: no such file or directory`; a fresh check found that path absent, found `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node` executable at 121,306,800 bytes, and its `--version` printed `v24.19.0`
+**where:** one bundled workspace Node executable lookup on macOS
+
+The failed path inferred a runtime layout and omitted the verified `dependencies` component.
+
+**Why:** REJECT at n=1 from one runtime bundle and executable-path subject; there are not five observations from five different subjects.
+**Fix:** call `load_workspace_dependencies`, use its reported Node executable, and require that exact path to be executable and return a nonempty version before running the script.
+
 ### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
 
 **verified:** 2026-10-05, `load_workspace_dependencies` listed `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback` as the fallback binary directory; direct calls to its `pdfinfo` and `pdftoppm` paths each returned exactly `no such file or directory`, while `command -v pdfinfo` and `command -v pdftoppm` resolved both under `dependencies/bin/override` and each reported version 26.05.0

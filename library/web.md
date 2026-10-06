@@ -11,7 +11,7 @@ return, and where they quietly return nothing.
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
-| [`agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-8-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, an approved search capability, or official APIs. |
+| [`agent-reach` rejected `search` 11 times, `read` 5 times, and `get` once across 4 dates](#agent-reach-rejected-search-11-times-read-5-times-and-get-once-across-4-dates) | The installed CLI exposes none of those top-level web commands. Use documented backend routes, Jina, the built-in web search capability, or official APIs. |
 | [`gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1](#gh-search-repos-rejected-namewithowner-forkcount-and-licenseinfo-at-n1) | Its accepted fields include `fullName`, `forksCount`, and `license`. Use those names and require nonempty output; the retry is UNCONFIRMED. |
 | [`gh api ... -f per_page=5` returned HTTP 404 after defaulting to POST at n=1](#gh-api--f-per_page5-returned-http-404-after-defaulting-to-post-at-n1) | Adding `-f` without `--method GET` changed the commits request method. The successful retry is UNCONFIRMED. |
 | [`gh api .../git/trees/master?recursive=1` returned HTTP 404 while the default branch was `main` at n=1](#gh-api-gittreesmasterrecursive1-returned-http-404-while-the-default-branch-was-main-at-n1) | The request used `master` after repository metadata named `main`. Read `defaultBranchRef.name` and use that exact ref; the retry is UNCONFIRMED. |
@@ -177,19 +177,20 @@ permission.
 
 ## Held back
 
-### `agent-reach` rejected `search` 8 times, `read` 5 times, and `get` once across 4 dates
+### `agent-reach` rejected `search` 11 times, `read` 5 times, and `get` once across 4 dates
 
 **verified:** 2026-09-30, invoking `search` returned exactly `invalid choice: 'search' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`; 2026-10-03, installed agent-reach v1.5.0 returned the same list for another `search` call, `agent-reach read <Ashby URL> --json` returned the equivalent exact `invalid choice: 'read'` error, and a Hyatt `agent-reach search ... --json` call returned the same `invalid choice: 'search'` list while Exa was explicitly prohibited; 2026-10-04, three more `agent-reach search '...' --json` calls exited 2 with the same exact `invalid choice: 'search'` command list; 2026-10-05, `agent-reach search "Rocket Money Operations Associate Remote Pacific Time Zone" --json` returned the same argparse error and allowed-command list from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 **verified:** 2026-10-05, `agent-reach search --help` from `/Users/zayah/Documents/Codex` returned exactly `invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
 **verified:** 2026-10-05 at the 10:32 am Pacific heartbeat, three `agent-reach read <URL>` calls for Palm Desert, remote, and Bothell query tracks each exited 2 with exactly `invalid choice: 'read'` and the same allowed-command list
 **verified:** 2026-10-05, `agent-reach get https://raw.githubusercontent.com/Gsync/jobsync/main/README.md` exited with an argparse error containing exactly `invalid choice: 'get' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`
 **verified:** 2026-10-05, after the Agent Reach skill was read, `agent-reach read https://raw.githubusercontent.com/reactive-resume/reactive-resume/main/README.md` exited with `invalid choice: 'read'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
-**where:** fourteen calls covering three missing subcommands in one installed agent-reach CLI environment
+**verified:** 2026-10-05 at about 5:45 pm Pacific, three `agent-reach search "..." --json` attempts on agent-reach v1.5.0 each returned exactly `invalid choice: 'search' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`
+**where:** seventeen calls covering three missing subcommands in one installed agent-reach CLI environment
 
 The returned command lists contain neither top-level web command, but the evidence does not establish behavior for other installed versions.
 
-**Why:** still held back at n=14 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
-**Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, another approved web-search, or an official API instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
+**Why:** still held back at n=17 calls across three command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
+**Fix:** run `agent-reach doctor --json` and require non-empty output before trusting it, then invoke the backend described by the skill; use direct Jina `curl` for an exact URL, the built-in web search tool for general discovery, or an official API instead of inventing `agent-reach search`, `agent-reach read`, or `agent-reach get`.
 
 ### `gh search repos` rejected `nameWithOwner`, `forkCount`, and `licenseInfo` at n=1
 

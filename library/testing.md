@@ -212,6 +212,7 @@ The failed import and passing registered-module run isolate the observed failure
 **verified:** 2026-10-05 at 4:24 pm Pacific, default `/opt/homebrew/bin/python3` 3.14.7 running `python3 -m unittest job-pipeline/tests/test_pipeline.py` failed with `ModuleNotFoundError: No module named 'docx'`, and a `python3` PDF validation snippet failed with exactly `ModuleNotFoundError: No module named 'pypdf'`; a paired check showed the bundled Python imported `docx` 1.2.0 and `pypdf` 6.10.0, then ran `job-pipeline/tests/test_pipeline.py -q` with `Ran 18 tests in 0.843s`, `OK`, and exit 0
 **verified:** 2026-10-05 at about 5:08 pm Pacific, `/opt/homebrew/bin/python3` 3.14.7 running both `python3 job-pipeline/pipeline.py run` and `python3 -m unittest discover -s job-pipeline/tests -v` failed with exactly `ModuleNotFoundError: No module named 'docx'`; this repeats the same runtime and workspace subject
 **verified:** 2026-10-05, direct execution of `job-pipeline/pipeline.py` returned `permission denied`; invoking it through system `python3` then failed with `ModuleNotFoundError: No module named 'docx'`, while the bundled Python path remained the verified successful runtime for the script and tests
+**verified:** 2026-10-05, another Homebrew `python3` pair failed immediately because `python-docx` was absent: the pipeline exited 1 with exactly `ModuleNotFoundError: No module named 'docx'`, and unittest reported one failed import followed by `FAILED (errors=1)`; the bundled Python path remained the verified recovery
 **where:** job-pipeline tests, pipeline execution, and PDF validation from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The paired checks establish runtime selection as the wall in this workspace, not a failing test suite.
@@ -260,16 +261,17 @@ The combined invocation did not print any branch hash, while one invocation per 
 **Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
 **Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
-### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` at n=1
+### openpyxl read-only tracker reported `None` dimensions and 148 five-cell rows; `row[5]` raised `IndexError` twice
 
 **verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
 **verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
+**verified:** 2026-10-05, a separate bundled-Python status comprehension also indexed `r[5]` without checking row length and failed with exactly `IndexError: list index out of range` on the workbook's shorter trailing note rows
 **where:** one `Applications` worksheet and openpyxl read-only subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
 The short tuples begin immediately after the visible A1:J52 range, but the reason openpyxl emitted them is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one workbook subject; there are not five observations from five different subjects.
-**Fix:** guard `len(row) < 6` before positional access in read-only iteration, then run the repository test file and require exit 0 plus its expected test count.
+**Why:** REJECT after two consumer failures from one workbook subject; there are not five observations from five different subjects.
+**Fix:** require `len(row) > 5` before reading `row[5]` and apply equivalent length guards before every optional positional column, then run the repository test file and require exit 0 plus its expected test count.
 
 ### Bundled `bin/fallback` lacked `pdfinfo` and `pdftoppm`; `bin/override` resolved Poppler 26.05.0 at n=1
 
@@ -377,3 +379,25 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 
 **Why:** REJECT at n=2 from two skill-path subjects; there are not five observations from five different subjects.
 **Fix:** resolve `mark_artifact_operation_started.mjs` with `rg --files` and invoke the absolute path under the active skill's `skills/<skill>/container_tools/` directory rather than assuming a workspace-relative or plugin-root `container_tools/` path.
+
+### `zsh:1: command not found: python` at n=2
+
+**verified:** 2026-10-04 at 10:21 am Pacific, `python - <<'PY'` returned exactly `zsh:1: command not found: python`
+**verified:** 2026-10-05 at about 8:00 pm Pacific, another `python - <<'PY'` invocation returned exactly `zsh:1: command not found: python`, exited 127, while `command -v python3` resolved `/opt/homebrew/bin/python3` and the bundled Python reported version 3.12.14
+**where:** two source-inspection commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The shell did not expose a command named `python` in either invocation.
+
+**Why:** REJECT at n=2 from one machine environment subject; there are not five observations from five different subjects.
+**Fix:** use `python3` or `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, select the runtime that contains the required dependency, and verify the replacement command's real output.
+
+### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
+
+**verified:** 2026-10-02, system `python3` failed with exactly `ModuleNotFoundError: No module named 'openpyxl'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` successfully imported `openpyxl` and read the tracker
+**verified:** 2026-10-05, system `python3` again failed with exactly `ModuleNotFoundError: No module named 'openpyxl'` and exited 1 in the same workspace; the bundled Python imported openpyxl and printed version 3.1.5
+**where:** two spreadsheet-inspection invocations in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The paired checks establish package availability only for these Python runtimes on this machine and dates.
+
+**Why:** REJECT at n=2 from one environment subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for `openpyxl` tracker reads in this workspace, or inspect the workbook through artifact-tool, and require nonempty output from the chosen route.

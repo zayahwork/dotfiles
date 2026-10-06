@@ -28,7 +28,7 @@ return, and where they quietly return nothing.
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [Web open returned `Internal Error` on 2 Kroger job pages; Jina returned 11,801 and 5,476 bytes](#web-open-returned-internal-error-on-2-kroger-job-pages-jina-returned-11801-and-5476-bytes) | Jina exposed active job 225488 and the closed status for 203050. Verify nonempty output and the current status text. |
 | [Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1](#pilot-careers-iab-navigation-failed-with-neterr_cert_common_name_invalid-at-n1) | No page content loaded. Do not bypass the safety interstitial; find a certificate-valid official route. |
-| [`web__run` completed two 4-query searches with zero text, image, or error content](#web__run-completed-two-4-query-searches-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content before accepting a search. |
+| [`web__run` completed 4 searches covering 13 queries with zero text, image, or error content](#web__run-completed-4-searches-covering-13-queries-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content; Firecrawl returned results in the latest pass. |
 | [4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results](#4-jina-wrapped-google-searches-returned-696-to-754-captcha-bytes-and-0-results) | Exit 0 and nonempty output still hid every search result. Detect CAPTCHA or homepage content and switch search routes. |
 | [Jina routes returned 8 unusable responses across 10 Brave, Yahoo, and Bing queries](#jina-routes-returned-8-unusable-responses-across-10-brave-yahoo-and-bing-queries) | Search-engine text is only a lead. Validate expected results, then verify candidates on official pages or platform APIs. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
@@ -331,16 +331,17 @@ The shell exposed no `gh-axi` command; why the active rule and installed command
 **Why:** REJECT at n=1 from one shell and tool subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; reconcile the active GitHub CLI rule with the installed tool before running GitHub commands.
 
-### `web__run` completed two 4-query searches with zero text, image, or error content
+### `web__run` completed 4 searches covering 13 queries with zero text, image, or error content
 
 **verified:** 2026-10-05, `web__run` accepted four job and Reddit `search_query` items with `response_length` set to `long`, completed successfully, and returned no text or image content
 **verified:** 2026-10-05 at about 10:23 pm Pacific, the runtime web search accepted four queries covering Home Depot or TJX in Palm Desert, Allstate or TELUS Digital remote in Washington, Lowe's or WinCo in Snohomish County, and recent Reddit job or scam discussions, then returned zero bytes with no result or error
-**where:** two multi-query job and Reddit web-search calls
+**verified:** 2026-10-06 at about 9:00 am Pacific, a valid built-in `web__run` call containing four job and Reddit queries completed with zero output bytes; a second valid call containing one Palm Desert query also completed with zero output bytes, while Firecrawl search returned nonempty results in the same research pass
+**where:** four job and Reddit web-search calls covering thirteen queries
 
-Both successful completions establish no search result because they exposed zero content blocks or errors; why the content was empty is UNCONFIRMED.
+All four successful completions establish no search result because they exposed zero content blocks or errors; why the content was empty is UNCONFIRMED.
 
-**Why:** REJECT at n=2 from two call subjects in one runtime; there are not five observations from five different subjects.
-**Fix:** require nonempty text or image content before accepting a search; otherwise use Agent Reach Jina Reader, direct official sites, and the configured GitHub search route, then verify the returned content.
+**Why:** REJECT at n=4 from four call subjects in one runtime; there are not five observations from five different subjects.
+**Fix:** require nonempty text or image content before accepting a search; otherwise use the verified Firecrawl fallback, Agent Reach Jina Reader, direct official sites, or the configured GitHub search route, then verify the returned content.
 
 ### 4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results
 

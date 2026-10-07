@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+"""Verify apply_patch update hunks against their named files before execution."""
+
+from __future__ import annotations
+
+import argparse
+import tempfile
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+@dataclass
+class Update:
+    path: str
+    hunks: list[list[str]] = field(default_factory=list)
+
+
+def parse_updates(patch_text: str) -> list[Update]:
+    updates: list[Update] = []
+    current: Update | None = None
+    hunk: list[str] = []
+
+    def finish_hunk() -> None:
+        nonlocal hunk
+        if current is not None and hunk:
+            current.hunks.append(hunk)
+        hunk = []
+
+    for line in patch_text.splitlines():
+        if line.startswith("*** Update File: "):
+            finish_hunk()
+            current = Update(line.removeprefix("*** Update File: "))
+            updates.append(current)
+        elif line.startswith(("*** Add File: ", "*** Delete File: ", "*** End Patch")):
+            finish_hunk()
+            current = None
+        elif current is not None and line.startswith("@@"):
+            finish_hunk()
+        elif current is not None and line.startswith((" ", "+", "-")):
+            hunk.append(line)
+    finish_hunk()
+    return updates
+
+
+def old_side(hunk: list[str]) -> list[str]:
+    return [line[1:] for line in hunk if line.startswith((" ", "-"))]
+
+
+def contains_sequence(lines: list[str], sequence: list[str]) -> bool:
+    width = len(sequence)
+    return any(lines[index : index + width] == sequence for index in range(len(lines) - width + 1))
+
+
+def violations(patch_text: str, root: Path) -> list[str]:
+    errors: list[str] = []
+    for update in parse_updates(patch_text):
+        target = Path(update.path)
+        if not target.is_absolute():
+            target = root / target
+        if not target.is_file():
+            errors.append(f"update target does not exist: {update.path}")
+            continue
+        target_lines = target.read_text().splitlines()
+        for number, hunk in enumerate(update.hunks, start=1):
+            expected = old_side(hunk)
+            if expected and not contains_sequence(target_lines, expected):
+                first = next((line for line in expected if line.strip()), "<blank>")
+                errors.append(
+                    f"hunk {number} context is absent from {update.path}: {first}"
+                )
+    return errors
+
+
+def self_test() -> int:
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        (root / "pipeline.py").write_text("def score_job():\n    return 1\n")
+        (root / "tests").mkdir()
+        (root / "tests" / "test_pipeline.py").write_text(
+            "class PipelineTests:\n"
+            "    def test_required_undated_experience_is_excluded(self):\n"
+            "        assert True\n"
+        )
+        bad = """*** Begin Patch
+*** Update File: pipeline.py
+@@
+     def test_required_undated_experience_is_excluded(self):
+-        assert True
++        assert False
+*** End Patch
+"""
+        good = """*** Begin Patch
+*** Update File: pipeline.py
+@@
+-def score_job():
++def score_job(item=None):
+     return 1
+*** Update File: tests/test_pipeline.py
+@@
+     def test_required_undated_experience_is_excluded(self):
+-        assert True
++        assert False
+*** End Patch
+"""
+        missing = """*** Begin Patch
+*** Update File: absent.py
+@@
+-old
++new
+*** End Patch
+"""
+        failures: list[str] = []
+        if not violations(bad, root):
+            failures.append("expected wrong-file context rejection")
+        if violations(good, root):
+            failures.append("expected split code and test patch acceptance")
+        if not violations(missing, root):
+            failures.append("expected missing-target rejection")
+        if failures:
+            print("\n".join(failures))
+            return 1
+    print("patch-preflight: 3 fixtures passed")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("patch", nargs="?", help="patch file; omit to read stdin")
+    parser.add_argument("--root", default=".", help="root for relative update paths")
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+    if args.self_test:
+        return self_test()
+    patch_text = Path(args.patch).read_text() if args.patch else __import__("sys").stdin.read()
+    errors = violations(patch_text, Path(args.root))
+    if errors:
+        for error in errors:
+            print(f"patch-preflight: {error}")
+        return 1
+    print("patch-preflight: contexts match")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

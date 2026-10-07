@@ -101,6 +101,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/patch-preflight" = {
+    source = ./home/bin/patch-preflight;
+    executable = true;
+  };
+
   home.file.".local/bin/workspace-dependencies-fallback" = {
     source = ./home/bin/workspace-dependencies-fallback;
     executable = true;

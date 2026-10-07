@@ -85,6 +85,10 @@ def violations(command: str) -> list[str]:
         if "=" in token.text and token.text.split("=", 1)[0].isidentifier():
             continue
         command_name = os.path.basename(token.text)
+        if command_name == "python":
+            errors.append(
+                "python is unavailable; use python3 or the verified bundled Python path"
+            )
         if command_name == "rm":
             errors.append(
                 "rm commands are blocked; use a fresh output path or mktemp -d"
@@ -166,6 +170,8 @@ def self_test() -> int:
         "gh-axi search repos resume --json=forkCount,licenseInfo",
         "rm -rf job-pipeline/work/qa-output",
         "/bin/rm -f output.inspect.ndjson",
+        "python -m unittest discover -s tests -v",
+        "env python script.py",
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -178,6 +184,8 @@ def self_test() -> int:
         "gh-axi search repos resume --json=fullName,url",
         "mktemp -d /tmp/qa-output.XXXXXX",
         "printf 'rm -rf example\\n'",
+        "python3 -m unittest discover -s tests -v",
+        "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v",
     ]
     failures: list[str] = []
     for command in blocked:
@@ -189,7 +197,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 20 fixtures passed")
+    print("shell-preflight: 24 fixtures passed")
     return 0
 
 

@@ -148,14 +148,15 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### `createBrowserTab("2", ...)` returned `Timed out waiting for the Browser webview to attach for this browser-use page` at n=1
+### 2 hidden Gmail `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
 
 **verified:** 2026-10-06, `cua.createBrowserTab("2", <Gmail search URL>, {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`; the Gmail tab did not appear in the subsequent tab list, the selected in-app browser had no Gmail tab, and no Chrome or Edge browser was available
-**where:** one hidden Gmail tab-creation attempt through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-07, `cua.createBrowserTab("iab", <Gmail all-categories application search URL>, {visible:false})` failed after 15.2 seconds with exactly `Timed out waiting for the Browser webview to attach for this browser-use page`
+**where:** two hidden Gmail tab-creation attempts through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The failed attachment and absent tab prove that no fresh Gmail state was read in this run; why the webview did not attach is UNCONFIRMED, and official OpenAI browser documentation does not describe this exact error.
+The failed attachments prove that neither attempt produced a fresh Gmail state; why the webview did not attach is UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one browser session and Gmail subject; there are not five observations from five different subjects.
+**Why:** still held back at n=2 from one Gmail and browser-attachment subject; there are not five observations from five different subjects.
 **Fix:** treat inbox review as unavailable for that run, preserve the previous verified inbox state, and state explicitly that no fresh check occurred; retry only in a later browser-enabled run.
 
 ### 9 guessed, stale, or wrong-cwd local paths failed across 10 invocations; current paths found source, tracker, test, counter, and skill targets

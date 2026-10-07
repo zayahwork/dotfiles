@@ -33,14 +33,23 @@ if [[ -z "$skill_path" || ! -s "$skill_path" ]]; then
   echo "workspace-dependencies-fallback: no nonempty SKILL.md for $skill_name" >&2
   exit 1
 fi
+skill_dir="${skill_path%/SKILL.md}"
 
 python_version="$("$python_exec" --version 2>&1)"
 node_version="$("$node_exec" --version 2>&1)"
 
+required_references=()
 case "$skill_name" in
   documents) dependency_check="docx" ;;
   pdf) dependency_check="pypdf" ;;
-  spreadsheets) dependency_check="openpyxl" ;;
+  spreadsheets)
+    dependency_check="openpyxl"
+    required_references=(
+      "workflows/edit_workflows.md"
+      "artifact_tool_docs/API_QUICK_START.md"
+      "style_guidelines.md"
+    )
+    ;;
   *) dependency_check="" ;;
 esac
 
@@ -54,6 +63,17 @@ printf 'python_version=%s\n' "$python_version"
 printf 'node=%s\n' "$node_exec"
 printf 'node_version=%s\n' "$node_version"
 printf 'skill=%s\n' "$skill_path"
+printf 'skill_dir=%s\n' "$skill_dir"
 printf 'skill_bytes=%s\n' "$(wc -c <"$skill_path" | tr -d ' ')"
 printf 'dependency=%s\n' "$dependency_check"
 printf 'dependency_version=%s\n' "$dependency_version"
+
+for relative_path in "${required_references[@]}"; do
+  reference_path="$skill_dir/$relative_path"
+  if [[ ! -s "$reference_path" ]]; then
+    echo "workspace-dependencies-fallback: missing reference $reference_path" >&2
+    exit 1
+  fi
+  printf 'reference=%s\n' "$reference_path"
+  printf 'reference_bytes=%s\n' "$(wc -c <"$reference_path" | tr -d ' ')"
+done

@@ -159,7 +159,7 @@ The failed attachments prove that neither attempt produced a fresh Gmail state; 
 **Why:** still held back at n=2 from one Gmail and browser-attachment subject; there are not five observations from five different subjects.
 **Fix:** treat inbox review as unavailable for that run, preserve the previous verified inbox state, and state explicitly that no fresh check occurred; retry only in a later browser-enabled run.
 
-### 9 guessed, stale, or wrong-cwd local paths failed across 10 invocations; current paths found source, tracker, test, counter, and skill targets
+### 12 guessed, stale, wrong-cwd, or wrong-base local paths failed across 13 invocations; current paths found source, tracker, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -168,12 +168,13 @@ The failed attachments prove that neither attempt produced a fresh Gmail state; 
 **verified:** 2026-10-06 at 5:24 am Pacific, Node failed with `MODULE_NOT_FOUND` for stale prior-turn path `job-pipeline/work/heartbeat-2026-10-06-0409/count_tracker.mjs`; a current `rg --files job-pipeline | rg '(^|/)count_tracker\.mjs$'` lookup later returned that path plus the `heartbeat-2026-10-05-2222` and `heartbeat-2026-10-06-0356` copies
 **verified:** 2026-10-06, bundled Node in `job-pipeline/work/heartbeat-2026-10-06-0557` ran `FileBlob.load("outputs/job-application-tracker.xlsx")` and returned `ENOENT` with the eval stack rooted in that heartbeat directory; an isolated reproduction returned the same error, while loading `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` from the same cwd printed `{"loaded":true,"size":null}`
 **verified:** 2026-10-06, reading Firecrawl `SKILL.md` through mistyped plugin id `app-6a314a73f8ac8191b8b47dc98fe5a052` returned `No such file or directory`; the catalog path with id `app-6a314a73f8ac819195b0d55e36b9c609` existed at 3,181 bytes and was read successfully
-**where:** ten failed reads of nine guessed, stale, wrong-cwd, or mistyped paths across six local path-discovery subjects in the MemeCoin, job-applications, and Codex skill-cache trees
+**verified:** 2026-10-07, `wc` and `sed` reads of `workflows/edit_workflows.md`, `artifact_tool_docs/API_QUICK_START.md`, and `style_guidelines.md` under the Spreadsheets package parent `.../skills/` each returned `No such file or directory`; the references are relative to the directory containing `SKILL.md`, `.../skills/spreadsheets/`, where the three files existed at 2,481, 25,830, and 10,103 bytes, and `workspace-dependencies-fallback spreadsheets` verified all three
+**where:** thirteen failed reads of twelve guessed, stale, wrong-cwd, mistyped, or wrong-base paths across seven local path-discovery subjects in the MemeCoin, job-applications, and Codex skill-cache trees
 
-The failures used guessed concept paths, stale work paths, wrong cwd resolution, or a retyped catalog identifier; verified lookup paths resolved the intended files.
+The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=10 failures from six workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command, and copy long skill paths exactly from the catalog rather than retyping identifiers. For artifact paths, run from the repository root or pass the absolute path, require the resolved file to exist, and require nonempty output; the absolute `FileBlob.load` and catalog-path recoveries are verified, while the stale counter execution recovery remains UNCONFIRMED.
+**Why:** still held back at n=13 failures from seven workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command, copy long skill paths exactly from the catalog, and resolve relative skill references against the directory containing `SKILL.md`. For Spreadsheets, `workspace-dependencies-fallback spreadsheets` now verifies the three required edit references and their nonempty bytes; the absolute `FileBlob.load` and catalog-path recoveries are also verified, while the stale counter execution recovery remains UNCONFIRMED.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 

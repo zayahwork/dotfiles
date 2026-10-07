@@ -381,16 +381,17 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
-### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=4
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=5
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
 **verified:** 2026-10-06, two consecutive calls returned the same exact error and no dependency paths; a fourth verification call from the dotfiles task returned the same error, while cached `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` printed `Python 3.12.14`, imported `docx` 1.2.0, and the installed Documents skill `SKILL.md` existed at 40,679 bytes
-**where:** four Codex desktop dependency-loader calls across the job-applications and dotfiles tasks on one machine
+**verified:** 2026-10-07, following the Spreadsheets skill before read-only inspection of `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`, another loader call from the job-applications cwd returned the same exact error and no paths; `workspace-dependencies-fallback spreadsheets` then printed Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, and a 63,930-byte Spreadsheets `SKILL.md`
+**where:** five Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
 
-The four calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
+All five calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
 
-**Why:** still held back at n=4 from one app-tool and machine subject; there are not five observations from five different subjects.
-**Fix:** retry the loader once; if it still fails, use only previously verified absolute paths under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` and installed skill-package paths, then require the selected executable to return its expected version or import and the selected skill file to return nonempty bytes before continuing.
+**Why:** still held back at n=5 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
+**Fix:** retry the loader once; if it still fails, run `workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
 
 ### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
 

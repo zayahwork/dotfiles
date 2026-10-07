@@ -633,18 +633,29 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### Git commands exited 128 with `fatal: not a git repository` across 4 job-workspace sessions
+### Git commands exited 128 with `fatal: not a git repository` across 5 sessions and 2 job workspaces
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
 **verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
 **verified:** 2026-10-06 at 5:25 am Pacific, `git status --short` from the same directory returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current comparison repeated that error while `git -C /Users/zayah/github/dotfiles rev-parse --show-toplevel` printed `/Users/zayah/github/dotfiles`
 **verified:** 2026-10-06, another compound library lookup ran `git fetch origin`, `git show origin/development:library/testing.md`, and revision lookups from the job-applications directory; each returned `fatal: not a git repository`, while rerunning from `/Users/zayah/github/dotfiles` fetched and printed the expected library subject and branch hashes
-**where:** four command sessions in one non-Git job-applications workspace
+**verified:** 2026-10-07, `git rev-parse --show-toplevel` from authoritative pipeline directory `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline` returned exactly `fatal: not a git repository`; `git-root-preflight` rejected that path with the same Git error, accepted `/Users/zayah/github/dotfiles`, and printed `git-root-preflight: 2 fixtures passed`
+**where:** five command sessions across two non-Git job workspaces
 
-Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
+Git history cannot recover or promote workspace changes from either directory because neither path is inside a Git repository.
 
-**Why:** still held back at n=4 command sessions from one workspace subject; there are not five observations from five different subjects.
-**Fix:** check the target with `git -C <candidate> rev-parse --show-toplevel` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut. A reusable preflight guard remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=5 command sessions from two workspace subjects; there are not five observations from five different subjects.
+**Fix:** run `git-root-preflight <candidate>` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+
+### Git canonicalized one macOS temporary repository from `/var/...` to `/private/var/...`
+
+**verified:** 2026-10-07, the first `git-root-preflight --self-test` rejected its initialized-repository fixture with `expected initialized-worktree acceptance`; inspection showed Git returned the canonical `/private/var/...` root while Python's unnormalized fixture string used `/var/...`, and comparing `Path(...).resolve()` values made both fixtures pass
+**where:** one temporary Git repository created by the `git-root-preflight` self-test on macOS
+
+The mismatch was a path-alias comparison inside the check, not a Git repository failure.
+
+**Why:** REJECT at n=1 from one temporary-path subject; there are not five observations from five different subjects.
+**Fix:** canonicalize both the Git-reported root and expected path before equality checks; the corrected self-test prints `git-root-preflight: 2 fixtures passed`.
 
 ### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
 

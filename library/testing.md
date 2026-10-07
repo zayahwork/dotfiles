@@ -5,21 +5,22 @@ environment rather than the source under test.
 
 ## Contents
 
-- [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
+- [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
 - [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
-## Relative test paths follow the runner working directory: ../../tests/sample-desk.test.ts and test/paper-strategy.test.ts
+## Relative test paths follow the runner working directory, including unittest discover -s tests
 
 **verified:** 2026-09-20, from Cove's `source/cove-crm`, `node --test ../../../tests/sample-desk.test.ts` exited 1 with `Could not find`, while `node --test ../../tests/sample-desk.test.ts` exited 0 with `tests 1`, `pass 1`, and `fail 0`; 2026-09-22, from the MemeCoin monorepo root, `npm test -- --run packages/core/test/paper-strategy.test.ts` exited 1 after npm changed cwd to `packages/core`, and Vitest printed `No test files found`
-**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/private/tmp/memecoin-standalone-20260922`
+**verified:** 2026-10-07, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v` from a dotfiles promotion worktree failed with `ImportError: Start directory is not importable: 'tests'`; the unchanged command from `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` ran all 24 tests in 1.327 seconds and printed `OK`
+**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/private/tmp/memecoin-standalone-20260922`; `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline`
 
 Relative test filters are resolved from the runner's actual working directory, including a workspace cwd selected by npm, not necessarily from the repository root where the outer command began.
 
-**Why:** both failing paths were calculated from the repository layout instead of the cwd used by the test runner.
-**Fix:** from Cove's `source/cove-crm`, run `node --test ../../tests/sample-desk.test.ts`; from the MemeCoin root workspace script, run `npm test -- --run test/paper-strategy.test.ts`, or run Vitest from `packages/core`.
+**Why:** all three failing paths were calculated from the repository layout instead of the cwd used by the test runner.
+**Fix:** calculate relative test paths from the runner cwd. For this job pipeline, run the bundled Python command from `job-pipeline`, or pass an absolute discovery start directory; for Cove use `../../tests/sample-desk.test.ts`, and for MemeCoin use `test/paper-strategy.test.ts` inside its package workspace.
 
 ---
 

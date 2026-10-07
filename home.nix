@@ -106,6 +106,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/git-root-preflight" = {
+    source = ./home/bin/git-root-preflight;
+    executable = true;
+  };
+
   home.file.".local/bin/workspace-dependencies-fallback" = {
     source = ./home/bin/workspace-dependencies-fallback;
     executable = true;

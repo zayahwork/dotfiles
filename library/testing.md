@@ -557,16 +557,17 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 **Why:** still held back at n=5 lookups across three skill-path subjects; there are not five observations from five different subjects.
 **Fix:** resolve the active skill's marker with `rg --files`, then invoke its absolute skill-package path with the bundled Node runtime. The Spreadsheets recovery is verified; the new Documents and PDF absolute invocations remain UNCONFIRMED until their command output is captured. The third recurrence requires an automated preflight that rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
 
-### `zsh:1: command not found: python` at n=2
+### `zsh:1: command not found: python` at n=3
 
 **verified:** 2026-10-04 at 10:21 am Pacific, `python - <<'PY'` returned exactly `zsh:1: command not found: python`
 **verified:** 2026-10-05 at about 8:00 pm Pacific, another `python - <<'PY'` invocation returned exactly `zsh:1: command not found: python`, exited 127, while `command -v python3` resolved `/opt/homebrew/bin/python3` and the bundled Python reported version 3.12.14
-**where:** two source-inspection commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-07, `python -m unittest discover -s tests -v` returned exactly `zsh:1: command not found: python` and exit 127; `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v` ran all 24 tests in 1.315 seconds and printed `OK`
+**where:** two source-inspection commands and one authoritative pipeline test invocation in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The shell did not expose a command named `python` in either invocation.
+The shell did not expose a command named `python` in any of the three invocations.
 
-**Why:** REJECT at n=2 from one machine environment subject; there are not five observations from five different subjects.
-**Fix:** use `python3` or `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, select the runtime that contains the required dependency, and verify the replacement command's real output.
+**Why:** REJECT at n=3 from one machine environment subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and passes all 24 fixtures.
 
 ### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
 

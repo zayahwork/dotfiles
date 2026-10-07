@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Verify that a target directory belongs to a Git worktree."""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import tempfile
+from pathlib import Path
+
+
+def git_root(target: Path) -> tuple[str | None, str]:
+    result = subprocess.run(
+        ["git", "-C", str(target), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode:
+        return None, result.stderr.strip()
+    return result.stdout.strip(), ""
+
+
+def self_test() -> int:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        outside = root / "outside"
+        repository = root / "repository"
+        outside.mkdir()
+        repository.mkdir()
+        subprocess.run(
+            ["git", "-C", str(repository), "init", "-q"],
+            check=True,
+        )
+        missing_root, _ = git_root(outside)
+        found_root, error = git_root(repository)
+        if missing_root is not None:
+            failures.append("expected non-worktree rejection")
+        if found_root is None or Path(found_root).resolve() != repository.resolve() or error:
+            failures.append("expected initialized-worktree acceptance")
+    if failures:
+        print("\n".join(failures))
+        return 1
+    print("git-root-preflight: 2 fixtures passed")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", nargs="?", default=".")
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+    if args.self_test:
+        return self_test()
+    target = Path(args.path).expanduser().resolve()
+    root, error = git_root(target)
+    if root is None:
+        print(f"git-root-preflight: not a Git worktree: {target}")
+        if error:
+            print(error)
+        return 1
+    print(f"git-root-preflight: {root}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

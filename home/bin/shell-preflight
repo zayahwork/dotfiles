@@ -140,6 +140,18 @@ def violations(command: str) -> list[str]:
                         )
                 search_end += 1
 
+    unsupported_agent_reach = {"search", "search-web", "read", "get"}
+    for index in range(len(tokens) - 1):
+        if os.path.basename(tokens[index].text) != "agent-reach":
+            continue
+        subcommand = tokens[index + 1].text
+        if subcommand in unsupported_agent_reach:
+            errors.append(
+                "agent-reach has no top-level "
+                + repr(subcommand)
+                + " command; use doctor for routing and call the active backend"
+            )
+
     for index, token in enumerate(tokens):
         if os.path.basename(token.text) != "rg":
             continue
@@ -172,6 +184,10 @@ def self_test() -> int:
         "/bin/rm -f output.inspect.ndjson",
         "python -m unittest discover -s tests -v",
         "env python script.py",
+        "agent-reach search jobs --json",
+        "agent-reach search-web jobs --json",
+        "agent-reach read https://example.com --json",
+        "agent-reach get https://example.com --json",
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -186,6 +202,8 @@ def self_test() -> int:
         "printf 'rm -rf example\\n'",
         "python3 -m unittest discover -s tests -v",
         "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v",
+        "agent-reach doctor --json",
+        "agent-reach version",
     ]
     failures: list[str] = []
     for command in blocked:
@@ -197,7 +215,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 24 fixtures passed")
+    print("shell-preflight: 30 fixtures passed")
     return 0
 
 

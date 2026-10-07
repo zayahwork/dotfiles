@@ -150,16 +150,17 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 2 hidden Gmail `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
+### 3 hidden Gmail and FedEx `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
 
 **verified:** 2026-10-06, `cua.createBrowserTab("2", <Gmail search URL>, {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`; the Gmail tab did not appear in the subsequent tab list, the selected in-app browser had no Gmail tab, and no Chrome or Edge browser was available
 **verified:** 2026-10-07, `cua.createBrowserTab("iab", <Gmail all-categories application search URL>, {visible:false})` failed after 15.2 seconds with exactly `Timed out waiting for the Browser webview to attach for this browser-use page`
-**where:** two hidden Gmail tab-creation attempts through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-07, `cua.createBrowserTab("iab", "https://fedex.paradox.ai/iKU18pZn", {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`, blocking read-only reinspection of the FedEx application questions while the previously open Gmail reminder remained readable
+**where:** three hidden tab-creation attempts across Gmail and FedEx destinations through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The failed attachments prove that neither attempt produced a fresh Gmail state; why the webview did not attach is UNCONFIRMED.
+The failed attachments prove that none of the three attempts produced fresh destination state; why the webview did not attach is UNCONFIRMED.
 
-**Why:** still held back at n=2 from one Gmail and browser-attachment subject; there are not five observations from five different subjects.
-**Fix:** treat inbox review as unavailable for that run, preserve the previous verified inbox state, and state explicitly that no fresh check occurred; retry only in a later browser-enabled run.
+**Why:** still held back at n=3 across two destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
+**Fix:** call `cua.getState()` to verify a current browser surface before creating a tab, then treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
 ### 12 guessed, stale, wrong-cwd, or wrong-base local paths failed across 13 invocations; current paths found source, tracker, test, counter, and skill targets
 
@@ -569,7 +570,7 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 The shell did not expose a command named `python` in any of the three invocations.
 
 **Why:** REJECT at n=3 from one machine environment subject; there are not five observations from five different subjects.
-**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and passes all 24 fixtures.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and its later expanded suite passes all 30 fixtures.
 
 ### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
 
@@ -632,18 +633,29 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### Git commands exited 128 with `fatal: not a git repository` across 4 job-workspace sessions
+### Git commands exited 128 with `fatal: not a git repository` across 5 sessions and 2 job workspaces
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
 **verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
 **verified:** 2026-10-06 at 5:25 am Pacific, `git status --short` from the same directory returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current comparison repeated that error while `git -C /Users/zayah/github/dotfiles rev-parse --show-toplevel` printed `/Users/zayah/github/dotfiles`
 **verified:** 2026-10-06, another compound library lookup ran `git fetch origin`, `git show origin/development:library/testing.md`, and revision lookups from the job-applications directory; each returned `fatal: not a git repository`, while rerunning from `/Users/zayah/github/dotfiles` fetched and printed the expected library subject and branch hashes
-**where:** four command sessions in one non-Git job-applications workspace
+**verified:** 2026-10-07, `git rev-parse --show-toplevel` from authoritative pipeline directory `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline` returned exactly `fatal: not a git repository`; `git-root-preflight` rejected that path with the same Git error, accepted `/Users/zayah/github/dotfiles`, and printed `git-root-preflight: 2 fixtures passed`
+**where:** five command sessions across two non-Git job workspaces
 
-Git history cannot recover earlier tracker rows from this directory because the workspace is not inside a Git repository.
+Git history cannot recover or promote workspace changes from either directory because neither path is inside a Git repository.
 
-**Why:** still held back at n=4 command sessions from one workspace subject; there are not five observations from five different subjects.
-**Fix:** check the target with `git -C <candidate> rev-parse --show-toplevel` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut. A reusable preflight guard remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=5 command sessions from two workspace subjects; there are not five observations from five different subjects.
+**Fix:** run `git-root-preflight <candidate>` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
+
+### Git canonicalized one macOS temporary repository from `/var/...` to `/private/var/...`
+
+**verified:** 2026-10-07, the first `git-root-preflight --self-test` rejected its initialized-repository fixture with `expected initialized-worktree acceptance`; inspection showed Git returned the canonical `/private/var/...` root while Python's unnormalized fixture string used `/var/...`, and comparing `Path(...).resolve()` values made both fixtures pass
+**where:** one temporary Git repository created by the `git-root-preflight` self-test on macOS
+
+The mismatch was a path-alias comparison inside the check, not a Git repository failure.
+
+**Why:** REJECT at n=1 from one temporary-path subject; there are not five observations from five different subjects.
+**Fix:** canonicalize both the Git-reported root and expected path before equality checks; the corrected self-test prints `git-root-preflight: 2 fixtures passed`.
 
 ### DesignFiles was absent from Applications A7:J59 while source log recorded tracker sync and a 67,781-byte resume at n=1
 

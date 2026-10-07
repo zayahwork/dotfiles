@@ -5,21 +5,22 @@ environment rather than the source under test.
 
 ## Contents
 
-- [Relative test paths follow the runner working directory: `../../tests/sample-desk.test.ts` and `test/paper-strategy.test.ts`.](#relative-test-paths-follow-the-runner-working-directory-testssample-desktestts-and-testpaper-strategytestts)
+- [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
 - [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
-## Relative test paths follow the runner working directory: ../../tests/sample-desk.test.ts and test/paper-strategy.test.ts
+## Relative test paths follow the runner working directory, including unittest discover -s tests
 
 **verified:** 2026-09-20, from Cove's `source/cove-crm`, `node --test ../../../tests/sample-desk.test.ts` exited 1 with `Could not find`, while `node --test ../../tests/sample-desk.test.ts` exited 0 with `tests 1`, `pass 1`, and `fail 0`; 2026-09-22, from the MemeCoin monorepo root, `npm test -- --run packages/core/test/paper-strategy.test.ts` exited 1 after npm changed cwd to `packages/core`, and Vitest printed `No test files found`
-**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/private/tmp/memecoin-standalone-20260922`
+**verified:** 2026-10-07, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v` from a dotfiles promotion worktree failed with `ImportError: Start directory is not importable: 'tests'`; the unchanged command from `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` ran all 24 tests in 1.327 seconds and printed `OK`
+**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/private/tmp/memecoin-standalone-20260922`; `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline`
 
 Relative test filters are resolved from the runner's actual working directory, including a workspace cwd selected by npm, not necessarily from the repository root where the outer command began.
 
-**Why:** both failing paths were calculated from the repository layout instead of the cwd used by the test runner.
-**Fix:** from Cove's `source/cove-crm`, run `node --test ../../tests/sample-desk.test.ts`; from the MemeCoin root workspace script, run `npm test -- --run test/paper-strategy.test.ts`, or run Vitest from `packages/core`.
+**Why:** all three failing paths were calculated from the repository layout instead of the cwd used by the test runner.
+**Fix:** calculate relative test paths from the runner cwd. For this job pipeline, run the bundled Python command from `job-pipeline`, or pass an absolute discovery start directory; for Cove use `../../tests/sample-desk.test.ts`, and for MemeCoin use `test/paper-strategy.test.ts` inside its package workspace.
 
 ---
 
@@ -557,16 +558,17 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 **Why:** still held back at n=5 lookups across three skill-path subjects; there are not five observations from five different subjects.
 **Fix:** resolve the active skill's marker with `rg --files`, then invoke its absolute skill-package path with the bundled Node runtime. The Spreadsheets recovery is verified; the new Documents and PDF absolute invocations remain UNCONFIRMED until their command output is captured. The third recurrence requires an automated preflight that rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
 
-### `zsh:1: command not found: python` at n=2
+### `zsh:1: command not found: python` at n=3
 
 **verified:** 2026-10-04 at 10:21 am Pacific, `python - <<'PY'` returned exactly `zsh:1: command not found: python`
 **verified:** 2026-10-05 at about 8:00 pm Pacific, another `python - <<'PY'` invocation returned exactly `zsh:1: command not found: python`, exited 127, while `command -v python3` resolved `/opt/homebrew/bin/python3` and the bundled Python reported version 3.12.14
-**where:** two source-inspection commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-07, `python -m unittest discover -s tests -v` returned exactly `zsh:1: command not found: python` and exit 127; `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v` ran all 24 tests in 1.315 seconds and printed `OK`
+**where:** two source-inspection commands and one authoritative pipeline test invocation in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The shell did not expose a command named `python` in either invocation.
+The shell did not expose a command named `python` in any of the three invocations.
 
-**Why:** REJECT at n=2 from one machine environment subject; there are not five observations from five different subjects.
-**Fix:** use `python3` or `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, select the runtime that contains the required dependency, and verify the replacement command's real output.
+**Why:** REJECT at n=3 from one machine environment subject; there are not five observations from five different subjects.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and passes all 24 fixtures.
 
 ### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
 

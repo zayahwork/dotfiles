@@ -38,15 +38,16 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines` at n=4 across 2 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=5 across 4 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
-**where:** four patch attempts across MemeCoin `apps/extension/src/content.ts` and one Home Meta Cognition log file
+**verified:** 2026-10-07, one combined update placed test context `def test_required_undated_experience_is_excluded(self):` under the `pipeline.py` header and returned exactly `apply_patch verification failed: Failed to find expected lines in .../pipeline.py`; splitting the code and test changes under the correct `pipeline.py` and `tests/test_pipeline.py` headers removed the mismatch, and `patch-preflight --self-test` printed `patch-preflight: 3 fixtures passed`
+**where:** five patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, and job-pipeline `pipeline.py` plus `tests/test_pipeline.py`
 
-All four failures mean the hunk context did not match the named target file; they cover two file subjects, not five independent subjects.
+All five failures mean the hunk context did not match the named target file; they cover four named files, not five independent file subjects.
 
-**Why:** still held back at n=4 across two file subjects; there are not five observations from five different subjects.
-**Fix:** read each target's current numbered lines with `sed`, keep each hunk under its correct Update File header, and split large patches into smaller anchored hunks before retrying them as one verified batch.
+**Why:** still held back at n=5 across four file subjects; there are not five observations from five different subjects.
+**Fix:** read each target's current numbered lines, keep each hunk under its correct `Update File` header, and split code and test changes into anchored hunks. Before applying a multi-file patch, pass it to `patch-preflight --root <workspace>`; the check rejects old context absent from the named file and its three-fixture self-test covers this exact wrong-header case.
 
 ### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
 

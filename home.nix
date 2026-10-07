@@ -101,6 +101,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/workspace-dependencies-fallback" = {
+    source = ./home/bin/workspace-dependencies-fallback;
+    executable = true;
+  };
+
   home.file.".local/bin/gnhf" = {
     source = ./home/bin/gnhf;
     executable = true;

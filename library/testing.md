@@ -570,7 +570,7 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 The shell did not expose a command named `python` in any of the three invocations.
 
 **Why:** REJECT at n=3 from one machine environment subject; there are not five observations from five different subjects.
-**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and its later expanded suite passes all 30 fixtures.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and its later expanded suite passes all 33 fixtures.
 
 ### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
 

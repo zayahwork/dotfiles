@@ -38,17 +38,6 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines` at n=5 across 4 file subjects
-
-**verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
-**verified:** 2026-10-07, one combined update placed test context `def test_required_undated_experience_is_excluded(self):` under the `pipeline.py` header and returned exactly `apply_patch verification failed: Failed to find expected lines in .../pipeline.py`; splitting the code and test changes under the correct `pipeline.py` and `tests/test_pipeline.py` headers removed the mismatch, and `patch-preflight --self-test` printed `patch-preflight: 3 fixtures passed`
-**where:** five patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, and job-pipeline `pipeline.py` plus `tests/test_pipeline.py`
-
-All five failures mean the hunk context did not match the named target file; they cover four named files, not five independent file subjects.
-
-**Why:** still held back at n=5 across four file subjects; there are not five observations from five different subjects.
-**Fix:** read each target's current numbered lines, keep each hunk under its correct `Update File` header, and split code and test changes into anchored hunks. Before applying a multi-file patch, pass it to `patch-preflight --root <workspace>`; the check rejects old context absent from the named file and its three-fixture self-test covers this exact wrong-header case.
-
 ### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
 
 **verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
@@ -321,7 +310,7 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** invoke the script and dependency-bearing tests with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=15 across 7 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=16 across 9 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
@@ -334,12 +323,24 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **verified:** 2026-10-05, one temporary indexed library/testing.md patch expected an uncommitted artifact-tool module-resolution subject that was absent from the index; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one library/web.md patch expected the GitHub field entry to be followed immediately by OpenCLI while intervening GitHub API subjects were present; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-06, one spreadsheet-builder patch expected bare `Date.UTC(...)` lines, while the current source used `Date.UTC(...) / 86400000 + 25569`; `apply_patch` returned exactly `apply_patch verification failed: Failed to find expected lines` and changed no file
-**where:** fifteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, one spreadsheet builder, `library/web.md`, `library/testing.md`, and `library/terminal.md`
+**verified:** 2026-10-07, one combined update placed test context `def test_required_undated_experience_is_excluded(self):` under the `pipeline.py` header and returned exactly `apply_patch verification failed: Failed to find expected lines in .../pipeline.py`; splitting the code and test changes under the correct `pipeline.py` and `tests/test_pipeline.py` headers removed the mismatch, and `patch-preflight --self-test` printed `patch-preflight: 3 fixtures passed`
+**where:** sixteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, one spreadsheet builder, `library/web.md`, `library/testing.md`, `library/terminal.md`, and job-pipeline `pipeline.py` plus `tests/test_pipeline.py`
 
-All fifteen failures mean the hunk context did not match the named target file; they cover seven file subjects.
+All sixteen failures mean the hunk context did not match the named target file; they cover nine file subjects.
 
-**Why:** still held back at n=15 across seven file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=16 across nine file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** read each target immediately before editing, keep every hunk under its correct `Update File` header, and run `patch-preflight --root <workspace>` before applying a multi-file patch; the check rejects old context absent from the named file and its three-fixture self-test covers the verified wrong-header case.
+
+### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=2
+
+**verified:** 2026-10-10, one patch containing both `*** Delete File` and `*** Add File` for `state/local-run-latest.json` returned exactly `multiple operations target .../state/local-run-latest.json`
+**verified:** 2026-10-10, an isolated patch containing both operations for `/tmp/library-duplicate-op.json` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /tmp/library-duplicate-op.json` and left the original file unchanged
+**where:** two apply_patch requests against two JSON file targets
+
+Both patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
+
+**Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
+**Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
 ### `rm -f style commands are not permitted` rejected one narrow QA cleanup before execution
 
@@ -386,17 +387,28 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
-### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=5
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=6
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
 **verified:** 2026-10-06, two consecutive calls returned the same exact error and no dependency paths; a fourth verification call from the dotfiles task returned the same error, while cached `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` printed `Python 3.12.14`, imported `docx` 1.2.0, and the installed Documents skill `SKILL.md` existed at 40,679 bytes
 **verified:** 2026-10-07, following the Spreadsheets skill before read-only inspection of `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`, another loader call from the job-applications cwd returned the same exact error and no paths; `workspace-dependencies-fallback spreadsheets` then printed Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, and a 63,930-byte Spreadsheets `SKILL.md`
-**where:** five Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
+**verified:** 2026-10-10 at about 1:00 pm Pacific, another loader call returned exactly `The app could not load this tool. Please try again.` and no paths; the shell did not expose `workspace-dependencies-fallback` on `PATH`, while `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, the 63,930-byte skill, and three references of 2,481, 25,830, and 10,103 bytes
+**where:** six Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
 
-All five calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
+All six calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
 
-**Why:** still held back at n=5 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
-**Fix:** retry the loader once; if it still fails, run `workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
+**Why:** still held back at n=6 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
+**Fix:** retry the loader once; if it still fails and the installed fallback command is unavailable, run `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
+
+### `zsh:1: command not found: workspace-dependencies-fallback` at n=1
+
+**verified:** 2026-10-10, invoking `workspace-dependencies-fallback spreadsheets` from the dotfiles repository returned exactly `zsh:1: command not found: workspace-dependencies-fallback`; invoking `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` then printed verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, skill bytes, and all three reference byte counts
+**where:** one dotfiles shell before the Home Manager configuration containing the fallback command was applied to that shell environment
+
+The source command was executable and complete, so this occurrence proves only that its installed command name was absent from `PATH` in that shell.
+
+**Why:** REJECT at n=1 from one shell and configuration state; there are not five observations from five different subjects.
+**Fix:** run the repository source path shown above until the configuration has been applied and a fresh shell resolves `command -v workspace-dependencies-fallback`; do not treat a missing wrapper name as missing cached runtimes.
 
 ### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
 
@@ -570,7 +582,7 @@ The workspace-relative and spreadsheet plugin-root paths were absent, while skil
 The shell did not expose a command named `python` in any of the three invocations.
 
 **Why:** REJECT at n=3 from one machine environment subject; there are not five observations from five different subjects.
-**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and its later expanded suite passes all 30 fixtures.
+**Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` for this dependency-bearing pipeline and verify the replacement command's real output. The third recurrence added a `shell-preflight` guard that rejects `python` in command position, accepts the bundled interpreter, and its later expanded suite passes all 33 fixtures.
 
 ### System Python `ModuleNotFoundError: No module named 'openpyxl'`; bundled Python imported openpyxl 3.1.5 at n=2
 

@@ -38,17 +38,6 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 
 ## Held back
 
-### `apply_patch verification failed: Failed to find expected lines` at n=5 across 4 file subjects
-
-**verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
-**verified:** 2026-10-07, one combined update placed test context `def test_required_undated_experience_is_excluded(self):` under the `pipeline.py` header and returned exactly `apply_patch verification failed: Failed to find expected lines in .../pipeline.py`; splitting the code and test changes under the correct `pipeline.py` and `tests/test_pipeline.py` headers removed the mismatch, and `patch-preflight --self-test` printed `patch-preflight: 3 fixtures passed`
-**where:** five patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, and job-pipeline `pipeline.py` plus `tests/test_pipeline.py`
-
-All five failures mean the hunk context did not match the named target file; they cover four named files, not five independent file subjects.
-
-**Why:** still held back at n=5 across four file subjects; there are not five observations from five different subjects.
-**Fix:** read each target's current numbered lines, keep each hunk under its correct `Update File` header, and split code and test changes into anchored hunks. Before applying a multi-file patch, pass it to `patch-preflight --root <workspace>`; the check rejects old context absent from the named file and its three-fixture self-test covers this exact wrong-header case.
-
 ### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
 
 **verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
@@ -321,7 +310,7 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **Why:** REJECT across one workspace and machine environment; there are not five observations from five different environment subjects.
 **Fix:** invoke the script and dependency-bearing tests with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status.
 
-### `apply_patch verification failed: Failed to find expected lines` at n=15 across 7 file subjects
+### `apply_patch verification failed: Failed to find expected lines` at n=16 across 9 file subjects
 
 **verified:** 2026-09-22, three atomic failures against MemeCoin `content.ts` used the wrong file header or absent context beginning `let activeOverlayRoot` and `void scanSignalCards().finally`; a fourth four-file Home log patch expected `deep work start/end` where Meta Cognition said `deep work start`, then succeeded after fresh `sed` output corrected the hunk; no failed attempt changed a file
 **verified:** 2026-10-05, two patches bundled stable source and test edits with a generated `job-pipeline/state/seen-job-keys.json` reset whose exact key list changed after context was drafted; both whole patches were rejected when verification could not find the expected JSON lines
@@ -334,12 +323,24 @@ The paired checks establish runtime selection as the wall in this workspace, not
 **verified:** 2026-10-05, one temporary indexed library/testing.md patch expected an uncommitted artifact-tool module-resolution subject that was absent from the index; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-05, one library/web.md patch expected the GitHub field entry to be followed immediately by OpenCLI while intervening GitHub API subjects were present; `apply_patch` returned `Failed to find expected lines` and changed no file
 **verified:** 2026-10-06, one spreadsheet-builder patch expected bare `Date.UTC(...)` lines, while the current source used `Date.UTC(...) / 86400000 + 25569`; `apply_patch` returned exactly `apply_patch verification failed: Failed to find expected lines` and changed no file
-**where:** fifteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, one spreadsheet builder, `library/web.md`, `library/testing.md`, and `library/terminal.md`
+**verified:** 2026-10-07, one combined update placed test context `def test_required_undated_experience_is_excluded(self):` under the `pipeline.py` header and returned exactly `apply_patch verification failed: Failed to find expected lines in .../pipeline.py`; splitting the code and test changes under the correct `pipeline.py` and `tests/test_pipeline.py` headers removed the mismatch, and `patch-preflight --self-test` printed `patch-preflight: 3 fixtures passed`
+**where:** sixteen patch attempts across MemeCoin `apps/extension/src/content.ts`, one Home Meta Cognition log file, generated `job-pipeline/state/seen-job-keys.json`, one spreadsheet builder, `library/web.md`, `library/testing.md`, `library/terminal.md`, and job-pipeline `pipeline.py` plus `tests/test_pipeline.py`
 
-All fifteen failures mean the hunk context did not match the named target file; they cover seven file subjects.
+All sixteen failures mean the hunk context did not match the named target file; they cover nine file subjects.
 
-**Why:** still held back at n=15 across seven file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** read each target immediately before editing and patch only current exact context; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=16 across nine file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** read each target immediately before editing, keep every hunk under its correct `Update File` header, and run `patch-preflight --root <workspace>` before applying a multi-file patch; the check rejects old context absent from the named file and its three-fixture self-test covers the verified wrong-header case.
+
+### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=2
+
+**verified:** 2026-10-10, one patch containing both `*** Delete File` and `*** Add File` for `state/local-run-latest.json` returned exactly `multiple operations target .../state/local-run-latest.json`
+**verified:** 2026-10-10, an isolated patch containing both operations for `/tmp/library-duplicate-op.json` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /tmp/library-duplicate-op.json` and left the original file unchanged
+**where:** two apply_patch requests against two JSON file targets
+
+Both patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
+
+**Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
+**Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
 ### `rm -f style commands are not permitted` rejected one narrow QA cleanup before execution
 

@@ -41,6 +41,8 @@ def tokenize(command: str) -> tuple[list[Token], str | None]:
                 quote = None
             else:
                 text.append(char)
+                if char == "`" and quote == '"':
+                    globs.add(char)
         elif char in "'\"":
             quote = char
         elif char == "#" and not text:
@@ -59,7 +61,7 @@ def tokenize(command: str) -> tuple[list[Token], str | None]:
             tokens.append(Token(operator, set()))
         else:
             text.append(char)
-            if char in "?*[":
+            if char in "?*[`":
                 globs.add(char)
         index += 1
 
@@ -74,6 +76,13 @@ def violations(command: str) -> list[str]:
     errors: list[str] = []
     if open_quote:
         errors.append(f"unterminated {open_quote} quote")
+
+    for token in tokens:
+        if "`" in token.unquoted_globs:
+            errors.append(
+                "single-quote or escape backticks to prevent command substitution: "
+                + repr(token.text)
+            )
 
     command_position = True
     for token in tokens:
@@ -188,6 +197,8 @@ def self_test() -> int:
         "agent-reach search-web jobs --json",
         "agent-reach read https://example.com --json",
         "agent-reach get https://example.com --json",
+        'git commit -m "Verified `legal-admin` source spec"',
+        'rg -n "`docx`" library/testing.md',
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -204,6 +215,7 @@ def self_test() -> int:
         "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v",
         "agent-reach doctor --json",
         "agent-reach version",
+        "rg -n '`docx`' library/testing.md",
     ]
     failures: list[str] = []
     for command in blocked:
@@ -215,7 +227,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 30 fixtures passed")
+    print("shell-preflight: 33 fixtures passed")
     return 0
 
 

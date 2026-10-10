@@ -9,7 +9,8 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks executed 6 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -103,13 +104,26 @@ Never trust an empty `ls` from a script.
 
 ---
 
+## `rg -h` is help in ripgrep 15.2.0; use `--no-filename`
+
+**verified:** 2026-10-10, GovernmentJobs aggregation used `rg -h` expecting grep-style filename suppression and counted 124 help lines for every source; replacing it with `rg --no-filename` produced 184 unique URLs across Seattle 65, King County 100, Bellevue 9, and Snohomish County 10
+**verified:** 2026-10-10, a fresh `rg -h 'fatal' library/testing.md` invocation printed 135 help lines instead of matches; `rg --version` reported 15.2.0, and its help identifies `-h, --help` plus `-I, --no-filename`
+**where:** ripgrep source aggregation and one isolated flag check on this macOS machine
+
+The short flag collision is direct installed-command behavior, not a listing-count result.
+
+**Why:** ripgrep 15.2.0's own help and both observed calls agree that `-h` invokes help, while `--no-filename` suppresses source names.
+**Fix:** use `rg --no-filename` or `rg -I` when combining matches from multiple files, and validate the aggregate against expected URL-shaped output before counting it.
+
+---
+
 ## Held back
 
 ### `rm -f style commands are not permitted. Use a safer approach` at n=3
 
 **verified:** 2026-10-04, `exec_command` rejected a multiline DOCX render command containing `rm -rf work/welo-cv-render` with exactly `rm -f style commands are not permitted. Use a safer approach`
 **verified:** 2026-10-06, the execution layer rejected explicit single-file command `rm -f /Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx.inspect.ndjson` with exactly `rm -f style commands are not permitted. Use a safer approach`; the target was a generated inspection sidecar
-**verified:** 2026-10-06, a combined document build and render command containing `rm -rf job-pipeline/work/heartbeat-2026-10-06-0950/qa-office-depot` was rejected before execution with exactly `rm -f style commands are not permitted. Use a safer approach`; `shell-preflight` then rejected the same rm command, accepted a fresh-directory command, and its later expanded suite printed `shell-preflight: 30 fixtures passed`
+**verified:** 2026-10-06, a combined document build and render command containing `rm -rf job-pipeline/work/heartbeat-2026-10-06-0950/qa-office-depot` was rejected before execution with exactly `rm -f style commands are not permitted. Use a safer approach`; `shell-preflight` then rejected the same rm command, accepted a fresh-directory command, and its later expanded suite printed `shell-preflight: 33 fixtures passed`
 **where:** three removal commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, covering two recursive render or QA directories and one explicit generated file
 
 All three commands were rejected before removal, but the evidence does not establish the execution layer's complete deletion policy.
@@ -144,6 +158,17 @@ The two workflow failures and isolated reproduction establish that lowercase `st
 **Why:** REJECT at n=3 from one shell-parameter subject and environment; there are not five observations from five different subjects.
 **Fix:** use `http_code` or another task-specific variable name instead of `status`; both the earlier workflow retry and current isolated control are verified.
 
+### Quoted zsh spec stayed 1 argument and produced `sed: invalid command code ,` at n=1
+
+**verified:** 2026-10-10, `for spec in "legal-admin 130 300"; do set -- $spec; ...; done` produced `count=1`, kept the complete string in `$1`, left `$2` and `$3` empty, and `sed -n "${2},${3}p"` returned exactly `sed: 1: ",p` followed by `invalid command code ,`
+**verified:** 2026-10-10, replacing the compound string with `spec=(legal-admin 130 300); set -- "${spec[@]}"` produced exactly `count=3 one=legal-admin two=130 three=300`, and the corrected `sed` invocation exited 0
+**where:** one macOS zsh GovernmentJobs source-spec loop and one isolated reproduction
+
+The quoted loop item remained one scalar, and zsh did not perform implicit Bourne-style word splitting when it was expanded for `set`.
+
+**Why:** REJECT at n=1 workflow subject plus one isolated reproduction; there are not five observations from five different subjects.
+**Fix:** use a proper zsh array and expand it as `"${spec[@]}"`, or use explicit commands instead of encoding multiple fields in one quoted string.
+
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 
 **verified:** 2026-10-05, bundled Python invoked through zsh as `python3 -c ${JSON.stringify(code)}` exited 1 and printed the full escaped script beginning with literal `\nfrom pathlib...`, followed by exactly `SyntaxError: unexpected character after line continuation character`; a second workbook-inspection invocation with literal `\n` sequences returned the same exact SyntaxError before reading the workbook, while rewriting it as one list comprehension with no literal `\n` succeeded and printed `{"summary_tailored": 37, "summary_submitted": 35, "matches": []}`
@@ -154,18 +179,19 @@ The observed script began with backslash and `n` characters instead of a real ne
 **Why:** REJECT at n=2 from two invocation subjects in one environment; there are not five observations from five different subjects.
 **Fix:** use a real single-line expression for short `python3 -c` work, as confirmed by the list-comprehension output; for nontrivial logic, write a file in the writable work directory with `apply_patch`, then run the bundled Python executable on that file.
 
-### Backticks inside double-quoted `rg` patterns executed 5 substitutions across 4 shell invocations
+### Backticks inside double quotes executed 6 substitutions across 5 shell invocations
 
 **verified:** 2026-10-03, a zsh command passed a backtick-wrapped `pdftotext` token inside a double-quoted `rg` pattern and printed exactly `zsh:2: command not found: pdftotext` before the search results
 **verified:** 2026-10-05, a dotfiles-library lookup used a double-quoted `rg` pattern containing backticks around `AttributeError`, printed exactly `zsh:1: command not found: AttributeError`, and then returned the remaining search matches
 **verified:** 2026-10-05, one dotfiles-library lookup invoked two double-quoted `rg` patterns containing backticks around `path`; zsh printed exactly `zsh:1: command not found: path` twice before returning the remaining search matches
 **verified:** 2026-10-06, a dotfiles-library staged-file check used a double-quoted `rg` pattern containing backticks around `docx`, printed exactly `zsh:6: command not found: docx`, and the corrected single-quoted pattern returned the intended heading and evidence lines
-**where:** five substitutions across four dotfiles-library verification shell invocations in macOS zsh
+**verified:** 2026-10-10, a double-quoted `git commit -m` body contained backticks around `legal-admin 130 300`; zsh printed exactly `zsh:4: command not found: legal-admin`, and the resulting commit body omitted the backtick-wrapped text
+**where:** six substitutions across five dotfiles-library verification and commit shell invocations in macOS zsh
 
-The shell executed the backtick contents as command substitution before `rg` received the pattern.
+The shell executed every exposed backtick pair as command substitution before the named command received its argument.
 
-**Why:** still held back after five substitutions across four shell-invocation subjects; there are not five observations from five different subjects.
-**Fix:** single-quote search patterns that contain Markdown backticks, or escape each backtick before passing the pattern through zsh; the third-recurrence rule now requires a reusable preflight check, which remains UNCONFIRMED until built and exercised.
+**Why:** still held back after six substitutions across five shell-invocation subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** single-quote arguments that contain Markdown backticks, or escape each backtick before passing the text through zsh. Run `shell-preflight '<planned command>'` first; it rejects exposed backticks inside unquoted or double-quoted arguments, accepts single-quoted backticks, and its 33-fixture suite passes.
 
 ### zsh `no matches found` stopped 44 bare glob and query arguments before execution
 
@@ -196,14 +222,14 @@ The shell executed the backtick contents as command substitution before `rg` rec
 **verified:** 2026-10-06, after `gh repo view` and README inspection established that `AmruthPillai/Reactive-Resume` moved to `reactive-resume/reactive-resume`, unquoted `gh api repos/AmruthPillai/Reactive-Resume/commits?per_page=5` printed exactly `zsh:8: no matches found: repos/AmruthPillai/Reactive-Resume/commits?per_page=5`, and the unquoted `git/trees/v4?recursive=1` endpoint likewise returned `zsh: no matches found` before `gh` ran
 **verified:** 2026-10-06, unquoted `gh api repos/hugounoclaw/ats-checker/commits?per_page=5` failed before `gh` ran with exactly `zsh:1: no matches found`; the endpoint's `?` was exposed to zsh filename generation
 **verified:** 2026-10-06 at about 9:00 am Pacific, unquoted `gh api repos/kotarowatanabe107/ats-resume-checker/git/trees/main?recursive=1` failed before `gh` ran with `zsh: no matches found`; repository metadata had already reported default branch `master`, and the quoted `master?recursive=1` retry returned 28 paths
-**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` rejected unquoted query endpoints, accepted their quoted forms, and its later expanded query-glob, GitHub-field, rm, Python-launcher, and Agent Reach suite printed `shell-preflight: 30 fixtures passed`
+**verified:** 2026-10-06, fresh unquoted `gh api repos/.../commits?per_page=6` and `gh api repos/.../git/trees/main?recursive=1` calls each failed before `gh` ran with exactly `zsh:1: no matches found`; `shell-preflight` rejected unquoted query endpoints, accepted their quoted forms, and its later expanded query-glob, GitHub-field, rm, Python-launcher, Agent Reach, and backtick suite printed `shell-preflight: 33 fixtures passed`
 **verified:** 2026-10-06, unquoted `gh api repos/.../commits?per_page=5` and `gh api repos/.../issues?state=all&per_page=10` each failed before `gh` ran with `zsh: no matches found`; quoting the complete endpoint is the verified recovery class already exercised by the preflight fixtures
 **where:** forty-four zsh commands in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, plus the reusable `home/bin/shell-preflight` check in the dotfiles repository
 
 All forty-four failures occurred while zsh parsed unquoted glob or query metacharacters, before the named tool could handle the argument.
 
 **Why:** still held back at n=44 from forty-four shell-command subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its expanded 30-fixture suite passes. Exact historical fixture parity for all forty-four failures remains UNCONFIRMED.
+**Fix:** quote every `gh api` endpoint containing `?` or `&`, for example `gh api 'repos/OWNER/REPO/commits?per_page=5'`; pass file filters through quoted `rg --glob` arguments, omit unresolved path globs, and run `rg --files` before uncertain path targets. Run `shell-preflight '<planned zsh command>'` before execution; its tokenizer rejects exposed query metacharacters in `gh` and `gh-axi` API endpoints plus exposed glob metacharacters in `rg` arguments, and its expanded 33-fixture suite passes. Exact historical fixture parity for all forty-four failures remains UNCONFIRMED.
 
 ### macOS `date %:z` exited 0 with literal `:z` suffixes at n=3
 

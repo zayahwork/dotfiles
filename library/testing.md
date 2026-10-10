@@ -386,17 +386,28 @@ The short tuples begin immediately after the visible A1:J52 range, but the reaso
 **Why:** REJECT after three positional-read failures and two dimension failures from one workbook subject; there are not five observations from five different subjects.
 **Fix:** pass `max_col=10` when ten application columns are required, guard row length before every optional positional read, and avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
-### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=5
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=6
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
 **verified:** 2026-10-06, two consecutive calls returned the same exact error and no dependency paths; a fourth verification call from the dotfiles task returned the same error, while cached `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` printed `Python 3.12.14`, imported `docx` 1.2.0, and the installed Documents skill `SKILL.md` existed at 40,679 bytes
 **verified:** 2026-10-07, following the Spreadsheets skill before read-only inspection of `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`, another loader call from the job-applications cwd returned the same exact error and no paths; `workspace-dependencies-fallback spreadsheets` then printed Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, and a 63,930-byte Spreadsheets `SKILL.md`
-**where:** five Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
+**verified:** 2026-10-10 at about 1:00 pm Pacific, another loader call returned exactly `The app could not load this tool. Please try again.` and no paths; the shell did not expose `workspace-dependencies-fallback` on `PATH`, while `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, the 63,930-byte skill, and three references of 2,481, 25,830, and 10,103 bytes
+**where:** six Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
 
-All five calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
+All six calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
 
-**Why:** still held back at n=5 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
-**Fix:** retry the loader once; if it still fails, run `workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
+**Why:** still held back at n=6 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
+**Fix:** retry the loader once; if it still fails and the installed fallback command is unavailable, run `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
+
+### `zsh:1: command not found: workspace-dependencies-fallback` at n=1
+
+**verified:** 2026-10-10, invoking `workspace-dependencies-fallback spreadsheets` from the dotfiles repository returned exactly `zsh:1: command not found: workspace-dependencies-fallback`; invoking `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` then printed verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, skill bytes, and all three reference byte counts
+**where:** one dotfiles shell before the Home Manager configuration containing the fallback command was applied to that shell environment
+
+The source command was executable and complete, so this occurrence proves only that its installed command name was absent from `PATH` in that shell.
+
+**Why:** REJECT at n=1 from one shell and configuration state; there are not five observations from five different subjects.
+**Fix:** run the repository source path shown above until the configuration has been applied and a fresh shell resolves `command -v workspace-dependencies-fallback`; do not treat a missing wrapper name as missing cached runtimes.
 
 ### `codex-primary-runtime/node/bin/node` was absent; `dependencies/node/bin/node` ran Node v24.19.0
 

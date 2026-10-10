@@ -10,7 +10,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -157,6 +157,17 @@ The two workflow failures and isolated reproduction establish that lowercase `st
 
 **Why:** REJECT at n=3 from one shell-parameter subject and environment; there are not five observations from five different subjects.
 **Fix:** use `http_code` or another task-specific variable name instead of `status`; both the earlier workflow retry and current isolated control are verified.
+
+### Quoted zsh spec stayed 1 argument and produced `sed: invalid command code ,` at n=1
+
+**verified:** 2026-10-10, `for spec in "legal-admin 130 300"; do set -- $spec; ...; done` produced `count=1`, kept the complete string in `$1`, left `$2` and `$3` empty, and `sed -n "${2},${3}p"` returned exactly `sed: 1: ",p` followed by `invalid command code ,`
+**verified:** 2026-10-10, replacing the compound string with `spec=(legal-admin 130 300); set -- "${spec[@]}"` produced exactly `count=3 one=legal-admin two=130 three=300`, and the corrected `sed` invocation exited 0
+**where:** one macOS zsh GovernmentJobs source-spec loop and one isolated reproduction
+
+The quoted loop item remained one scalar, and zsh did not perform implicit Bourne-style word splitting when it was expanded for `set`.
+
+**Why:** REJECT at n=1 workflow subject plus one isolated reproduction; there are not five observations from five different subjects.
+**Fix:** use a proper zsh array and expand it as `"${spec[@]}"`, or use explicit commands instead of encoding multiple fields in one quoted string.
 
 ### `SyntaxError: unexpected character after line continuation character` from literal `\n` in `python3 -c` at n=2
 

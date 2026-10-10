@@ -24,7 +24,8 @@ return, and where they quietly return nothing.
 | [ADP legacy link returned reader `Redirect loop detected`; browser replacement URL loaded 15 openings](#adp-legacy-link-returned-reader-redirect-loop-detected-browser-replacement-url-loaded-15-openings) | The old link exposes its replacement in an interactive browser. Follow that exact URL and verify nonempty listings. |
 | [`gh-axi api --help` returned `command not found` while the agent rules required `gh-axi` at n=1](#gh-axi-api---help-returned-command-not-found-while-the-agent-rules-required-gh-axi-at-n1) | This shell exposed no `gh-axi` command. Reconcile the installed tool and active rules before GitHub CLI work. |
 | [`opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-7-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
-| [Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1](#jina-reader-returned-pcc-cloudflare-403-performing-security-verification-at-n1) | The careers page exposed an anti-bot interstitial instead of content. Stop without bypassing it and use indexed official content or normal visible ATS navigation. |
+| [Jina Reader returned PCC security-verification pages at n=2](#jina-reader-returned-pcc-security-verification-pages-at-n2) | Both reads exposed anti-bot interstitials instead of listings. Stop without bypassing them and use indexed official content or normal visible ATS navigation. |
+| [Jina Reader returned Alaska status 42206 and a 3,707-byte Target 404 across 2 job-search routes](#jina-reader-returned-alaska-status-42206-and-a-3707-byte-target-404-across-2-job-search-routes) | These exact search routes did not expose listings. Treat them as failed source discovery, not evidence that jobs are absent. |
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [Web open returned `Internal Error` on 2 Kroger job pages; Jina returned 11,801 and 5,476 bytes](#web-open-returned-internal-error-on-2-kroger-job-pages-jina-returned-11801-and-5476-bytes) | Jina exposed active job 225488 and the closed status for 203050. Verify nonempty output and the current status text. |
 | [Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1](#pilot-careers-iab-navigation-failed-with-neterr_cert_common_name_invalid-at-n1) | No page content loaded. Do not bypass the safety interstitial; find a certificate-valid official route. |
@@ -366,15 +367,27 @@ Eight named responses did not provide usable query results; the evidence does no
 **Why:** REJECT at n=10 query calls across three engine-route subjects in one run; there are not five subjects plus an untouched control.
 **Fix:** treat search-engine text as an unverified lead, require expected query terms and relevant result links, then verify on official employer pages or platform-native APIs. Fall back to the runtime web search only when it returns nonempty relevant content.
 
-### Jina Reader returned PCC Cloudflare 403 `Performing security verification` at n=1
+### Jina Reader returned PCC security-verification pages at n=2
 
 **verified:** 2026-10-05 at 7:09 pm Pacific, Jina Reader on `https://www.pccmarkets.com/page/about/jobs` returned HTTP 403 and a Cloudflare page containing exactly `Performing security verification`; the workflow stopped and did not bypass the challenge
-**where:** one read of the PCC Community Markets careers page through Jina Reader
+**verified:** 2026-10-10, one run returned 258 bytes with no listings; an exact fresh read returned HTTP 200 and 483 bytes headed `Just a moment...`, warning that the page may require CAPTCHA, and containing `Performing security verification`
+**where:** two reads of the PCC Community Markets careers page through Jina Reader
 
-The response establishes an anti-bot interstitial for this page and route, but not a site-wide rule for every PCC URL or client.
+Both responses establish an anti-bot interstitial for this page and route, but not a site-wide rule for every PCC URL or client.
 
-**Why:** REJECT at n=1 from one page and backend subject; there are not five observations from five different subjects.
+**Why:** REJECT at n=2 from one page and backend subject; there are not five observations from five different subjects.
 **Fix:** use search-indexed official content or the employer's linked ATS through normal visible navigation; never retry or bypass the challenge.
+
+### Jina Reader returned Alaska status 42206 and a 3,707-byte Target 404 across 2 job-search routes
+
+**verified:** 2026-10-10, Jina Reader for `https://jobs.alaskaair.com/search-jobs/Seattle%2C%20WA/12347/4/6252001-5815135-5809844-5809844/47x60621/-122x33207/50/2` returned HTTP 422, 1,121 bytes, JSON status `42206`, and exactly `page.goto: net::ERR_CONNECTION_REFUSED`; in the same research pass, City of Bothell and Snohomish County GovernmentJobs pages returned 105,956 and 128,667 bytes
+**verified:** 2026-10-10, one Target Bothell Radancy-style search URL returned a readable 3,707-byte 404 page headed exactly `Clean up on aisle 404!`
+**where:** one Alaska Airlines Seattle search route and one Target Bothell search route read through Agent Reach Jina Reader
+
+The two exact search routes were unusable for source discovery; neither response proves that the employers had no current jobs, and the source-specific cause is UNCONFIRMED.
+
+**Why:** REJECT at n=2 across two employer-route subjects; there are not five observations from five different subjects, although the two GovernmentJobs controls prove Jina returned substantial content in the same pass.
+**Fix:** treat these as failed source-discovery routes, not application blockers or empty job boards. Use another official employer search route, the linked ATS, or normal visible browser navigation, and require nonempty listing content before reporting availability.
 
 ### Sprouts store-operations reader returned HTTP 403 Forbidden at n=1
 

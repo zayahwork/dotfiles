@@ -9,6 +9,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`panel_bg = "reset"`, or herdr paints an opaque block over the terminal background.](#herdr-paints-its-own-pane-background-over-terminal-transparency)
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
+- [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
 - [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, literal `\n` raised 2 Python SyntaxErrors, double-quoted `rg` patterns executed 5 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
@@ -100,6 +101,19 @@ terminal.
 
 **Fix:** `/bin/ls` in anything an agent runs, or `find` when you want it recursive.
 Never trust an empty `ls` from a script.
+
+---
+
+## `rg -h` is help in ripgrep 15.2.0; use `--no-filename`
+
+**verified:** 2026-10-10, GovernmentJobs aggregation used `rg -h` expecting grep-style filename suppression and counted 124 help lines for every source; replacing it with `rg --no-filename` produced 184 unique URLs across Seattle 65, King County 100, Bellevue 9, and Snohomish County 10
+**verified:** 2026-10-10, a fresh `rg -h 'fatal' library/testing.md` invocation printed 135 help lines instead of matches; `rg --version` reported 15.2.0, and its help identifies `-h, --help` plus `-I, --no-filename`
+**where:** ripgrep source aggregation and one isolated flag check on this macOS machine
+
+The short flag collision is direct installed-command behavior, not a listing-count result.
+
+**Why:** ripgrep 15.2.0's own help and both observed calls agree that `-h` invokes help, while `--no-filename` suppresses source names.
+**Fix:** use `rg --no-filename` or `rg -I` when combining matches from multiple files, and validate the aggregate against expected URL-shaped output before counting it.
 
 ---
 

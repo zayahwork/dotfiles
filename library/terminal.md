@@ -10,7 +10,8 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [A full screen view cannot draw through an agent's pipe. Split the pane and run it there.](#a-full-screen-view-renders-into-an-agents-pipe-as-escape-codes-nobody-sees)
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks executed 6 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [`rg` parsed a pattern beginning with `--target` as a flag; insert `--` before the pattern.](#rg-parsed-a-pattern-beginning-with---target-as-a-flag-insert---before-the-pattern)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks executed 7 substitutions, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -117,6 +118,18 @@ The short flag collision is direct installed-command behavior, not a listing-cou
 
 ---
 
+## `rg` parsed a pattern beginning with `--target` as a flag; insert `--` before the pattern
+
+**verified:** 2026-10-11, ripgrep 15.2.0 ran `rg -n "--target|daily_target|max_prepared|argparse|run_parser" pipeline.py`, exited 2, and printed exactly `rg: unrecognized flag --target|daily_target|max_prepared|argparse|run_parser`; retrying with `rg -n -- "--target|daily_target|max_prepared|argparse|run_parser" pipeline.py` exited 0 and returned matches including `run_parser.add_argument("--target"...)`
+**where:** `pipeline.py` in `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
+
+The failed and successful calls differed only by ripgrep's explicit end-of-options delimiter.
+
+**Why:** ripgrep treated the leading `--target` portion of the positional pattern as a command option before it attempted the search.
+**Fix:** put `--` after ripgrep options whenever the search pattern can begin with `-`, then verify nonempty matches rather than trusting the exit code alone.
+
+---
+
 ## Held back
 
 ### `rm -f style commands are not permitted. Use a safer approach` at n=3
@@ -179,18 +192,19 @@ The observed script began with backslash and `n` characters instead of a real ne
 **Why:** REJECT at n=2 from two invocation subjects in one environment; there are not five observations from five different subjects.
 **Fix:** use a real single-line expression for short `python3 -c` work, as confirmed by the list-comprehension output; for nontrivial logic, write a file in the writable work directory with `apply_patch`, then run the bundled Python executable on that file.
 
-### Backticks inside double quotes executed 6 substitutions across 5 shell invocations
+### Backticks inside double quotes executed 7 substitutions across 6 shell invocations
 
 **verified:** 2026-10-03, a zsh command passed a backtick-wrapped `pdftotext` token inside a double-quoted `rg` pattern and printed exactly `zsh:2: command not found: pdftotext` before the search results
 **verified:** 2026-10-05, a dotfiles-library lookup used a double-quoted `rg` pattern containing backticks around `AttributeError`, printed exactly `zsh:1: command not found: AttributeError`, and then returned the remaining search matches
 **verified:** 2026-10-05, one dotfiles-library lookup invoked two double-quoted `rg` patterns containing backticks around `path`; zsh printed exactly `zsh:1: command not found: path` twice before returning the remaining search matches
 **verified:** 2026-10-06, a dotfiles-library staged-file check used a double-quoted `rg` pattern containing backticks around `docx`, printed exactly `zsh:6: command not found: docx`, and the corrected single-quoted pattern returned the intended heading and evidence lines
 **verified:** 2026-10-10, a double-quoted `git commit -m` body contained backticks around `legal-admin 130 300`; zsh printed exactly `zsh:4: command not found: legal-admin`, and the resulting commit body omitted the backtick-wrapped text
-**where:** six substitutions across five dotfiles-library verification and commit shell invocations in macOS zsh
+**verified:** 2026-10-11, a dotfiles-library verification command included backticks around `--` inside a double-quoted `rg` pattern; zsh printed exactly `zsh:2: command not found: --` before `rg` returned the remaining matches
+**where:** seven substitutions across six dotfiles-library verification and commit shell invocations in macOS zsh
 
 The shell executed every exposed backtick pair as command substitution before the named command received its argument.
 
-**Why:** still held back after six substitutions across five shell-invocation subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Why:** still held back after seven substitutions across six shell-invocation subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** single-quote arguments that contain Markdown backticks, or escape each backtick before passing the text through zsh. Run `shell-preflight '<planned command>'` first; it rejects exposed backticks inside unquoted or double-quoted arguments, accepts single-quoted backticks, and its 33-fixture suite passes.
 
 ### zsh `no matches found` stopped 44 bare glob and query arguments before execution

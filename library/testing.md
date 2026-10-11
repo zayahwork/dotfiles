@@ -69,7 +69,7 @@ Both failures were App API-method mismatches, not evidence that the Chrome surfa
 **Why:** still held back at n=2 from two session subjects; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()` after a compacted Computer Use task, then use the documented App method `getAXState()`.
 
-### BrowserTab `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 28 calls from 7 documented tab subjects
+### BrowserTab `act`, `getSnapshot`, `snapshot`, `fill`, `getState`, `domContentLoaded`, `waitForTimeout`, and `getByRole` were not functions on 29 calls from 7 documented tab subjects
 
 **verified:** 2026-09-29, `cua.createBrowserTab("iab", URL, { visible: false })` returned tab 6 with a valid initial accessibility tree, then `simpleClosureTab.getSnapshot` returned exactly `simpleClosureTab.getSnapshot is not a function`; 2026-10-03, `trainerTab.fill` returned exactly `trainerTab.fill is not a function` during a 24 Hour Fitness application workflow; 2026-10-04, a tab returned by `cua.createBrowserTab` produced exactly `mailTab.getState is not a function` when a fresh Gmail snapshot was needed after waiting, an initialized cua_repl session returned exactly `mailTab.getSnapshot is not a function`, and after `cua.rewriteDocumentation()` listed `tab.playwright.domSnapshot()`, `nodeRepl.write(await mailTab.playwright.domSnapshot())` succeeded and returned the Gmail DOM snapshot; later that date, calling `tab.playwright.domContentLoaded()` on an IAB tab failed with an error ending exactly `is not a function`
 **verified:** 2026-10-05, after filling Gmail search and pressing Enter, `gmailTab.waitForTimeout(1800)` returned exactly `waitForTimeout is not a function` before the requested DOM snapshot
@@ -91,12 +91,13 @@ Both failures were App API-method mismatches, not evidence that the Chrome surfa
 **verified:** 2026-10-06 at about 4:19 am Pacific, after `cua.createBrowserTab(...)` returned an initial accessibility snapshot, `gmail.snapshot()` returned exactly `gmail.snapshot is not a function`; no recovery call was supplied in that observation
 **verified:** 2026-10-06 at 6:16 am Pacific, after `cua.createBrowserTab` returned a Gmail tab, `mailTab.getState()` returned exactly `mailTab.getState is not a function`; the already verified fresh-state methods are `getAXState({disableDiffing:true})` and `tab.playwright.domSnapshot()`, not `getSnapshot()`
 **verified:** 2026-10-06, a bound Gmail Tab returned by `cua.createBrowserTab` produced exactly `mail.snapshot is not a function`; refreshed CUA documentation listed `getAXState()`, `getScreenshot()`, and `getAXStateAndScreenshot()` on the Target or Tab surface, and `await mail.getAXState({disableDiffing:true})` immediately succeeded with the Gmail accessibility tree
+**verified:** 2026-10-11, during read-only Gmail work, `await tab.act({kind:"click", ref:"71"})` returned exactly `tab.act is not a function`; refreshed CUA documentation listed the direct `await tab.click(71)` form followed by `getAXState()`, or Playwright locators
 **where:** seven unified-computer-use BrowserTab subjects across application, Gmail, job-search, and careers workflows
 
-The returned tab objects did not expose those methods; direct accessibility actions use element IDs, while `fill` and `getByRole` belong under the tab's Playwright interface.
+The returned tab objects did not expose those methods; direct accessibility actions use numeric snapshot indices, while `fill` and `getByRole` belong under the tab's Playwright interface.
 
-**Why:** still held back after twenty-eight calls from seven documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** after a summarized Computer Use task, call `cua.rewriteDocumentation()` before interacting. Wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()` or `tab.getSnapshot()`. Use BrowserTab `setValue(elementIndex, value)` for direct accessibility input or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; the Paycom recovery and the YMCA and Home Depot role-click results remain UNCONFIRMED until run and visibly verified.
+**Why:** still held back after twenty-nine calls from seven documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** after a summarized Computer Use task, call `cua.rewriteDocumentation()` before interacting. Wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()` or `tab.getSnapshot()`. Use `tab.click(elementIndex)` for a direct accessibility click, BrowserTab `setValue(elementIndex, value)` for direct accessibility input, or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; do not call `tab.act(...)`, and keep the Paycom, YMCA, and Home Depot recoveries UNCONFIRMED until run and visibly verified.
 
 ### 3 object-shaped BrowserTab clicks returned `Accessibility action requires an element index or point`; `click(index)` succeeded
 
@@ -108,6 +109,16 @@ The three rejected objects and one successful positional call show that accessib
 
 **Why:** still held back at n=3 calls from two Gmail interaction attempts in one BrowserTab environment; there are not five observations from five different subjects.
 **Fix:** call `cua.rewriteDocumentation()`, pass the current accessibility element index directly as `tab.click(index)`, and refresh the accessibility state before reusing an index because the numbered tree can change.
+
+### Gmail `Back to Search Results` matched 1 visible enabled node but click returned `No node found at given location` at n=1
+
+**verified:** 2026-10-11, `getByRole("button", {name:"Back to Search Results", exact:true})` matched exactly one visible enabled Gmail `div`, but `.click()` returned exactly `Error: No node found at given location`; `tab.back()` then recovered history navigation
+**where:** one read-only Gmail search-results interaction through unified computer use
+
+The diagnostics establish a live locator match before the click failure, but do not establish why the input target was unavailable when the click executed.
+
+**Why:** REJECT at n=1 from one page and interaction subject; there are not five observations from five different subjects.
+**Fix:** for this history-navigation control, use `tab.back()` after the exact click failure and refresh with `getAXState()` before continuing.
 
 ### ALDI AX tree exposed 2 `APPLY` links while the exact Playwright role locator matched 0 at n=1
 

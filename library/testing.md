@@ -262,15 +262,16 @@ The digest matched; the observed failure came from the carriage return retained 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** preserve the downloaded asset and normalize only the validation stream with `tr -d '\r' < MemeCoin.exe.sha256 | shasum -a 256 -c -`.
 
-### Bundled Python `-m pytest -q` returned `No module named pytest`; direct `unittest` ran 17 tests at n=1
+### System and bundled Python `-m pytest -q` returned `No module named pytest`; bundled `unittest discover` ran 75 tests at n=2
 
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m pytest -q` exited 1 with exactly `No module named pytest`, while the same interpreter running `tests/test_pipeline.py -q` exited 0 and printed `Ran 17 tests in 1.596s` and `OK`
-**where:** one test-runner subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline`
+**verified:** 2026-10-12, system `python3 -m pytest -q` in the authoritative pipeline exited 1 and printed exactly `/opt/homebrew/opt/python@3.14/bin/python3.14: No module named pytest`; `tests/test_pipeline.py` imported `unittest` and called `unittest.main()`, while bundled Python running `-m unittest discover -s tests -q` exited 0 and printed `Ran 75 tests in 3.518s` plus `OK`
+**where:** two test-runner subjects in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
 
-The repository test file imports `unittest` and calls `unittest.main()`, so direct execution uses its supported runner without adding a dependency.
+Both pipeline test files use the standard-library `unittest` runner, and neither observed Python environment supplied pytest.
 
-**Why:** REJECT at n=1 from one repository and runtime subject; there are not five observations from five different subjects.
-**Fix:** run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tests/test_pipeline.py -q` and require exit 0 plus the expected test count; do not install pytest without approval.
+**Why:** REJECT at n=2 from two pipeline and runtime subjects; there are not five observations from five different subjects.
+**Fix:** from the pipeline directory, run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -q` and require exit 0 plus a nonzero test count; do not install pytest without approval.
 
 ### BrowserTab `click(...)` returned `Could not check the click target's shadow root` on 2 job links
 

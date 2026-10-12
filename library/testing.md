@@ -403,6 +403,16 @@ The older workbook's short tuples began after its visible A1:J52 range, while th
 **Why:** REJECT after four positional-read failures and two dimension failures from two workbook subjects; there are not five observations from five different subjects.
 **Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. Avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
+### `ReadOnlyCell` had no `style_id`; normal-mode `Cell.style_id` returned 20 at n=1
+
+**verified:** 2026-10-12, bundled Python with openpyxl 3.1.5 opened the authoritative tracker with `read_only=True`, and reading `Applications!A7.style_id` raised exactly `AttributeError: 'ReadOnlyCell' object has no attribute 'style_id'. Did you mean: '_style_id'?`; reopening the same workbook with `read_only=False` returned `Cell 20 True` for its type, `style_id`, and `has_style` without saving the workbook
+**where:** one style-inspection pair on `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`
+
+The paired reads establish the public-property difference for this workbook and openpyxl version; whether other read-only cell types expose a public style identifier is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
+**Fix:** when an exact public style ID is required, load the workbook with `read_only=False`, inspect `Cell.style_id`, and do not save. For streaming inspection, use the public `ReadOnlyCell` style components and `has_style` rather than depending on private `_style_id`.
+
 ### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=7
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work

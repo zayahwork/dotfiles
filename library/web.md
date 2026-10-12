@@ -191,7 +191,7 @@ permission.
 
 ## Held back
 
-### `agent-reach` rejected `search` 28 times, `read` 5 times, `get` once, and `search-web` once across 6 dates
+### `agent-reach` rejected `search` 29 times, `read` 5 times, `get` once, and `search-web` once across 7 dates
 
 **verified:** 2026-09-30, invoking `search` returned exactly `invalid choice: 'search' (choose from setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version)`; 2026-10-03, installed agent-reach v1.5.0 returned the same list for another `search` call, `agent-reach read <Ashby URL> --json` returned the equivalent exact `invalid choice: 'read'` error, and a Hyatt `agent-reach search ... --json` call returned the same `invalid choice: 'search'` list while Exa was explicitly prohibited; 2026-10-04, three more `agent-reach search '...' --json` calls exited 2 with the same exact `invalid choice: 'search'` command list; 2026-10-05, `agent-reach search "Rocket Money Operations Associate Remote Pacific Time Zone" --json` returned the same argparse error and allowed-command list from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 **verified:** 2026-10-05, `agent-reach search --help` from `/Users/zayah/Documents/Codex` returned exactly `invalid choice: 'search'` and listed only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
@@ -207,12 +207,13 @@ permission.
 **verified:** 2026-10-06, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, `agent-reach search 'site:remote.co/remote-jobs customer service operations entry level United States October 2026' --json --limit 10` exited 2 and printed usage with exactly `invalid choice: 'search'`, listing only `setup, install, configure, doctor, uninstall, skill, format, transcribe, check-update, watch, version`
 **verified:** 2026-10-06, four more `agent-reach search "..." --json` calls each returned `invalid choice: 'search'` and the same allowed-command list from the job-applications workspace
 **verified:** 2026-10-07, `agent-reach version` printed `Agent Reach v1.5.0`, and `agent-reach search 'library verification query' --json` exited 2 with exactly `invalid choice: 'search'` plus the same allowed-command list; `shell-preflight` rejected the nonexistent wrapper command, accepted `agent-reach doctor --json`, and its later expanded suite printed `shell-preflight: 33 fixtures passed`
-**where:** thirty-five calls covering four missing subcommands in one installed agent-reach 1.5.0 CLI environment
+**verified:** 2026-10-12, `agent-reach version` printed `Agent Reach v1.5.0`, and `agent-reach search 'library verification query' --json` exited 2 with exactly `invalid choice: 'search'` plus the same allowed-command list; `references/search.md` routed generic web discovery to the runtime web search tool and known URLs to Jina Reader, while `shell-preflight` rejected the nonexistent wrapper command and its self-test printed `shell-preflight: 33 fixtures passed`
+**where:** thirty-six calls covering four missing subcommands in one installed agent-reach 1.5.0 CLI environment
 
 The returned command lists contain neither top-level web command, but the evidence does not establish behavior for other installed versions.
 
-**Why:** still held back at n=35 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
-**Fix:** use `agent-reach doctor --json` only for routing and backend status, the runtime web search tool for broad discovery, an approved platform CLI such as `gh` for GitHub, or direct Jina `curl` for an exact URL; do not invent `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`. Run `shell-preflight '<planned command>'` first; it rejects all four nonexistent wrapper subcommands.
+**Why:** still held back at n=36 calls across four command subjects in one CLI environment; there are not five observations from five different environment subjects, and the cause beyond this installed CLI remains unconfirmed.
+**Fix:** follow `references/search.md`: use the runtime web search tool for broad discovery, Jina Reader for a known URL, an approved platform CLI such as `gh` for GitHub, and `agent-reach doctor --json` only for routing or backend status. Do not invent `agent-reach search`, `agent-reach search-web`, `agent-reach read`, or `agent-reach get`; run `shell-preflight '<planned command>'` first because it rejects all four nonexistent wrapper subcommands.
 
 ### `agent-reach skill` required `--install` or `--uninstall` at n=1
 

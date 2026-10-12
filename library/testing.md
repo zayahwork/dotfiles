@@ -162,7 +162,7 @@ The failed attachments prove that none of the three attempts produced fresh dest
 **Why:** still held back at n=3 across two destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
 **Fix:** call `cua.getState()` to verify a current browser surface before creating a tab, then treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
-### 12 guessed, stale, wrong-cwd, or wrong-base local paths failed across 13 invocations; current paths found source, tracker, test, counter, and skill targets
+### 13 guessed, stale, wrong-cwd, or wrong-base local paths failed across 14 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -172,12 +172,13 @@ The failed attachments prove that none of the three attempts produced fresh dest
 **verified:** 2026-10-06, bundled Node in `job-pipeline/work/heartbeat-2026-10-06-0557` ran `FileBlob.load("outputs/job-application-tracker.xlsx")` and returned `ENOENT` with the eval stack rooted in that heartbeat directory; an isolated reproduction returned the same error, while loading `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` from the same cwd printed `{"loaded":true,"size":null}`
 **verified:** 2026-10-06, reading Firecrawl `SKILL.md` through mistyped plugin id `app-6a314a73f8ac8191b8b47dc98fe5a052` returned `No such file or directory`; the catalog path with id `app-6a314a73f8ac819195b0d55e36b9c609` existed at 3,181 bytes and was read successfully
 **verified:** 2026-10-07, `wc` and `sed` reads of `workflows/edit_workflows.md`, `artifact_tool_docs/API_QUICK_START.md`, and `style_guidelines.md` under the Spreadsheets package parent `.../skills/` each returned `No such file or directory`; the references are relative to the directory containing `SKILL.md`, `.../skills/spreadsheets/`, where the three files existed at 2,481, 25,830, and 10,103 bytes, and `workspace-dependencies-fallback spreadsheets` verified all three
-**where:** thirteen failed reads of twelve guessed, stale, wrong-cwd, mistyped, or wrong-base paths across seven local path-discovery subjects in the MemeCoin, job-applications, and Codex skill-cache trees
+**verified:** 2026-10-12, `candidate-profile.json` referenced `.private/job-application-facts.json`, but resolving that path from the Job Pipeline directory and running `stat` returned exactly `No such file or directory`; a hidden-file search across `/Users/zayah/Documents/Codex` found the sole matching file at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`, where `stat` reported 796 bytes and `jq` verified an object root without exposing its values
+**where:** fourteen failed reads of thirteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across eight local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
 
 The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=13 failures from seven workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files` in the narrow source directory immediately before reading, measuring, or selecting a script or test command, copy long skill paths exactly from the catalog, and resolve relative skill references against the directory containing `SKILL.md`. For Spreadsheets, `workspace-dependencies-fallback spreadsheets` now verifies the three required edit references and their nonempty bytes; the absolute `FileBlob.load` and catalog-path recoveries are also verified, while the stale counter execution recovery remains UNCONFIRMED.
+**Why:** still held back at n=14 failures from eight workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against their documented base instead of assuming the current directory. For the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path; for Spreadsheets, `workspace-dependencies-fallback spreadsheets` verifies the three required edit references and their nonempty bytes, while the stale counter execution recovery remains UNCONFIRMED.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 
@@ -261,15 +262,16 @@ The digest matched; the observed failure came from the carriage return retained 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** preserve the downloaded asset and normalize only the validation stream with `tr -d '\r' < MemeCoin.exe.sha256 | shasum -a 256 -c -`.
 
-### Bundled Python `-m pytest -q` returned `No module named pytest`; direct `unittest` ran 17 tests at n=1
+### System and bundled Python `-m pytest -q` returned `No module named pytest`; bundled `unittest discover` ran 75 tests at n=2
 
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m pytest -q` exited 1 with exactly `No module named pytest`, while the same interpreter running `tests/test_pipeline.py -q` exited 0 and printed `Ran 17 tests in 1.596s` and `OK`
-**where:** one test-runner subject in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline`
+**verified:** 2026-10-12, system `python3 -m pytest -q` in the authoritative pipeline exited 1 and printed exactly `/opt/homebrew/opt/python@3.14/bin/python3.14: No module named pytest`; `tests/test_pipeline.py` imported `unittest` and called `unittest.main()`, while bundled Python running `-m unittest discover -s tests -q` exited 0 and printed `Ran 75 tests in 3.518s` plus `OK`
+**where:** two test-runner subjects in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
 
-The repository test file imports `unittest` and calls `unittest.main()`, so direct execution uses its supported runner without adding a dependency.
+Both pipeline test files use the standard-library `unittest` runner, and neither observed Python environment supplied pytest.
 
-**Why:** REJECT at n=1 from one repository and runtime subject; there are not five observations from five different subjects.
-**Fix:** run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 tests/test_pipeline.py -q` and require exit 0 plus the expected test count; do not install pytest without approval.
+**Why:** REJECT at n=2 from two pipeline and runtime subjects; there are not five observations from five different subjects.
+**Fix:** from the pipeline directory, run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -q` and require exit 0 plus a nonzero test count; do not install pytest without approval.
 
 ### BrowserTab `click(...)` returned `Could not check the click target's shadow root` on 2 job links
 

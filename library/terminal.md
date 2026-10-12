@@ -11,7 +11,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
 - [`rg` parsed a pattern beginning with `--target` as a flag; insert `--` before the pattern.](#rg-parsed-a-pattern-beginning-with---target-as-a-flag-insert---before-the-pattern)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 8 failures, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 8 failures, `rg` options after `--` became paths twice, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -207,6 +207,16 @@ The shell executed complete exposed backtick pairs as command substitutions and 
 
 **Why:** still held back after eight failures across seven shell-invocation subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** single-quote arguments that contain Markdown backticks, or escape each backtick before passing the text through zsh. Run `shell-preflight '<planned command>'` first; it rejects exposed backticks inside unquoted or double-quoted arguments, accepts single-quoted backticks, and its 33-fixture suite passes.
+
+### `rg` options after `--` were treated as file paths on 2 invocations
+
+**verified:** 2026-10-12, a repeated lookup placed search paths before later `--glob` filters and ripgrep treated the filters and patterns as file paths; an isolated reproduction with `rg -n -- 'NO_SUCH_SENTINEL_PATTERN' library --glob '*.json' --glob '*.md' --glob '*.txt'` printed `rg: --glob: No such file or directory` three times plus one missing-file error for each glob, while `rg -n --glob '*.json' --glob '*.md' --glob '*.txt' -- 'Backticks inside double quotes' library` returned one match
+**where:** two ripgrep lookup invocations in macOS zsh, including one isolated dotfiles-library reproduction with ripgrep 15.2.0
+
+The isolated output shows that arguments after the `--` option terminator are positional paths even when they spell valid ripgrep options; the earlier repeated command's complete argv is UNCONFIRMED.
+
+**Why:** REJECT at n=2 from one command-order subject and environment; there are not five observations from five different subjects, and the third-recurrence prevention rule has not been reached.
+**Fix:** put every filter before the option terminator, then the pattern and paths: `rg -n --glob '*.json' --glob '*.md' --glob '*.txt' -- 'PATTERN' path...`. Require nonempty expected matches before trusting the search.
 
 ### zsh `no matches found` stopped 44 bare glob and query arguments before execution
 

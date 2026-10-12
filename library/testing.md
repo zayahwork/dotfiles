@@ -99,16 +99,17 @@ The returned tab objects did not expose those methods; direct accessibility acti
 **Why:** still held back after twenty-nine calls from seven documented tab subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** after a summarized Computer Use task, call `cua.rewriteDocumentation()` before interacting. Wait with the verified JavaScript runtime form `await new Promise(resolve => setTimeout(resolve, ms))`; then use the observed `getAXState({disableDiffing:true})` for accessibility state or `tab.playwright.domSnapshot()` for a DOM snapshot, not `tab.snapshot()` or `tab.getSnapshot()`. Use `tab.click(elementIndex)` for a direct accessibility click, BrowserTab `setValue(elementIndex, value)` for direct accessibility input, or `tab.playwright.getByRole(...)` and `tab.playwright.locator(...)` for DOM selection; do not call `tab.act(...)`, and keep the Paycom, YMCA, and Home Depot recoveries UNCONFIRMED until run and visibly verified.
 
-### 3 object-shaped BrowserTab clicks returned `Accessibility action requires an element index or point`; `click(index)` succeeded
+### 4 object-shaped BrowserTab clicks returned `Accessibility action requires an element index or point`; `click(index)` succeeded
 
 **verified:** 2026-10-06 at about 9:00 am Pacific, `mailTab.click({ref:90})` returned exactly `Accessibility action requires an element index or point`; refreshed CUA documentation showed the positional element-index form, `mailTab.click(90)` succeeded, and the refreshed Gmail accessibility tree showed no change
 **verified:** 2026-10-06, `gmailTab.click({ nodeId: 120 })` and `gmailTab.click({ index: 120 })` each returned exactly `Accessibility action requires an element index or point`; current CUA documentation specified `Target.click(target: number | Vec2, options?)`
-**where:** three object-shaped click calls across two Gmail accessibility interactions through unified-computer-use BrowserTab objects
+**verified:** 2026-10-12, `tab.click({ref: 121})` in Gmail returned exactly `Accessibility action requires an element index or point`; the specific `tab.click(121)` retry was not supplied, while the earlier positional index 90 recovery remains verified
+**where:** four object-shaped click calls across three Gmail accessibility interactions through unified-computer-use BrowserTab objects
 
-The three rejected objects and one successful positional call show that accessibility snapshot numbers are passed as the numeric `target`, not under `ref`, `nodeId`, or `index`; coordinate behavior was documented but not exercised.
+The four rejected objects and one successful positional call show that accessibility snapshot numbers are passed as the numeric `target`, not under `ref`, `nodeId`, or `index`; coordinate behavior was documented but not exercised.
 
-**Why:** still held back at n=3 calls from two Gmail interaction attempts in one BrowserTab environment; there are not five observations from five different subjects.
-**Fix:** call `cua.rewriteDocumentation()`, pass the current accessibility element index directly as `tab.click(index)`, and refresh the accessibility state before reusing an index because the numbered tree can change.
+**Why:** still held back at n=4 calls from three Gmail interaction attempts in one BrowserTab environment; there are not five observations from five different subjects.
+**Fix:** call `cua.rewriteDocumentation()`, pass the current accessibility element index directly as `tab.click(index)`, and refresh the accessibility state before reusing an index because the numbered tree can change. The general positional form is verified; the specific index 121 recovery remains UNCONFIRMED.
 
 ### Gmail `Back to Search Results` matched 1 visible enabled node but click returned `No node found at given location` at n=1
 

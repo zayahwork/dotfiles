@@ -163,7 +163,7 @@ The failed attachments prove that none of the three attempts produced fresh dest
 **Why:** still held back at n=3 across two destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
 **Fix:** call `cua.getState()` to verify a current browser surface before creating a tab, then treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
-### 13 guessed, stale, wrong-cwd, or wrong-base local paths failed across 14 invocations; current paths found source, tracker, facts, test, counter, and skill targets
+### 13 guessed, stale, wrong-cwd, or wrong-base local paths failed across 15 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -174,12 +174,13 @@ The failed attachments prove that none of the three attempts produced fresh dest
 **verified:** 2026-10-06, reading Firecrawl `SKILL.md` through mistyped plugin id `app-6a314a73f8ac8191b8b47dc98fe5a052` returned `No such file or directory`; the catalog path with id `app-6a314a73f8ac819195b0d55e36b9c609` existed at 3,181 bytes and was read successfully
 **verified:** 2026-10-07, `wc` and `sed` reads of `workflows/edit_workflows.md`, `artifact_tool_docs/API_QUICK_START.md`, and `style_guidelines.md` under the Spreadsheets package parent `.../skills/` each returned `No such file or directory`; the references are relative to the directory containing `SKILL.md`, `.../skills/spreadsheets/`, where the three files existed at 2,481, 25,830, and 10,103 bytes, and `workspace-dependencies-fallback spreadsheets` verified all three
 **verified:** 2026-10-12, `candidate-profile.json` referenced `.private/job-application-facts.json`, but resolving that path from the Job Pipeline directory and running `stat` returned exactly `No such file or directory`; a hidden-file search across `/Users/zayah/Documents/Codex` found the sole matching file at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`, where `stat` reported 796 bytes and `jq` verified an object root without exposing its values
-**where:** fourteen failed reads of thirteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across eight local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
+**verified:** 2026-10-12, macOS accepted `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/Spreadsheets/SKILL.md`, but `realpath` returned the on-disk lowercase path ending in `skills/spreadsheets/SKILL.md`; resolving `workflows/edit_workflows.md` from the package parent returned exactly `No such file or directory`, while the canonical skill-relative path existed at 2,481 bytes
+**where:** fifteen failed reads of thirteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across eight local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
 
 The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=14 failures from eight workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against their documented base instead of assuming the current directory. For the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path; for Spreadsheets, `workspace-dependencies-fallback spreadsheets` verifies the three required edit references and their nonempty bytes, while the stale counter execution recovery remains UNCONFIRMED.
+**Why:** still held back at n=15 failures from eight workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. For the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path; for Spreadsheets, `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` verifies the lowercase skill root and three required edit references, while the stale counter execution recovery remains UNCONFIRMED.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 
@@ -402,18 +403,29 @@ The older workbook's short tuples began after its visible A1:J52 range, while th
 **Why:** REJECT after four positional-read failures and two dimension failures from two workbook subjects; there are not five observations from five different subjects.
 **Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. Avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
 
-### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=6
+### `ReadOnlyCell` had no `style_id`; normal-mode `Cell.style_id` returned 20 at n=1
+
+**verified:** 2026-10-12, bundled Python with openpyxl 3.1.5 opened the authoritative tracker with `read_only=True`, and reading `Applications!A7.style_id` raised exactly `AttributeError: 'ReadOnlyCell' object has no attribute 'style_id'. Did you mean: '_style_id'?`; reopening the same workbook with `read_only=False` returned `Cell 20 True` for its type, `style_id`, and `has_style` without saving the workbook
+**where:** one style-inspection pair on `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`
+
+The paired reads establish the public-property difference for this workbook and openpyxl version; whether other read-only cell types expose a public style identifier is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one workbook and runtime subject; there are not five observations from five different subjects.
+**Fix:** when an exact public style ID is required, load the workbook with `read_only=False`, inspect `Cell.style_id`, and do not save. For streaming inspection, use the public `ReadOnlyCell` style components and `has_style` rather than depending on private `_style_id`.
+
+### `load_workspace_dependencies({})` returned `The app could not load this tool. Please try again.` at n=7
 
 **verified:** 2026-10-06 at about 8:25 am Pacific, `mcp__codex_app__load_workspace_dependencies({})` returned exactly `The app could not load this tool. Please try again.`, while the previously verified runtimes under `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/` remained usable for the work
 **verified:** 2026-10-06, two consecutive calls returned the same exact error and no dependency paths; a fourth verification call from the dotfiles task returned the same error, while cached `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` printed `Python 3.12.14`, imported `docx` 1.2.0, and the installed Documents skill `SKILL.md` existed at 40,679 bytes
 **verified:** 2026-10-07, following the Spreadsheets skill before read-only inspection of `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`, another loader call from the job-applications cwd returned the same exact error and no paths; `workspace-dependencies-fallback spreadsheets` then printed Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, and a 63,930-byte Spreadsheets `SKILL.md`
 **verified:** 2026-10-10 at about 1:00 pm Pacific, another loader call returned exactly `The app could not load this tool. Please try again.` and no paths; the shell did not expose `workspace-dependencies-fallback` on `PATH`, while `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, the 63,930-byte skill, and three references of 2,481, 25,830, and 10,103 bytes
-**where:** six Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
+**verified:** 2026-10-12, a loader call while preparing an Artifact Tool workbook edit returned the same exact error and no paths; `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` then verified Python 3.12.14, Node v24.19.0, openpyxl 3.1.5, the 63,930-byte skill, and the three required references, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` and its `@oai/artifact-tool` package directory both existed
+**where:** seven Codex desktop dependency-loader calls across job-applications, dotfiles, and spreadsheet-inspection task contexts on one machine
 
-All six calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
+All seven calls returned no dependency payload, but the cached runtime and skill checks show that these loader failures did not establish missing installed dependencies; the loader cause is UNCONFIRMED.
 
-**Why:** still held back at n=6 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
-**Fix:** retry the loader once; if it still fails and the installed fallback command is unavailable, run `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. The `spreadsheets` and `documents` checks are verified; other skill names remain UNCONFIRMED until exercised.
+**Why:** still held back at n=7 from one app-tool and machine subject; there are not five independent subjects or an untouched control, so the failures do not establish a cause.
+**Fix:** retry the loader once; if it still fails and the installed fallback command is unavailable, run `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback <skill-name>` and use only the nonempty paths and versions it verifies. For Spreadsheets, the cached Node runtime and `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules` root are verified; other skill names remain UNCONFIRMED until exercised.
 
 ### `zsh:1: command not found: workspace-dependencies-fallback` at n=1
 

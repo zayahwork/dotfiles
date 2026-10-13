@@ -389,19 +389,20 @@ The combined invocation did not print any branch hash, while one invocation per 
 **Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
 **Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
-### openpyxl read-only trackers yielded 148 five-cell rows and 1 empty tuple; positional reads failed 4 times across 2 workbooks
+### openpyxl read-only trackers returned `None` dimensions or short tuples; 7 reads failed across 2 workbooks
 
 **verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
 **verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
 **verified:** 2026-10-05, a separate bundled-Python status comprehension also indexed `r[5]` without checking row length and failed with exactly `IndexError: list index out of range` on the workbook's shorter trailing note rows
 **verified:** 2026-10-05 at about 9:12 pm Pacific, iterating `ws.iter_rows(min_row=8, values_only=True)` and unpacking application columns raised exactly `ValueError: not enough values to unpack (expected at least 6, got 5)` on a short row; 2026-10-05 at about 9:20 pm Pacific, another read-only load returned `max_row` and `max_column` as `None`, so `min(ws.max_row, 5)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`
 **verified:** 2026-10-11, bundled Python opened the 19,251-byte authoritative tracker read-only and an unguarded Company-header generator indexed `r[0]` on an empty tuple, raised exactly `IndexError: list index out of range`, and exited 1; the guarded retry inspected 200 rows, counted 1 empty tuple and 123 tuples shorter than six cells, found the Company header at row 7, and exited 0
+**verified:** 2026-10-13, bundled Python with openpyxl 3.1.5 opened the authoritative tracker with `read_only=True, data_only=False` and printed `ReadOnlyWorksheet None None`; `range(1, ws.max_column + 1)` then raised exactly `TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'`, while reopening with `read_only=False, data_only=False` without saving printed `Worksheet 200 10` and returned all ten row-7 headers from `Company` through `Estimated monthly take-home`
 **where:** two `Applications` worksheets and openpyxl read-only workbook subjects at `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`
 
-The older workbook's short tuples began after its visible A1:J52 range, while the authoritative tracker also yielded an empty tuple before its row 7 Company header; why openpyxl emitted either shape is UNCONFIRMED.
+The older workbook's short tuples began after its visible A1:J52 range, while the authoritative tracker yielded both an empty tuple and `None` dimensions in read-only mode; why openpyxl emitted either shape is UNCONFIRMED.
 
-**Why:** REJECT after four positional-read failures and two dimension failures from two workbook subjects; there are not five observations from five different subjects.
-**Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. Avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
+**Why:** REJECT after four positional-read failures and three dimension failures from two workbook subjects; there are not five observations from five different subjects.
+**Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. For dimension-sensitive inspection, load with `read_only=False, data_only=False`, do not save, and verify the worksheet name, `max_row`, `max_column`, and expected headers before reading ranges; this returned `Applications`, 200 rows, 10 columns, and all ten headers on 2026-10-13.
 
 ### `ReadOnlyCell` had no `style_id`; normal-mode `Cell.style_id` returned 20 at n=1
 
@@ -672,18 +673,19 @@ The eighteen `pdftotext` failures establish that the default shell PATH did not 
 **Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
 **Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
 
-### Git commands exited 128 with `fatal: not a git repository` across 5 sessions and 2 job workspaces
+### Git commands exited 128 with `fatal: not a git repository` across 6 sessions and 2 job workspaces
 
 **verified:** 2026-10-05, from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, both `git status` and `git log -- outputs/job-application-tracker.xlsx` exited 128 and printed exactly `fatal: not a git repository (or any of the parent directories): .git`
 **verified:** 2026-10-06, a library verification command accidentally ran `git fetch origin` and `git show origin/development:library/testing.md` from the same job-applications directory, and both returned the same exact `fatal: not a git repository` error
 **verified:** 2026-10-06 at 5:25 am Pacific, `git status --short` from the same directory returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current comparison repeated that error while `git -C /Users/zayah/github/dotfiles rev-parse --show-toplevel` printed `/Users/zayah/github/dotfiles`
 **verified:** 2026-10-06, another compound library lookup ran `git fetch origin`, `git show origin/development:library/testing.md`, and revision lookups from the job-applications directory; each returned `fatal: not a git repository`, while rerunning from `/Users/zayah/github/dotfiles` fetched and printed the expected library subject and branch hashes
 **verified:** 2026-10-07, `git rev-parse --show-toplevel` from authoritative pipeline directory `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline` returned exactly `fatal: not a git repository`; `git-root-preflight` rejected that path with the same Git error, accepted `/Users/zayah/github/dotfiles`, and printed `git-root-preflight: 2 fixtures passed`
-**where:** five command sessions across two non-Git job workspaces
+**verified:** 2026-10-13, `git rev-parse --show-toplevel`, `git status --short`, `git branch --show-current`, and `git remote -v` from the same authoritative pipeline directory each returned exactly `fatal: not a git repository (or any of the parent directories): .git`; a current paired check reproduced that output and `git-root-preflight` printed `not a Git worktree` for the exact path
+**where:** six command sessions across two non-Git job workspaces
 
 Git history cannot recover or promote workspace changes from either directory because neither path is inside a Git repository.
 
-**Why:** still held back at n=5 command sessions from two workspace subjects; there are not five observations from five different subjects.
+**Why:** still held back at n=6 command sessions from two workspace subjects; there are not five observations from five different subjects.
 **Fix:** run `git-root-preflight <candidate>` before applying commit or promotion rules, then run repository commands through `git -C` against the returned root. For tracker recovery, inspect the current workbook, source log, generated artifacts, and explicit backups instead of relying on Git history; do not initialize a repository as a recovery shortcut.
 
 ### Git canonicalized one macOS temporary repository from `/var/...` to `/private/var/...`

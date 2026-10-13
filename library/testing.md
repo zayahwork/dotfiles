@@ -389,19 +389,20 @@ The combined invocation did not print any branch hash, while one invocation per 
 **Why:** REJECT at n=1 from one Git command and repository subject; there are not five observations from five different subjects.
 **Fix:** call `git rev-parse --short` once per revision, and verify that every call prints one nonempty hash.
 
-### openpyxl read-only trackers yielded 148 five-cell rows and 1 empty tuple; positional reads failed 4 times across 2 workbooks
+### openpyxl read-only trackers returned `None` dimensions or short tuples; 7 reads failed across 2 workbooks
 
 **verified:** 2026-10-05, `openpyxl.load_workbook(..., read_only=True)` opened the then 12,974-byte `outputs/job-application-tracker.xlsx` workbook and returned `Worksheet.max_row` and `max_column` as `None`, so `min(sheet.max_row, 8)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`; a later pipeline run failed at `pipeline.py:292` with exactly `IndexError: tuple index out of range` on `row[5]`
 **verified:** 2026-10-05, re-reading the current 14,303-byte workbook yielded 194 tuples from row 7, including 148 tuples of length 5 beginning at worksheet row 53; `pipeline.py` now skips `len(row) < 6`, and bundled Python completed `Ran 21 tests in 1.168s` with `OK`
 **verified:** 2026-10-05, a separate bundled-Python status comprehension also indexed `r[5]` without checking row length and failed with exactly `IndexError: list index out of range` on the workbook's shorter trailing note rows
 **verified:** 2026-10-05 at about 9:12 pm Pacific, iterating `ws.iter_rows(min_row=8, values_only=True)` and unpacking application columns raised exactly `ValueError: not enough values to unpack (expected at least 6, got 5)` on a short row; 2026-10-05 at about 9:20 pm Pacific, another read-only load returned `max_row` and `max_column` as `None`, so `min(ws.max_row, 5)` raised exactly `TypeError: '<' not supported between instances of 'int' and 'NoneType'`
 **verified:** 2026-10-11, bundled Python opened the 19,251-byte authoritative tracker read-only and an unguarded Company-header generator indexed `r[0]` on an empty tuple, raised exactly `IndexError: list index out of range`, and exited 1; the guarded retry inspected 200 rows, counted 1 empty tuple and 123 tuples shorter than six cells, found the Company header at row 7, and exited 0
+**verified:** 2026-10-13, bundled Python with openpyxl 3.1.5 opened the authoritative tracker with `read_only=True, data_only=False` and printed `ReadOnlyWorksheet None None`; `range(1, ws.max_column + 1)` then raised exactly `TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'`, while reopening with `read_only=False, data_only=False` without saving printed `Worksheet 200 10` and returned all ten row-7 headers from `Company` through `Estimated monthly take-home`
 **where:** two `Applications` worksheets and openpyxl read-only workbook subjects at `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/job-application-tracker.xlsx` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/01 💼 Jobs Applied For/📊 Application Tracker/job-application-tracker.xlsx`
 
-The older workbook's short tuples began after its visible A1:J52 range, while the authoritative tracker also yielded an empty tuple before its row 7 Company header; why openpyxl emitted either shape is UNCONFIRMED.
+The older workbook's short tuples began after its visible A1:J52 range, while the authoritative tracker yielded both an empty tuple and `None` dimensions in read-only mode; why openpyxl emitted either shape is UNCONFIRMED.
 
-**Why:** REJECT after four positional-read failures and two dimension failures from two workbook subjects; there are not five observations from five different subjects.
-**Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. Avoid `max_row` or `max_column` arithmetic in read-only mode unless the values are non-`None`; load normally for dimension-sensitive inspection or verify `calculate_dimension(force=True)` before relying on it.
+**Why:** REJECT after four positional-read failures and three dimension failures from two workbook subjects; there are not five observations from five different subjects.
+**Fix:** use `len(r) > 0` before `r[0]` in the Company-header scan, guard `len(r) > index` before every optional positional read, and pass `max_col=10` when ten application columns are required. For dimension-sensitive inspection, load with `read_only=False, data_only=False`, do not save, and verify the worksheet name, `max_row`, `max_column`, and expected headers before reading ranges; this returned `Applications`, 200 rows, 10 columns, and all ten headers on 2026-10-13.
 
 ### `ReadOnlyCell` had no `style_id`; normal-mode `Cell.style_id` returned 20 at n=1
 

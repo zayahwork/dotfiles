@@ -151,17 +151,18 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
-### 3 hidden Gmail and FedEx `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
+### 4 hidden Gmail, FedEx, and GovernmentJobs `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
 
 **verified:** 2026-10-06, `cua.createBrowserTab("2", <Gmail search URL>, {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`; the Gmail tab did not appear in the subsequent tab list, the selected in-app browser had no Gmail tab, and no Chrome or Edge browser was available
 **verified:** 2026-10-07, `cua.createBrowserTab("iab", <Gmail all-categories application search URL>, {visible:false})` failed after 15.2 seconds with exactly `Timed out waiting for the Browser webview to attach for this browser-use page`
 **verified:** 2026-10-07, `cua.createBrowserTab("iab", "https://fedex.paradox.ai/iKU18pZn", {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`, blocking read-only reinspection of the FedEx application questions while the previously open Gmail reminder remained readable
-**where:** three hidden tab-creation attempts across Gmail and FedEx destinations through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-14, `cua.createBrowserTab("iab", "https://www.governmentjobs.com/jobs/5373106-0/recreation-leader-1", {visible:false})` returned the same exact timeout during a read-only City of SeaTac application-gate check; the following `cua.getState()` reported `Native apps: Error: The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.`, listed no browser, and no GovernmentJobs tab was created; a fresh reproduction returned `Browser is not available: iab`, and no application was submitted
+**where:** four hidden tab-creation attempts across Gmail, FedEx, and GovernmentJobs destinations through unified computer use from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The failed attachments prove that none of the three attempts produced fresh destination state; why the webview did not attach is UNCONFIRMED.
+The failed attachments prove that none of the four attempts produced fresh destination state. The locked Mac and absent browser were verified blocking conditions on October 14, but whether either condition alone caused the earlier timeout is UNCONFIRMED.
 
-**Why:** still held back at n=3 across two destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
-**Fix:** call `cua.getState()` to verify a current browser surface before creating a tab, then treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
+**Why:** still held back at n=4 across three destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
+**Fix:** call `cua.getState()` before creating a tab. If it reports a locked Mac or no browser, stop and ask the user to unlock the Mac rather than retrying or bypassing the gate; otherwise treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
 ### 13 guessed, stale, wrong-cwd, or wrong-base local paths failed across 15 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 

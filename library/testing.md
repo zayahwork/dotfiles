@@ -637,6 +637,17 @@ Neither failed command started Python, the pipeline, or unittest; the nonzero sh
 **Why:** REJECT at n=2 commands from one guessed runtime-layout subject; there are not five observations from five different subjects.
 **Fix:** use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, then run `pipeline.py run` and the repository's actual tests and require their real nonempty output.
 
+### Cached workspace Python `/Users/zayah/.cache/codex-workspace-deps/82d293e4/python/bin/python3` returned `zsh:1: no such file or directory` at n=1
+
+**verified:** 2026-10-14, `/Users/zayah/.cache/codex-workspace-deps/82d293e4/python/bin/python3 --version` exited 127 with exactly `zsh:1: no such file or directory: /Users/zayah/.cache/codex-workspace-deps/82d293e4/python/bin/python3`; `/opt/homebrew/bin/python3` remained on `PATH` as Python 3.14.7, but importing `openpyxl` returned `ModuleNotFoundError: No module named 'openpyxl'`
+**verified:** 2026-10-14, PATH Python's standard-library `zipfile` check of `outputs/job-application-tracker.xlsx` returned `{'is_zipfile': True, 'testzip': None, 'entries': 10}`; `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` resolved the current bundled Python to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`, printed Python 3.12.14, and imported openpyxl 3.1.5
+**where:** one expired or absent hash-addressed workspace dependency path during XLSX verification from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+
+The old absolute path is absent now; why it disappeared and how long hash-addressed workspace dependency paths remain valid are UNCONFIRMED. PATH Python verified the XLSX ZIP container in this run, but it could not perform openpyxl workbook inspection.
+
+**Why:** REJECT at n=1 from one cached-path and machine subject; there are not five observations from five different subjects or an untouched control.
+**Fix:** resolve the runtime again for each dependency-backed task. If `load_workspace_dependencies` fails, run `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` and use the nonempty Python path it verifies; use PATH Python with `zipfile` only for container-integrity checks, not openpyxl inspection.
+
 ### Saved tabs 133, 114, 160, and 249 failed across 4 heartbeat subjects
 
 **verified:** 2026-10-04, calling `markHandoff` on a saved CUA tab from an earlier heartbeat returned exactly `Tab 133 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc` and stopped the loop while the JavaScript binding persisted; later that date, waiting on Gmail's Refresh button through saved binding `mailTab` returned exactly `Error: Tab 114 is not part of browser session 01a0ef86-6745-7363-848e-8d443ce640fc`

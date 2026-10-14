@@ -8,6 +8,7 @@ return, and where they quietly return nothing.
 | Subject | What it says |
 | --- | --- |
 | [`agent-reach doctor --json` exited 0 after 30.2 seconds with 0 output bytes](#agent-reach-doctor---json-exited-0-after-302-seconds-with-0-output-bytes) | A successful exit does not confirm backend status when the command returns no bytes. Verify non-empty output and report backend status as UNCONFIRMED when it is empty. |
+| [`agent-reach check-update` exited 0 after DNS failure; approved rerun verified v1.5.0 is current](#agent-reach-check-update-exited-0-after-dns-failure-approved-rerun-verified-v150-is-current) | Exit 0 and a current-version line do not prove the update check completed. Require an explicit latest-version or update-available result. |
 | [A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone](#a-youtube-channels-videos-enumerate-fine-from-streams-but-grep-for-videoid-because-videorenderer-is-gone) | 9 of 9 streams found on `@ZayBuilds-b6o`. The page now uses `lockupViewModel`, so a `videoRenderer` grep reports zero on a page that is full. |
 | [A watch page returns title, views, length, publish date and the full description](#a-watch-page-returns-title-views-length-publish-date-and-the-full-description) | `ytInitialPlayerResponse.videoDetails` plus `microformat`. 3,290 characters came back whole. |
 | [`WebFetch` on a youtube.com URL returns only the site footer](#webfetch-on-a-youtubecom-url-returns-only-the-site-footer) | The markdown conversion drops the JSON the page is built from. Use `curl`. |
@@ -50,6 +51,16 @@ This observation proves that `agent-reach doctor --json` can return no status pa
 
 **Why:** an exit code of 0 did not establish that any backend was checked because there was no output to inspect.
 **Fix:** verify that stdout is non-empty before using the result; when it is empty, report backend status as UNCONFIRMED.
+
+## `agent-reach check-update` exited 0 after DNS failure; approved rerun verified v1.5.0 is current
+
+**verified:** 2026-10-14, sandboxed `agent-reach check-update` printed `当前版本: v1.5.0` followed by `[!] 无法检查更新（DNS 解析失败，已重试 3 次）` and exited 0; the identical command with approved external network access printed `当前版本: v1.5.0` followed by `✅ 已是最新版本`
+**where:** Agent Reach v1.5.0 end-of-task update checks
+
+The first process completed successfully but did not verify update availability; the paired rerun changed only network authority and isolated this occurrence to the sandbox network boundary.
+
+**Why:** exit 0 and a current-version line were present in the failed check, so neither is sufficient proof that the remote update check completed.
+**Fix:** when the sandboxed command reports a DNS failure, rerun the identical read-only check with approved external network access and require an explicit latest-version or update-available result.
 
 ## A YouTube channel's videos enumerate fine from `/streams`, but grep for `videoId` because `videoRenderer` is gone
 

@@ -151,6 +151,16 @@ The read-only Jina-rendered content and real-shaped DOM harness are fallback evi
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** run the selector acceptance check in a browser-enabled session before claiming real-UI compatibility.
 
+### `failed to start Node runtime: No such file or directory (os error 2)` on 2 documented CUA first actions
+
+**verified:** 2026-10-05, the first documented `mcp__cua_repl.js` action `cua.getApp("Visual Studio Code")` failed with exactly `failed to start Node runtime: No such file or directory (os error 2)`; 2026-10-14, the first documented action `cua.createBrowserTab("iab", "https://servicetitan.wd1.myworkdayjobs.com/ServiceTitan/job/US-Remote/Sales-Development-Representative--Convex-_JR115010", { visible: true })` failed with the same exact error
+**where:** two unified-computer-use initialization subjects across app selection and in-app browser creation on two dates
+
+Both failures occurred before the requested app or browser surface could be inspected, but the missing Node runtime path and recovery route remain UNCONFIRMED.
+
+**Why:** REJECT at n=2 from two first-action subjects; there are not five observations from five different subjects or a successful runtime control.
+**Fix:** UNCONFIRMED for Browser automation; use public employer feeds and web reads only for fields they expose, and report UI-only fields as unavailable until a later CUA initialization succeeds.
+
 ### 4 hidden Gmail, FedEx, and GovernmentJobs `createBrowserTab` calls returned `Timed out waiting for the Browser webview to attach for this browser-use page`
 
 **verified:** 2026-10-06, `cua.createBrowserTab("2", <Gmail search URL>, {visible:false})` returned exactly `Timed out waiting for the Browser webview to attach for this browser-use page`; the Gmail tab did not appear in the subsequent tab list, the selected in-app browser had no Gmail tab, and no Chrome or Edge browser was available
@@ -670,7 +680,7 @@ The visible page and PDF core metadata disagreed; whether every reused DOCX reta
 **Why:** REJECT at n=1 from one reused document and PDF subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; set `document.core_properties.title` and the other relevant core properties before saving, re-render the PDF, and require `pdfinfo` to report the new title.
 
-### `pdftotext` was missing on 18 attempts across 5 dates; 3 other PDF text routes were unavailable in one environment
+### `pdftotext` was missing on 23 attempts across 6 dates; 3 other PDF text routes were unavailable in one environment
 
 **verified:** 2026-09-29, system `pdftotext` returned exactly `zsh: command not found: pdftotext`, system `python3` failed to import `pypdf` with `ModuleNotFoundError`, and direct `firecrawl` returned `command not found`; `npx firecrawl-cli parse` installed `firecrawl-cli@1.24.6` and produced 2,344 bytes of expected resume text; 2026-10-02, `from pypdf import PdfReader` returned exactly `ModuleNotFoundError: No module named 'pypdf'`, and `mdls -name kMDItemTextContent` returned null for the resume PDFs; 2026-10-03, six separate read-only resume extraction attempts, including `outputs/office-operations/Zayah Nelson - Office Operations resume.pdf` and a 3,565-byte IT Support resume whose `pdfinfo` showed one letter-size page, each returned exactly `zsh:1: command not found: pdftotext`, and a fresh `command -v pdftotext` exited 1; 2026-10-04, three earlier resume checks returned `command not found: pdftotext`, including Office Operations and Palm Springs Guest Service files, and a fresh `command -v pdftotext` exited 1; at 5:29 pm Pacific, another Office Operations check returned exactly `zsh:1: command not found: pdftotext`, `mdls -raw -name kMDItemTextContent` returned exactly `(null)`, and the adjacent `build_resume.py` supplied the usable source text
 **verified:** 2026-10-04, `/Users/zayah/Documents/Codex/2026-09-29/job-applications/outputs/office-operations/Zayah Nelson - Office Operations resume.pdf` existed at 65,337 bytes while its `pdftotext` inspection returned exactly `zsh:1: command not found: pdftotext`; this enriches an already counted Office Operations attempt and does not increase n
@@ -680,12 +690,13 @@ The visible page and PDF core metadata disagreed; whether every reused DOCX reta
 **verified:** 2026-10-05, two generated-resume verification attempts returned exactly `zsh:1: command not found: pdftotext`, while `pdfinfo` was available and confirmed both outputs were valid one-page tagged PDFs
 **verified:** 2026-10-05, another PDF text check in the job-applications environment returned exactly `zsh: command not found: pdftotext`; the bundled Python runtime with pypdf remained the available extraction route
 **verified:** 2026-10-06, `pdfinfo` was available for resume QA while `pdftotext` again returned `command not found: pdftotext`; the bundled Python runtime with pypdf remained the selected extraction route
-**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications`, PDF resume inspection in one macOS zsh environment
+**verified:** 2026-10-14, system `pdfinfo` worked while a five-file generated-resume verification loop under `/tmp` printed exactly `zsh:4: command not found: pdftotext` once per PDF; no bundled runtime or pypdf extraction fallback was run for this batch
+**where:** `/Users/zayah/Documents/Codex/2026-09-29/job-applications` and one `/tmp` generated-resume batch, PDF resume inspection in one macOS zsh environment
 
-The eighteen `pdftotext` failures establish that the default shell PATH did not provide the command in one environment but do not establish whether the binary is absent elsewhere on the machine; different PDF paths do not provide independent environment subjects.
+The twenty-three `pdftotext` failures establish that the default shell PATH did not provide the command in one environment but do not establish whether the binary is absent elsewhere on the machine; different PDF paths do not provide independent environment subjects.
 
-**Why:** still held back after eighteen `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects.
-**Fix:** read the artifact's source script when present, or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text.
+**Why:** still held back after twenty-three `pdftotext` attempts and three other unavailable routes in one environment; there are not five observations from five different environment subjects, and the durable fix for the October 14 batch is UNCONFIRMED.
+**Fix:** for previously verified files, read the artifact's source script when present or use `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` with pypdf and require non-empty expected text; for the October 14 batch, the PDF skill's bundled-tool or pypdf fallback remains UNCONFIRMED until run against all five files.
 
 ### Git commands exited 128 with `fatal: not a git repository` across 6 sessions and 2 job workspaces
 

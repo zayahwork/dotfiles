@@ -514,6 +514,16 @@ The reported one-row difference was real, but the paired A1 and zero-based reads
 **Why:** REJECT at n=1 from one workbook and artifact-tool runtime subject; there are not five observations from five different subjects.
 **Fix:** treat used-range array indices as relative to the used range's own start, not to worksheet A1. Use exact A1 ranges for worksheet-row checks, or carry the used-range start when translating array offsets, then verify the expected labels after reopening the workbook.
 
+### `Unexpected existing Applications value change at row 88 column 0` rejected one authorized append
+
+**verified:** 2026-10-16, the first tracker-builder verification failed with exactly `Unexpected existing Applications value change at row 88 column 0` after writing the authorized target row; the corrected loop contains `if (row === nextApplicationIndex) continue`, then separately asserts the Brooks value at that index, and the 23,881-byte exported workbook reopened with `Applications!A90:J90` containing the intended Brooks Running row and zero formula-error matches
+**where:** one artifact-tool tracker append and preservation check in `outputs/hourly-application-questions/tracker-edit/tracker_blocked_brooks_2026_10_16.mjs`
+
+The saved before state had ten nulls at used-range index 88 and the after state had the authorized record there, so the preservation failure came from treating the intended target mutation as an unexpected existing-value change.
+
+**Why:** REJECT at n=1 from one builder and workbook subject; there are not five observations from five different subjects.
+**Fix:** skip only `nextApplicationIndex` in the existing-value preservation loop, then verify that row separately by its expected key and inspect the reopened workbook range. Preserve and compare every other pre-existing row.
+
 ### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 7 observations from one workbook
 
 **verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row

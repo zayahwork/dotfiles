@@ -369,16 +369,17 @@ Both patches named the same path twice inside one patch envelope; the evidence d
 **Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
 **Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
-### `rm -f style commands are not permitted` rejected 2 narrow cleanups before execution
+### `rm -f style commands are not permitted` rejected 3 narrow cleanups before execution
 
 **verified:** 2026-10-06, a resume QA command containing `rm -rf job-pipeline/work/qa-home-depot-2026-10-06-0014` returned exactly `rm -f style commands are not permitted. Use a safer approach`, with no child-process output
 **verified:** 2026-10-16, an exec request containing `rm -rf /tmp/job-tracker-2026-10-16-edit-final` returned the same exact rejection before execution; using fresh directory `/tmp/job-tracker-2026-10-16-edit-final-2` instead produced a 23,247-byte workbook
-**where:** two exec command-gate decisions in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-16, a heartbeat command chained `rm -rf /tmp/brooks-resume-render-2026-10-16` with artifact marking and rendering, and the command gate rejected it at zero elapsed time with exactly `rejected: rm -f style commands are not permitted. Use a safer approach`; `shell-preflight` rejected the same command class with status 1 and accepted a `mktemp -d` replacement with status 0
+**where:** three exec command-gate decisions in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The gate rejected both full commands before their intended work ran, even though each removal target was one named task-local directory.
+The gate rejected all three full commands before their intended work ran, even though each removal target was one named task-local directory; the installed preflight now covers this recurring class.
 
-**Why:** REJECT at n=2 from one command-gate subject; there are not five observations from five different subjects.
-**Fix:** create a fresh unique output directory or use `mktemp -d`, leave the old directory in place, and run against the new path without destructive cleanup. The second observation verifies this recovery with a nonempty output file.
+**Why:** REJECT at n=3 from one command-gate subject; there are not five observations from five different subjects.
+**Fix:** run `shell-preflight` before execution, create a fresh directory with `mktemp -d`, and invoke artifact marking and rendering as separate commands without destructive cleanup. The preflight's 33 fixtures include blocked `rm -rf` and allowed `mktemp -d` cases.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
 
@@ -482,15 +483,26 @@ The paired run verifies the recovery for this captured JSON string; whether othe
 **Why:** REJECT at n=1 from one parser and source subject; there are not five observations from five different subjects.
 **Fix:** apply `strict=False` only to the captured embedded JSON string, then unescape and parse its HTML, and require every requested description to be nonempty. The corrected run returned 30 of 30 descriptions and 256,105 bytes.
 
-### Bundled Python 3.12.14 lacked `bs4`; stdlib `HTMLParser` produced 30/30 descriptions
+### Bundled Python 3.12.14 and system Python 3.14.7 lacked `bs4` across 2 HTML parsers
 
 **verified:** 2026-10-16, bundled Python 3.12.14 importing `bs4` raised exactly `ModuleNotFoundError: No module named 'bs4'`; the GovernmentJobs parser instead imported `html.parser.HTMLParser`, and its output contained 30 of 30 nonempty descriptions totaling 256,105 bytes
-**where:** `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` and one GovernmentJobs detail-parser run
+**verified:** 2026-10-16, `/opt/homebrew/bin/python3` 3.14.7 importing `bs4` returned exactly `ModuleNotFoundError: No module named 'bs4'` while parsing downloaded Lever application-form HTML; the same interpreter imported `html.parser.HTMLParser`, fed a form fragment, and printed `HTMLParser ok`
+**where:** bundled Python for one GovernmentJobs parser and system Python for one Lever form parser
 
-This verifies that Beautiful Soup was unavailable in this runtime and that the standard-library parser was sufficient for this text-extraction task; it does not compare parser behavior on other HTML subjects.
+Beautiful Soup was unavailable in both tested runtimes, while the standard-library parser was sufficient for the GovernmentJobs extraction and loaded successfully for the Lever parser; exact Lever field extraction with it is UNCONFIRMED.
+
+**Why:** REJECT at n=2 across two runtime and source subjects; there are not five observations from five different subjects.
+**Fix:** use `html.parser.HTMLParser` for simple text or form parsing rather than assuming Beautiful Soup or installing it without approval, then verify expected fields, record counts, and nonempty output. The bundled runtime is not a BeautifulSoup fallback because its `bs4` import also fails.
+
+### Bundled lxml `.cssselect()` raised `cssselect does not seem to be installed`; XPath returned one form
+
+**verified:** 2026-10-16, bundled Python 3.12.14 imported lxml but `html.fromstring('<form><label>Name</label></form>').cssselect('form')` raised exactly `ImportError: cssselect does not seem to be installed`; the same interpreter and document using `.xpath('//form')` exited 0 and printed `1 form`
+**where:** one Lever form-parser dependency probe in `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`
+
+The paired probe establishes that lxml itself was installed and XPath worked while the optional `cssselect` package was absent in this runtime; it does not establish selector behavior in other Python environments.
 
 **Why:** REJECT at n=1 from one runtime and parser subject; there are not five observations from five different subjects.
-**Fix:** when the task only needs visible text, use `html.parser.HTMLParser` rather than installing a dependency without approval, then verify the expected record count and nonempty output bytes.
+**Fix:** use lxml XPath expressions such as `.xpath('//form')` instead of `.cssselect()` in this runtime, and verify the expected node count before extracting fields.
 
 ### `getUsedRange().values[20]` was worksheet row 22 because the used range began at A2; A1 addressing was correct at n=1
 

@@ -369,15 +369,16 @@ Both patches named the same path twice inside one patch envelope; the evidence d
 **Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
 **Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
-### `rm -f style commands are not permitted` rejected one narrow QA cleanup before execution
+### `rm -f style commands are not permitted` rejected 2 narrow cleanups before execution
 
 **verified:** 2026-10-06, a resume QA command containing `rm -rf job-pipeline/work/qa-home-depot-2026-10-06-0014` returned exactly `rm -f style commands are not permitted. Use a safer approach`, with no child-process output
-**where:** one exec command-gate decision in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-16, an exec request containing `rm -rf /tmp/job-tracker-2026-10-16-edit-final` returned the same exact rejection before execution; using fresh directory `/tmp/job-tracker-2026-10-16-edit-final-2` instead produced a 23,247-byte workbook
+**where:** two exec command-gate decisions in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The gate rejected the full command before the intended QA work ran, even though the removal target was one named work directory.
+The gate rejected both full commands before their intended work ran, even though each removal target was one named task-local directory.
 
-**Why:** REJECT at n=1 from one command and gate subject; there are not five observations from five different subjects.
-**Fix:** create a fresh unique output directory or use `mktemp -d`, leave the old directory in place, and run QA against the new path without destructive cleanup.
+**Why:** REJECT at n=2 from one command-gate subject; there are not five observations from five different subjects.
+**Fix:** create a fresh unique output directory or use `mktemp -d`, leave the old directory in place, and run against the new path without destructive cleanup. The second observation verifies this recovery with a nonempty output file.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
 
@@ -470,6 +471,36 @@ The fallback directory was available but did not contain these two Poppler progr
 
 **Why:** REJECT at n=1 from one bundle and machine subject; there are not five observations from five different subjects.
 **Fix:** resolve `pdfinfo` and `pdftoppm` with `command -v` before calling them, then run the returned paths and verify their real version or output.
+
+### `json.loads` rejected GovernmentJobs text at `line 1 column 513 (char 512)`; `strict=False` produced 30/30 descriptions
+
+**verified:** 2026-10-16, `/tmp/govjobs_details_2026_10_16.py` first failed with exactly `Invalid control character at: line 1 column 513 (char 512)` while decoding an embedded GovernmentJobs description; changing that capture to `json.loads(..., strict=False)` completed 30 of 30 descriptions with 256,105 total description bytes
+**where:** one GovernmentJobs embedded-description parser and 30 detail pages
+
+The paired run verifies the recovery for this captured JSON string; whether other GovernmentJobs fields contain the same control character is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one parser and source subject; there are not five observations from five different subjects.
+**Fix:** apply `strict=False` only to the captured embedded JSON string, then unescape and parse its HTML, and require every requested description to be nonempty. The corrected run returned 30 of 30 descriptions and 256,105 bytes.
+
+### Bundled Python 3.12.14 lacked `bs4`; stdlib `HTMLParser` produced 30/30 descriptions
+
+**verified:** 2026-10-16, bundled Python 3.12.14 importing `bs4` raised exactly `ModuleNotFoundError: No module named 'bs4'`; the GovernmentJobs parser instead imported `html.parser.HTMLParser`, and its output contained 30 of 30 nonempty descriptions totaling 256,105 bytes
+**where:** `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` and one GovernmentJobs detail-parser run
+
+This verifies that Beautiful Soup was unavailable in this runtime and that the standard-library parser was sufficient for this text-extraction task; it does not compare parser behavior on other HTML subjects.
+
+**Why:** REJECT at n=1 from one runtime and parser subject; there are not five observations from five different subjects.
+**Fix:** when the task only needs visible text, use `html.parser.HTMLParser` rather than installing a dependency without approval, then verify the expected record count and nonempty output bytes.
+
+### `getUsedRange().values[20]` was worksheet row 22 because the used range began at A2; A1 addressing was correct at n=1
+
+**verified:** 2026-10-16, artifact-tool 2.8.94 imported a 23,247-byte tracker and returned `getUsedRange().values[0]` as `Job application tracker`, the value at `A2`; array index 20 and `getRange('A22:B22')` both returned `Adaptive Biotechnologies` and `IT Support Technician I`, while `getRange('A21:B21')` and zero-based `getRangeByIndexes(20,0,1,2)` both returned `Coperniq` and `Founding BDR`
+**where:** one imported `job-application-tracker.xlsx` read through artifact-tool 2.8.94 in workspace bundle 26.1013.11914
+
+The reported one-row difference was real, but the paired A1 and zero-based reads refute an A1 parser bug: `getUsedRange().values` was indexed relative to a used range whose first nonempty row was worksheet row 2.
+
+**Why:** REJECT at n=1 from one workbook and artifact-tool runtime subject; there are not five observations from five different subjects.
+**Fix:** treat used-range array indices as relative to the used range's own start, not to worksheet A1. Use exact A1 ranges for worksheet-row checks, or carry the used-range start when translating array offsets, then verify the expected labels after reopening the workbook.
 
 ### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 7 observations from one workbook
 

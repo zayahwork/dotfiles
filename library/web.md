@@ -27,6 +27,7 @@ return, and where they quietly return nothing.
 | [`opencli reddit search` blocked for 15 to 35 seconds on 7 queries with no connected extension](#opencli-reddit-search-blocked-for-15-to-35-seconds-on-7-queries-with-no-connected-extension) | Doctor showed a null active backend and no connected extension. A launch guard is required before another probe. |
 | [Jina Reader returned PCC security-verification pages at n=2](#jina-reader-returned-pcc-security-verification-pages-at-n2) | Both reads exposed anti-bot interstitials instead of listings. Stop without bypassing them and use indexed official content or normal visible ATS navigation. |
 | [Jina Reader returned Alaska status 42206 and a 3,707-byte Target 404 across 2 job-search routes](#jina-reader-returned-alaska-status-42206-and-a-3707-byte-target-404-across-2-job-search-routes) | These exact search routes did not expose listings. Treat them as failed source discovery, not evidence that jobs are absent. |
+| [Jina Reader returned GovernmentJobs HTTP 403 `AbuseAlleviationError`; direct HTML yielded 207 listings](#jina-reader-returned-governmentjobs-http-403-abusealleviationerror-direct-html-yielded-207-listings) | One reader route was blocked, while direct public HTML remained readable. Verify bytes and distinct listing IDs before using the fallback. |
 | [Sprouts store-operations reader returned HTTP 403 Forbidden at n=1](#sprouts-store-operations-reader-returned-http-403-forbidden-at-n1) | The official careers page linked the target, but this reader route could not inspect its listings. Keep specific roles UNCONFIRMED until another official surface or visible browser verifies them. |
 | [Web open returned `Internal Error` on 2 Kroger job pages; Jina returned 11,801 and 5,476 bytes](#web-open-returned-internal-error-on-2-kroger-job-pages-jina-returned-11801-and-5476-bytes) | Jina exposed active job 225488 and the closed status for 203050. Verify nonempty output and the current status text. |
 | [Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1](#pilot-careers-iab-navigation-failed-with-neterr_cert_common_name_invalid-at-n1) | No page content loaded. Do not bypass the safety interstitial; find a certificate-valid official route. |
@@ -400,6 +401,16 @@ The two exact search routes were unusable for source discovery; neither response
 
 **Why:** REJECT at n=2 across two employer-route subjects; there are not five observations from five different subjects, although the two GovernmentJobs controls prove Jina returned substantial content in the same pass.
 **Fix:** treat these as failed source-discovery routes, not application blockers or empty job boards. Use another official employer search route, the linked ATS, or normal visible browser navigation, and require nonempty listing content before reporting availability.
+
+### Jina Reader returned GovernmentJobs HTTP 403 `AbuseAlleviationError`; direct HTML yielded 207 listings
+
+**verified:** 2026-10-16, Jina Reader for a Seattle GovernmentJobs search returned HTTP 403 with `AbuseAlleviationError` and said the domain was blocked until `Fri Oct 16 2026 23:25:02 GMT`; a direct request with a Mozilla-compatible user agent returned 445,370 bytes for page 1, and pages 1 through 21 produced 207 distinct new listing IDs
+**where:** one `governmentjobs.com` Seattle search route through Jina Reader and direct public HTML
+
+The paired results establish a blocked Jina route and a readable direct route for this search; the reason GovernmentJobs blocked the Jina egress beyond the reported abuse-alleviation condition is UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one site and reader subject; there are not five observations from five different subjects.
+**Fix:** fetch the public search HTML directly with a normal user agent, require substantial nonempty bytes, and deduplicate stable listing IDs across pages. The verified fallback checked 21 pages and found 207 distinct new IDs.
 
 ### Sprouts store-operations reader returned HTTP 403 Forbidden at n=1
 

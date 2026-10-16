@@ -174,7 +174,7 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **Why:** still held back at n=4 across three destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
 **Fix:** call `cua.getState()` before creating a tab. If it reports a locked Mac or no browser, stop and ask the user to unlock the Mac rather than retrying or bypassing the gate; otherwise treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
-### 13 guessed, stale, wrong-cwd, or wrong-base local paths failed across 15 invocations; current paths found source, tracker, facts, test, counter, and skill targets
+### 14 guessed, stale, wrong-cwd, or wrong-base local paths failed across 16 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -186,12 +186,13 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **verified:** 2026-10-07, `wc` and `sed` reads of `workflows/edit_workflows.md`, `artifact_tool_docs/API_QUICK_START.md`, and `style_guidelines.md` under the Spreadsheets package parent `.../skills/` each returned `No such file or directory`; the references are relative to the directory containing `SKILL.md`, `.../skills/spreadsheets/`, where the three files existed at 2,481, 25,830, and 10,103 bytes, and `workspace-dependencies-fallback spreadsheets` verified all three
 **verified:** 2026-10-12, `candidate-profile.json` referenced `.private/job-application-facts.json`, but resolving that path from the Job Pipeline directory and running `stat` returned exactly `No such file or directory`; a hidden-file search across `/Users/zayah/Documents/Codex` found the sole matching file at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`, where `stat` reported 796 bytes and `jq` verified an object root without exposing its values
 **verified:** 2026-10-12, macOS accepted `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/Spreadsheets/SKILL.md`, but `realpath` returned the on-disk lowercase path ending in `skills/spreadsheets/SKILL.md`; resolving `workflows/edit_workflows.md` from the package parent returned exactly `No such file or directory`, while the canonical skill-relative path existed at 2,481 bytes
-**where:** fifteen failed reads of thirteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across eight local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
+**verified:** 2026-10-16, from the authoritative Job Pipeline directory, `jq` on job-applications-relative path `outputs/hourly-application-questions/tracker-edit/brooks-blocker-fixed2/after.json` returned exactly `Could not open file ...: No such file or directory` and exited 2; the absolute path under `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 0 and reported 199 application rows
+**where:** sixteen failed reads of fourteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across nine local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
 
 The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=15 failures from eight workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. For the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path; for Spreadsheets, `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` verifies the lowercase skill root and three required edit references, while the stale counter execution recovery remains UNCONFIRMED.
+**Why:** still held back at n=16 failures from nine workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. Use an absolute cross-workspace path or run from the workspace that owns the relative path; for the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path, and for Spreadsheets use `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` to verify the lowercase skill root and edit references.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 
@@ -640,6 +641,16 @@ The two files use different root shapes, so neither an object-key assumption nor
 
 **Why:** still held back at n=7 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
 **Fix:** inspect the root type and keys first; use `.checked_domains[-N:]` for the object-root source-log tail, inspect `.checked_domains[-1] | keys` before selecting entry fields, and use `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
+
+### jq object values without leading dots returned 7 `name/0 is not defined` errors at n=1
+
+**verified:** 2026-10-16, a jq object expression beginning `{inspected:listings_inspected_new_local, ...}` exited 3 with `listings_inspected_new_local/0 is not defined` plus six analogous `/0 is not defined` errors; adding leading dots to all seven values exited 0 and returned inspected 210, qualified 1, prepared 0, approved 0, submitted 0, blocked 2, and remaining 200
+**where:** one summary query against `state/local-run-latest.json` in the authoritative Job Pipeline
+
+Bare jq identifiers in value position were parsed as zero-arity filter or function names rather than input-object fields.
+
+**Why:** REJECT at n=1 from one query and JSON subject; there are not five observations from five different subjects.
+**Fix:** prefix every input field with `.`, for example `{inspected:.listings_inspected_new_local}`, and require the corrected query to return the expected non-null keys and numeric values.
 
 ### Direct `web__run` input returned `Script error: SyntaxError: Unexpected string`; object assignment succeeded at n=2
 

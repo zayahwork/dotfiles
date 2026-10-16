@@ -483,15 +483,26 @@ The paired run verifies the recovery for this captured JSON string; whether othe
 **Why:** REJECT at n=1 from one parser and source subject; there are not five observations from five different subjects.
 **Fix:** apply `strict=False` only to the captured embedded JSON string, then unescape and parse its HTML, and require every requested description to be nonempty. The corrected run returned 30 of 30 descriptions and 256,105 bytes.
 
-### Bundled Python 3.12.14 lacked `bs4`; stdlib `HTMLParser` produced 30/30 descriptions
+### Bundled Python 3.12.14 and system Python 3.14.7 lacked `bs4` across 2 HTML parsers
 
 **verified:** 2026-10-16, bundled Python 3.12.14 importing `bs4` raised exactly `ModuleNotFoundError: No module named 'bs4'`; the GovernmentJobs parser instead imported `html.parser.HTMLParser`, and its output contained 30 of 30 nonempty descriptions totaling 256,105 bytes
-**where:** `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` and one GovernmentJobs detail-parser run
+**verified:** 2026-10-16, `/opt/homebrew/bin/python3` 3.14.7 importing `bs4` returned exactly `ModuleNotFoundError: No module named 'bs4'` while parsing downloaded Lever application-form HTML; the same interpreter imported `html.parser.HTMLParser`, fed a form fragment, and printed `HTMLParser ok`
+**where:** bundled Python for one GovernmentJobs parser and system Python for one Lever form parser
 
-This verifies that Beautiful Soup was unavailable in this runtime and that the standard-library parser was sufficient for this text-extraction task; it does not compare parser behavior on other HTML subjects.
+Beautiful Soup was unavailable in both tested runtimes, while the standard-library parser was sufficient for the GovernmentJobs extraction and loaded successfully for the Lever parser; exact Lever field extraction with it is UNCONFIRMED.
+
+**Why:** REJECT at n=2 across two runtime and source subjects; there are not five observations from five different subjects.
+**Fix:** use `html.parser.HTMLParser` for simple text or form parsing rather than assuming Beautiful Soup or installing it without approval, then verify expected fields, record counts, and nonempty output. The bundled runtime is not a BeautifulSoup fallback because its `bs4` import also fails.
+
+### Bundled lxml `.cssselect()` raised `cssselect does not seem to be installed`; XPath returned one form
+
+**verified:** 2026-10-16, bundled Python 3.12.14 imported lxml but `html.fromstring('<form><label>Name</label></form>').cssselect('form')` raised exactly `ImportError: cssselect does not seem to be installed`; the same interpreter and document using `.xpath('//form')` exited 0 and printed `1 form`
+**where:** one Lever form-parser dependency probe in `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`
+
+The paired probe establishes that lxml itself was installed and XPath worked while the optional `cssselect` package was absent in this runtime; it does not establish selector behavior in other Python environments.
 
 **Why:** REJECT at n=1 from one runtime and parser subject; there are not five observations from five different subjects.
-**Fix:** when the task only needs visible text, use `html.parser.HTMLParser` rather than installing a dependency without approval, then verify the expected record count and nonempty output bytes.
+**Fix:** use lxml XPath expressions such as `.xpath('//form')` instead of `.cssselect()` in this runtime, and verify the expected node count before extracting fields.
 
 ### `getUsedRange().values[20]` was worksheet row 22 because the used range began at A2; A1 addressing was correct at n=1
 

@@ -369,16 +369,17 @@ Both patches named the same path twice inside one patch envelope; the evidence d
 **Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
 **Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
-### `rm -f style commands are not permitted` rejected 2 narrow cleanups before execution
+### `rm -f style commands are not permitted` rejected 3 narrow cleanups before execution
 
 **verified:** 2026-10-06, a resume QA command containing `rm -rf job-pipeline/work/qa-home-depot-2026-10-06-0014` returned exactly `rm -f style commands are not permitted. Use a safer approach`, with no child-process output
 **verified:** 2026-10-16, an exec request containing `rm -rf /tmp/job-tracker-2026-10-16-edit-final` returned the same exact rejection before execution; using fresh directory `/tmp/job-tracker-2026-10-16-edit-final-2` instead produced a 23,247-byte workbook
-**where:** two exec command-gate decisions in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-16, a heartbeat command chained `rm -rf /tmp/brooks-resume-render-2026-10-16` with artifact marking and rendering, and the command gate rejected it at zero elapsed time with exactly `rejected: rm -f style commands are not permitted. Use a safer approach`; `shell-preflight` rejected the same command class with status 1 and accepted a `mktemp -d` replacement with status 0
+**where:** three exec command-gate decisions in `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The gate rejected both full commands before their intended work ran, even though each removal target was one named task-local directory.
+The gate rejected all three full commands before their intended work ran, even though each removal target was one named task-local directory; the installed preflight now covers this recurring class.
 
-**Why:** REJECT at n=2 from one command-gate subject; there are not five observations from five different subjects.
-**Fix:** create a fresh unique output directory or use `mktemp -d`, leave the old directory in place, and run against the new path without destructive cleanup. The second observation verifies this recovery with a nonempty output file.
+**Why:** REJECT at n=3 from one command-gate subject; there are not five observations from five different subjects.
+**Fix:** run `shell-preflight` before execution, create a fresh directory with `mktemp -d`, and invoke artifact marking and rendering as separate commands without destructive cleanup. The preflight's 33 fixtures include blocked `rm -rf` and allowed `mktemp -d` cases.
 
 ### `git apply --cached --check` rejected 8 generated patches across 6 patch files before staging
 

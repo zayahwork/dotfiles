@@ -34,6 +34,17 @@ if [[ -z "$skill_path" || ! -s "$skill_path" ]]; then
   exit 1
 fi
 skill_dir="${skill_path%/SKILL.md}"
+marker_path=""
+
+case "$skill_name" in
+  documents | pdf | presentations | spreadsheets)
+    marker_path="$skill_dir/container_tools/mark_artifact_operation_started.mjs"
+    if [[ ! -s "$marker_path" ]]; then
+      echo "workspace-dependencies-fallback: missing artifact marker $marker_path" >&2
+      exit 1
+    fi
+    ;;
+esac
 
 python_version="$("$python_exec" --version 2>&1)"
 node_version="$("$node_exec" --version 2>&1)"
@@ -65,6 +76,10 @@ printf 'node_version=%s\n' "$node_version"
 printf 'skill=%s\n' "$skill_path"
 printf 'skill_dir=%s\n' "$skill_dir"
 printf 'skill_bytes=%s\n' "$(wc -c <"$skill_path" | tr -d ' ')"
+if [[ -n "$marker_path" ]]; then
+  printf 'artifact_marker=%s\n' "$marker_path"
+  printf 'artifact_marker_bytes=%s\n' "$(wc -c <"$marker_path" | tr -d ' ')"
+fi
 printf 'dependency=%s\n' "$dependency_check"
 printf 'dependency_version=%s\n' "$dependency_version"
 

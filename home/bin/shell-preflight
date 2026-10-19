@@ -184,8 +184,19 @@ def violations(command: str) -> list[str]:
         if os.path.basename(token.text) != "rg":
             continue
         next_index = index + 1
+        after_option_terminator = False
         while next_index < len(tokens) and tokens[next_index].text not in {";", "|", "&", "&&", "\n"}:
             argument = tokens[next_index]
+            if argument.text == "--":
+                after_option_terminator = True
+            elif after_option_terminator and (
+                argument.text in {"-g", "--glob"}
+                or argument.text.startswith("--glob=")
+            ):
+                errors.append(
+                    "place rg glob filters before the -- option terminator: "
+                    + repr(argument.text)
+                )
             exposed = argument.unquoted_globs.intersection({"?", "[", "*"})
             if exposed:
                 errors.append(
@@ -220,6 +231,7 @@ def self_test() -> int:
         "agent-reach get https://example.com --json",
         'git commit -m "Verified `legal-admin` source spec"',
         'rg -n "`docx`" library/testing.md',
+        "rg -n -- needle library -g '*.md'",
     ]
     allowed = [
         "gh api 'repos/a/b/commits?per_page=6'",
@@ -249,7 +261,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 36 fixtures passed")
+    print("shell-preflight: 37 fixtures passed")
     return 0
 
 

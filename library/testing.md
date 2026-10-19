@@ -564,17 +564,18 @@ The failures and later recoveries establish transient SSH and HTTPS walls in the
 **Why:** REJECT at n=2 sessions from one repository and authentication environment subject; there are not five observations from five different subjects.
 **Fix:** retry the same scoped SSH fetch or push after the credential path recovers, then require the exact fetched SHA or pushed remote ref range before promotion; both unchanged SSH recoveries are verified.
 
-### `mark_artifact_operation_started.mjs` rejected `docx,pdf`; the single-DOCX marker exited 0 and produced 37,821-byte DOCX plus 67,804-byte PDF
+### `mark_artifact_operation_started.mjs` rejected 3 argument sets; required flags are `--operation-kind`, `--expected-output-count`, and `--output-format`
 
 **verified:** 2026-10-05, running `mark_artifact_operation_started.mjs` with no arguments exited 1 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
 **verified:** 2026-10-05, `mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 2 --output-format docx,pdf` failed and printed only the same usage text; the combined comma-separated output-format token was not accepted
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /Users/zayah/.codex/plugins/cache/openai-primary-runtime/documents/26.905.11957/container_tools/mark_artifact_operation_started.mjs --operation-kind create --expected-output-count 1 --output-format docx` exited 0 with no output, followed by successful creation of a 37,821-byte DOCX and a 67,804-byte rendered PDF
-**where:** spreadsheet and document artifact marker invocations from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-19, the current 714-byte Documents marker invoked with `--skill documents --operation create --expected-files 3 --output-format docx` exited 2 and printed exactly `usage: mark_artifact_operation_started.mjs --operation-kind <create|edit> --expected-output-count <1-100> --output-format <supported format>`
+**where:** three spreadsheet and document artifact marker argument sets from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The two failures show that the marker requires all named arguments and did not accept two formats encoded as one comma-separated value.
+The three failures show that the marker requires the exact flag names in its usage and does not accept two formats encoded as one comma-separated value.
 
-**Why:** REJECT at n=2 from two marker invocation subjects; there are not five observations from five different subjects.
-**Fix:** for a document authoring operation, mark the authored file with `--operation-kind create --expected-output-count 1 --output-format docx`, require exit 0, and treat the rendered PDF as renderer output; this sequence is verified by the two nonempty artifacts.
+**Why:** REJECT at n=3 from three marker invocation subjects; there are not five observations from five different subjects.
+**Fix:** resolve the current marker with `workspace-dependencies-fallback documents`, then invoke it with `--operation-kind create --expected-output-count 1 --output-format docx` and require exit 0; the corrected flags are verified by the earlier nonempty DOCX and rendered PDF.
 
 ### `@oai/artifact-tool` import failed in 6 bundled-Node setups; a local symlink produced 1,426 bytes
 
@@ -676,19 +677,20 @@ Both direct JavaScript inputs failed before the web request could return results
 **Why:** REJECT at n=2 from two exec-input subjects; there are not five observations from five different subjects.
 **Fix:** assign the web request to a JavaScript object before calling `await tools.web__run(args)`, then require nonempty returned content before accepting the search.
 
-### Artifact marker paths were missing in 5 lookups across 3 skills; skill-cache paths existed
+### Artifact marker paths were missing in 6 lookups across 4 path forms and 3 skills; skill-cache paths existed
 
 **verified:** 2026-10-03, `ls -l container_tools/mark_artifact_operation_started.mjs` returned `No such file or directory`, while `rg --files /Users/zayah/.codex /Users/zayah/.cache/codex-runtimes | rg '/mark_artifact_operation_started\.mjs$'` found `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/pdf/26.905.11957/skills/pdf/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05, the Spreadsheets skill requested `node container_tools/mark_artifact_operation_started.mjs ...`, but `ls` on `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools` returned exactly `No such file or directory`; `rg --files` found the marker at `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` and the runtime-cache equivalent
 **verified:** 2026-10-05 at about 10:00 pm Pacific, the required runtime Node invocation of `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/container_tools/mark_artifact_operation_started.mjs` exited 1 with `MODULE_NOT_FOUND`; the deployed `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/spreadsheets/container_tools/mark_artifact_operation_started.mjs` existed at 743 bytes, and invoking it with the same runtime reached the script and printed its usage line
 **verified:** 2026-10-06, the same Spreadsheets plugin-root marker path under `spreadsheets/26.905.11957/container_tools/` again failed under Node v24.19.0 with `MODULE_NOT_FOUND`; the deployed skill-cache path remained the verified recovery
 **verified:** 2026-10-06, `node container_tools/mark_artifact_operation_started.mjs ...` failed from the job-applications workspace because it had no `container_tools/` directory; `rg --files` returned `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/documents/26.905.11957/skills/documents/container_tools/mark_artifact_operation_started.mjs` and the analogous PDF skill path
-**where:** five PDF, Spreadsheets, and Documents skill marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-19, bundled Node v24.19.0 running `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node_modules/@oai/artifact-tool/container_tools/mark_artifact_operation_started.mjs` exited 1 with `MODULE_NOT_FOUND`; `rg --files` found eight current marker scripts under the installed Documents, PDF, Presentations, and Spreadsheets skill packages and runtime plugin cache
+**where:** six PDF, Spreadsheets, and Documents marker lookups from `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
 
-The workspace-relative and spreadsheet plugin-root paths were absent, while skill-specific cache searches returned the marker files for three skills.
+The workspace-relative, plugin-root, and shared dependency-package paths were absent, while skill-specific cache searches returned current marker files.
 
-**Why:** still held back at n=5 lookups across three skill-path subjects; there are not five observations from five different subjects.
-**Fix:** resolve the active skill's marker with `rg --files`, then invoke its absolute skill-package path with the bundled Node runtime. The Spreadsheets recovery is verified; the new Documents and PDF absolute invocations remain UNCONFIRMED until their command output is captured. The third recurrence requires an automated preflight that rejects an absent workspace or plugin-root guess, which remains UNCONFIRMED until built and exercised.
+**Why:** still held back at n=6 lookups across four path-form subjects because no untouched control was measured; the lookup count alone does not pass the causal bar.
+**Fix:** `workspace-dependencies-fallback <documents|pdf|presentations|spreadsheets>` now verifies and prints the nonempty current `artifact_marker` under the selected skill package before authoring; use that exact path with the bundled Node runtime instead of a workspace, plugin-root, or shared dependency-package guess.
 
 ### `zsh:1: command not found: python` at n=3
 

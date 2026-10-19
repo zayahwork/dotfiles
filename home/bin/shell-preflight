@@ -8,6 +8,9 @@ import sys
 from dataclasses import dataclass
 
 
+BUNDLED_WORKSPACE_PYTHON = "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+
+
 @dataclass
 class Token:
     text: str
@@ -85,7 +88,7 @@ def violations(command: str) -> list[str]:
             )
 
     command_position = True
-    for token in tokens:
+    for position, token in enumerate(tokens):
         if token.text in {";", "|", "&", "&&", "\n"}:
             command_position = True
             continue
@@ -98,6 +101,22 @@ def violations(command: str) -> list[str]:
             errors.append(
                 "python is unavailable; use python3 or the verified bundled Python path"
             )
+        if command_name == "python3" and token.text != BUNDLED_WORKSPACE_PYTHON:
+            argument_index = position + 1
+            while argument_index < len(tokens) and tokens[argument_index].text not in {
+                ";",
+                "|",
+                "&",
+                "&&",
+                "\n",
+            }:
+                if os.path.basename(tokens[argument_index].text) == "pipeline.py":
+                    errors.append(
+                        "unbundled python3 lacks Job Pipeline dependencies; use "
+                        + BUNDLED_WORKSPACE_PYTHON
+                    )
+                    break
+                argument_index += 1
         if command_name == "rm":
             errors.append(
                 "rm commands are blocked; use a fresh output path or mktemp -d"
@@ -193,6 +212,8 @@ def self_test() -> int:
         "/bin/rm -f output.inspect.ndjson",
         "python -m unittest discover -s tests -v",
         "env python script.py",
+        "python3 pipeline.py --help",
+        "/opt/homebrew/bin/python3 job-pipeline/pipeline.py run",
         "agent-reach search jobs --json",
         "agent-reach search-web jobs --json",
         "agent-reach read https://example.com --json",
@@ -213,6 +234,7 @@ def self_test() -> int:
         "printf 'rm -rf example\\n'",
         "python3 -m unittest discover -s tests -v",
         "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -v",
+        "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py --help",
         "agent-reach doctor --json",
         "agent-reach version",
         "rg -n '`docx`' library/testing.md",
@@ -227,7 +249,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 33 fixtures passed")
+    print("shell-preflight: 36 fixtures passed")
     return 0
 
 

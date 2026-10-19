@@ -320,7 +320,7 @@ The failed import stopped the builder before output, while the paired check esta
 **Why:** REJECT at n=1 from one python-docx version and import subject; there are not five observations from five different subjects.
 **Fix:** import with `from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT`, then run the builder and require a nonempty document output; the isolated import is verified, while the builder rerun remains UNCONFIRMED.
 
-### System Python 3.14 lacked `docx` on 13 pipeline or test invocations across 2 workspaces; bundled Python ran help and tests
+### System Python 3.14 lacked `docx` on 15 pipeline or test invocations across 2 workspaces; shell-preflight blocks unbundled `pipeline.py`
 
 **verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
 **verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
@@ -332,12 +332,13 @@ The failed import stopped the builder before output, while the paired check esta
 **verified:** 2026-10-06, system `python3` running the pipeline and its tests failed at import with exactly `ModuleNotFoundError: No module named 'docx'`, while the bundled workspace Python completed the working test invocation with 24 tests passed
 **verified:** 2026-10-06 at about 6:58 am Pacific, system Python 3.14 running `python3 job-pipeline/pipeline.py` and `python3 -m unittest discover -s job-pipeline/tests -v` each failed at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; switching to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` passed the dependency-bearing replacement run
 **verified:** 2026-10-14, default Python 3.14.7 running `python3 pipeline.py --help` in the authoritative pipeline exited 1 at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; bundled Python 3.12.14 running the same command exited 0 and printed the complete `{run}` help, while README lines 27 and 33 named that exact bundled interpreter for normal and target runs
+**verified:** 2026-10-18, system `python3 pipeline.py --help` again failed at line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; on 2026-10-19, a paired reproduction showed system Python 3.14.7 fail identically with exit 1 while bundled Python 3.12.14 exited 0 and printed the complete `{run}` help
 **where:** pipeline execution, tests, and PDF validation across `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
 
 The paired checks establish runtime selection as the wall in both job-pipeline workspaces, not a failing test suite or parser.
 
-**Why:** still REJECT after thirteen documented invocations across two workspace subjects in one machine environment; there are not five observations from five different environment subjects.
-**Fix:** invoke every pipeline command and dependency-bearing test with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status. The authoritative README and successful `--help`, run, and test outputs verify this interpreter selection.
+**Why:** still REJECT after fifteen documented invocations across two workspace subjects in one machine environment; there are not five observations from five different environment subjects. The third recurrence triggered a reusable command check instead of another note alone.
+**Fix:** `home/bin/shell-preflight` now rejects unbundled `python3 ...pipeline.py` commands and names `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`; use that interpreter for every pipeline command and dependency-bearing test, then verify real output and exit status.
 
 ### `apply_patch verification failed: Failed to find expected lines` at n=16 across 9 file subjects
 

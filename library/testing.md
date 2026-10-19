@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -174,7 +174,7 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **Why:** still held back at n=4 across three destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
 **Fix:** call `cua.getState()` before creating a tab. If it reports a locked Mac or no browser, stop and ask the user to unlock the Mac rather than retrying or bypassing the gate; otherwise treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
-### 14 guessed, stale, wrong-cwd, or wrong-base local paths failed across 16 invocations; current paths found source, tracker, facts, test, counter, and skill targets
+### 14 guessed, stale, wrong-cwd, or wrong-base local paths failed across 17 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -185,13 +185,14 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **verified:** 2026-10-06, reading Firecrawl `SKILL.md` through mistyped plugin id `app-6a314a73f8ac8191b8b47dc98fe5a052` returned `No such file or directory`; the catalog path with id `app-6a314a73f8ac819195b0d55e36b9c609` existed at 3,181 bytes and was read successfully
 **verified:** 2026-10-07, `wc` and `sed` reads of `workflows/edit_workflows.md`, `artifact_tool_docs/API_QUICK_START.md`, and `style_guidelines.md` under the Spreadsheets package parent `.../skills/` each returned `No such file or directory`; the references are relative to the directory containing `SKILL.md`, `.../skills/spreadsheets/`, where the three files existed at 2,481, 25,830, and 10,103 bytes, and `workspace-dependencies-fallback spreadsheets` verified all three
 **verified:** 2026-10-12, `candidate-profile.json` referenced `.private/job-application-facts.json`, but resolving that path from the Job Pipeline directory and running `stat` returned exactly `No such file or directory`; a hidden-file search across `/Users/zayah/Documents/Codex` found the sole matching file at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`, where `stat` reported 796 bytes and `jq` verified an object root without exposing its values
+**verified:** 2026-10-19, the same profile still named `.private/job-application-facts.json`; `jq` on the pipeline-relative target returned `No such file or directory`, and a search limited to `/Users/zayah/Documents/Codex/life/01 💼 Jobs` found zero matches, while the broader `/Users/zayah/Documents/Codex/life` search found exactly one 796-byte object at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`
 **verified:** 2026-10-12, macOS accepted `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/Spreadsheets/SKILL.md`, but `realpath` returned the on-disk lowercase path ending in `skills/spreadsheets/SKILL.md`; resolving `workflows/edit_workflows.md` from the package parent returned exactly `No such file or directory`, while the canonical skill-relative path existed at 2,481 bytes
 **verified:** 2026-10-16, from the authoritative Job Pipeline directory, `jq` on job-applications-relative path `outputs/hourly-application-questions/tracker-edit/brooks-blocker-fixed2/after.json` returned exactly `Could not open file ...: No such file or directory` and exited 2; the absolute path under `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 0 and reported 199 application rows
-**where:** sixteen failed reads of fourteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across nine local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
+**where:** seventeen failed reads of fourteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across nine local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
 
 The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=16 failures from nine workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Why:** still held back at n=17 failures from nine workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
 **Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. Use an absolute cross-workspace path or run from the workspace that owns the relative path; for the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path, and for Spreadsheets use `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` to verify the lowercase skill root and edit references.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
@@ -319,7 +320,7 @@ The failed import stopped the builder before output, while the paired check esta
 **Why:** REJECT at n=1 from one python-docx version and import subject; there are not five observations from five different subjects.
 **Fix:** import with `from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT`, then run the builder and require a nonempty document output; the isolated import is verified, while the builder rerun remains UNCONFIRMED.
 
-### System Python 3.14 lacked `docx` on 13 pipeline or test invocations across 2 workspaces; bundled Python ran help and tests
+### System Python 3.14 lacked `docx` on 15 pipeline or test invocations across 2 workspaces; shell-preflight blocks unbundled `pipeline.py`
 
 **verified:** 2026-10-05, `python3 pipeline.py run` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` exited with a traceback at `pipeline.py` line 29 on `from docx import Document`; a direct check confirmed `/opt/homebrew/bin/python3` returned exactly `ModuleNotFoundError: No module named 'docx'`, while `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` imported `docx` from its Python 3.12 site-packages
 **verified:** 2026-10-05 at 11:43 am Pacific, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py run` completed successfully and printed `discovered_count 187`, `scored_count 178`, `skipped_duplicate_count 9`, `ready_count 0`, `blocked_count 0`, and `source_failures []`
@@ -331,12 +332,13 @@ The failed import stopped the builder before output, while the paired check esta
 **verified:** 2026-10-06, system `python3` running the pipeline and its tests failed at import with exactly `ModuleNotFoundError: No module named 'docx'`, while the bundled workspace Python completed the working test invocation with 24 tests passed
 **verified:** 2026-10-06 at about 6:58 am Pacific, system Python 3.14 running `python3 job-pipeline/pipeline.py` and `python3 -m unittest discover -s job-pipeline/tests -v` each failed at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; switching to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` passed the dependency-bearing replacement run
 **verified:** 2026-10-14, default Python 3.14.7 running `python3 pipeline.py --help` in the authoritative pipeline exited 1 at `pipeline.py` line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; bundled Python 3.12.14 running the same command exited 0 and printed the complete `{run}` help, while README lines 27 and 33 named that exact bundled interpreter for normal and target runs
+**verified:** 2026-10-18, system `python3 pipeline.py --help` again failed at line 29 with exactly `ModuleNotFoundError: No module named 'docx'`; on 2026-10-19, a paired reproduction showed system Python 3.14.7 fail identically with exit 1 while bundled Python 3.12.14 exited 0 and printed the complete `{run}` help
 **where:** pipeline execution, tests, and PDF validation across `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
 
 The paired checks establish runtime selection as the wall in both job-pipeline workspaces, not a failing test suite or parser.
 
-**Why:** still REJECT after thirteen documented invocations across two workspace subjects in one machine environment; there are not five observations from five different environment subjects.
-**Fix:** invoke every pipeline command and dependency-bearing test with `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3` instead of executing `pipeline.py` directly or using system `python3`, then verify the command's real output and exit status. The authoritative README and successful `--help`, run, and test outputs verify this interpreter selection.
+**Why:** still REJECT after fifteen documented invocations across two workspace subjects in one machine environment; there are not five observations from five different environment subjects. The third recurrence triggered a reusable command check instead of another note alone.
+**Fix:** `home/bin/shell-preflight` now rejects unbundled `python3 ...pipeline.py` commands and names `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`; use that interpreter for every pipeline command and dependency-bearing test, then verify real output and exit status.
 
 ### `apply_patch verification failed: Failed to find expected lines` at n=16 across 9 file subjects
 
@@ -626,7 +628,7 @@ The completed run proves that one source can fail while the pipeline still retur
 **Why:** REJECT at n=1 from one source and pipeline-run subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED for the source timeout; inspect `source_failures` even when the command exits 0, retain the run's verified counts, and mark We Work Remotely coverage unavailable for that run rather than treating exit 0 as proof that every source succeeded.
 
-### 7 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
+### 8 jq root-shape assumptions failed or expanded output on object `source-log.json` and array `job-pool.json` across 3 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
 **verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
@@ -635,12 +637,23 @@ The completed run proves that one source can fail while the pipeline still retur
 **verified:** 2026-10-06, `jq '.[-8:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-8,"end":null})`; this was one command reported twice, and the verified nested array remains `checked_domains`
 **verified:** 2026-10-06, `jq 'keys, (.[-12:] // empty)' job-pipeline/state/source-log.json` exited 5 with exactly `Cannot index object with object ({"start":-12,"end":null})`; the replacement `jq '{last_run, checked_domains_type:(.checked_domains|type), checked_domains_length:(.checked_domains|length), last_entries:(.checked_domains[-12:])}' ...` exited 0, reported `checked_domains_type` as `array`, length 617, and returned 12 entries
 **verified:** 2026-10-06, `jq -r '.entries[-24:][]' job-pipeline/state/source-log.json` failed with exactly `Cannot iterate over null (null)`; `jq 'keys'` returned `checked_domains` and `last_run`, and `jq '.checked_domains[-1] | keys'` returned the actual entry fields `domain`, `result`, and `track`
-**where:** seven jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-18, `jq 'keys' state/job-pool.json` printed all 7,336 array indexes; on 2026-10-19, `jq 'keys | length'` confirmed 7,336, `jq 'type,length,.[0]|keys'` failed with exactly `string ("array") has no keys`, and `jq 'type, length, (.[0] | keys)'` exited 0 with root type `array`, length 7,336, and 21 first-record keys
+**where:** eight jq commands against three `source-log.json` and `job-pool.json` files under `/Users/zayah/Documents/Codex/2026-09-29/job-applications` and the authoritative Job Pipeline
 
 The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them; the source-log array field remains `checked_domains` in the verified inspection.
 
-**Why:** still held back at n=7 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
-**Fix:** inspect the root type and keys first; use `.checked_domains[-N:]` for the object-root source-log tail, inspect `.checked_domains[-1] | keys` before selecting entry fields, and use `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
+**Why:** still held back at n=8 command observations across three JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
+**Fix:** inspect arrays with `jq 'type, length, (.[0] | keys)'` so pipe precedence cannot send `type` or `length` into `keys`; use `.checked_domains[-N:]` for the object-root source-log tail, then require the expected type and bounded count.
+
+### `jq` unmatched closing `]` returned `syntax error, unexpected INVALID_CHARACTER` at n=1
+
+**verified:** 2026-10-19, `jq '[.[] | select(.source == "governmentjobs")]] | length' state/job-pool.json` exited 3 with exactly `syntax error, unexpected INVALID_CHARACTER`; removing the extra closing bracket and running `jq '[.[] | select(.source == "governmentjobs")] | length' ...` exited 0 and printed `0`
+**where:** one filter against `state/job-pool.json` in `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
+
+The compile error occurred before the input array was filtered.
+
+**Why:** REJECT at n=1 from one jq expression and JSON subject; there are not five observations from five different subjects.
+**Fix:** balance the array constructor as `[.[] | select(...)] | length`, then require exit 0 and a numeric result before accepting the inspection.
 
 ### jq object values without leading dots returned 7 `name/0 is not defined` errors at n=1
 

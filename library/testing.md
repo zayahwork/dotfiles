@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
 
 ---
 
@@ -627,7 +627,7 @@ The completed run proves that one source can fail while the pipeline still retur
 **Why:** REJECT at n=1 from one source and pipeline-run subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED for the source timeout; inspect `source_failures` even when the command exits 0, retain the run's verified counts, and mark We Work Remotely coverage unavailable for that run rather than treating exit 0 as proof that every source succeeded.
 
-### 7 jq root-shape assumptions failed on object `source-log.json` and array `job-pool.json` across 2 files
+### 8 jq root-shape assumptions failed or expanded output on object `source-log.json` and array `job-pool.json` across 3 files
 
 **verified:** 2026-10-05, `jq '.[-12:]' job-pipeline/state/source-log.json` failed with exactly `jq: error (at job-pipeline/state/source-log.json:860): Cannot index object with object ({"start":-12,"end":null})`; the file root had keys `last_run` and `checked_domains`, and `jq '.checked_domains[-12:]' job-pipeline/state/source-log.json` returned the latest 12 source-log entries
 **verified:** 2026-10-05, `jq '{generated_at,total:(.jobs|length), keys:(.jobs[0]|keys), first:.jobs[0]}' job-pipeline/state/job-pool.json` failed at line 5239 with exactly `Cannot index array with string ("generated_at")`; inspection verified that the root was an array, and `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` was the matching root-level query
@@ -636,12 +636,23 @@ The completed run proves that one source can fail while the pipeline still retur
 **verified:** 2026-10-06, `jq '.[-8:]' job-pipeline/state/source-log.json` failed with `Cannot index object with object ({"start":-8,"end":null})`; this was one command reported twice, and the verified nested array remains `checked_domains`
 **verified:** 2026-10-06, `jq 'keys, (.[-12:] // empty)' job-pipeline/state/source-log.json` exited 5 with exactly `Cannot index object with object ({"start":-12,"end":null})`; the replacement `jq '{last_run, checked_domains_type:(.checked_domains|type), checked_domains_length:(.checked_domains|length), last_entries:(.checked_domains[-12:])}' ...` exited 0, reported `checked_domains_type` as `array`, length 617, and returned 12 entries
 **verified:** 2026-10-06, `jq -r '.entries[-24:][]' job-pipeline/state/source-log.json` failed with exactly `Cannot iterate over null (null)`; `jq 'keys'` returned `checked_domains` and `last_run`, and `jq '.checked_domains[-1] | keys'` returned the actual entry fields `domain`, `result`, and `track`
-**where:** seven jq commands against `job-pipeline/state/source-log.json` and `job-pipeline/state/job-pool.json` under `/Users/zayah/Documents/Codex/2026-09-29/job-applications`
+**verified:** 2026-10-18, `jq 'keys' state/job-pool.json` printed all 7,336 array indexes; on 2026-10-19, `jq 'keys | length'` confirmed 7,336, `jq 'type,length,.[0]|keys'` failed with exactly `string ("array") has no keys`, and `jq 'type, length, (.[0] | keys)'` exited 0 with root type `array`, length 7,336, and 21 first-record keys
+**where:** eight jq commands against three `source-log.json` and `job-pool.json` files under `/Users/zayah/Documents/Codex/2026-09-29/job-applications` and the authoritative Job Pipeline
 
 The two files use different root shapes, so neither an object-key assumption nor an array-root assumption transfers between them; the source-log array field remains `checked_domains` in the verified inspection.
 
-**Why:** still held back at n=7 command observations across two JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
-**Fix:** inspect the root type and keys first; use `.checked_domains[-N:]` for the object-root source-log tail, inspect `.checked_domains[-1] | keys` before selecting entry fields, and use `jq '{total:length, keys:(.[0]|keys), first:.[0]}'` for the array-root job pool, then require the expected nonempty count.
+**Why:** still held back at n=8 command observations across three JSON file and schema subjects because no untouched control was measured; the command count alone does not pass the causal bar.
+**Fix:** inspect arrays with `jq 'type, length, (.[0] | keys)'` so pipe precedence cannot send `type` or `length` into `keys`; use `.checked_domains[-N:]` for the object-root source-log tail, then require the expected type and bounded count.
+
+### `jq` unmatched closing `]` returned `syntax error, unexpected INVALID_CHARACTER` at n=1
+
+**verified:** 2026-10-19, `jq '[.[] | select(.source == "governmentjobs")]] | length' state/job-pool.json` exited 3 with exactly `syntax error, unexpected INVALID_CHARACTER`; removing the extra closing bracket and running `jq '[.[] | select(.source == "governmentjobs")] | length' ...` exited 0 and printed `0`
+**where:** one filter against `state/job-pool.json` in `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
+
+The compile error occurred before the input array was filtered.
+
+**Why:** REJECT at n=1 from one jq expression and JSON subject; there are not five observations from five different subjects.
+**Fix:** balance the array constructor as `[.[] | select(...)] | length`, then require exit 0 and a numeric result before accepting the inspection.
 
 ### jq object values without leading dots returned 7 `name/0 is not defined` errors at n=1
 

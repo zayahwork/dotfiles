@@ -507,15 +507,16 @@ The paired probe establishes that lxml itself was installed and XPath worked whi
 **Why:** REJECT at n=1 from one runtime and parser subject; there are not five observations from five different subjects.
 **Fix:** use lxml XPath expressions such as `.xpath('//form')` instead of `.cssselect()` in this runtime, and verify the expected node count before extracting fields.
 
-### `getUsedRange().values[20]` was worksheet row 22 because the used range began at A2; A1 addressing was correct at n=1
+### A2-based `getUsedRange().values` indexes mapped to worksheet rows in 2 tracker edits; omitting the start-row offset overwrote row 89
 
 **verified:** 2026-10-16, artifact-tool 2.8.94 imported a 23,247-byte tracker and returned `getUsedRange().values[0]` as `Job application tracker`, the value at `A2`; array index 20 and `getRange('A22:B22')` both returned `Adaptive Biotechnologies` and `IT Support Technician I`, while `getRange('A21:B21')` and zero-based `getRangeByIndexes(20,0,1,2)` both returned `Coperniq` and `Founding BDR`
-**where:** one imported `job-application-tracker.xlsx` read through artifact-tool 2.8.94 in workspace bundle 26.1013.11914
+**verified:** 2026-10-19, `sheet.getUsedRange().values` covered `A2:J200`, so duplicate array index 88 mapped to worksheet row 90; the first update reported `targetRow` 90, but a rerun that calculated `duplicateIndex + 1` reported `targetRow` 89 and overwrote that row after finding the duplicate
+**where:** two imported job-application tracker edits through artifact-tool, including one artifact-tool 2.8.94 read in workspace bundle 26.1013.11914
 
-The reported one-row difference was real, but the paired A1 and zero-based reads refute an A1 parser bug: `getUsedRange().values` was indexed relative to a used range whose first nonempty row was worksheet row 2.
+Both observations show that `getUsedRange().values` indexes were relative to a used range whose first worksheet row was 2, not relative to worksheet row 1; the paired A1 and zero-based reads refute an A1 parser bug.
 
-**Why:** REJECT at n=1 from one workbook and artifact-tool runtime subject; there are not five observations from five different subjects.
-**Fix:** treat used-range array indices as relative to the used range's own start, not to worksheet A1. Use exact A1 ranges for worksheet-row checks, or carry the used-range start when translating array offsets, then verify the expected labels after reopening the workbook.
+**Why:** still REJECT at n=2 from tracker workbook subjects in one artifact-tool environment; there are not five observations from five different subjects.
+**Fix:** add the used range's starting worksheet row when translating a zero-based array index, and never use `duplicateIndex + 1` unless the range starts at row 1. Before writing, assert that the calculated A1 row contains the discovered company and role; after export, reopen the workbook and verify the restored prior row, the updated row, and exactly one duplicate match.
 
 ### `Unexpected existing Applications value change at row 88 column 0` rejected one authorized append
 

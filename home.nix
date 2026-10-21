@@ -116,6 +116,11 @@
     executable = true;
   };
 
+  home.file.".local/bin/excel-wall-clock-serial" = {
+    source = ./home/bin/excel-wall-clock-serial;
+    executable = true;
+  };
+
   home.file.".local/bin/gnhf" = {
     source = ./home/bin/gnhf;
     executable = true;

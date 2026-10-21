@@ -528,6 +528,16 @@ The saved before state had ten nulls at used-range index 88 and the after state 
 **Why:** REJECT at n=1 from one builder and workbook subject; there are not five observations from five different subjects.
 **Fix:** skip only `nextApplicationIndex` in the existing-value preservation loop, then verify that row separately by its expected key and inspect the reopened workbook range. Preserve and compare every other pre-existing row.
 
+### `inspect({kind:"table"})` reported Run Log `A1:J7`, but `worksheet.tables.items` was `[]` at n=1
+
+**verified:** 2026-10-20, `SpreadsheetFile.importXlsx` followed by `workbook.inspect({kind:"table"})` reported a table-shaped Run Log region at `A1:J7`, while direct `JSON.stringify(runLog.tables.items)` printed `[]`; treating the inspect result as a native Excel Table then raised exactly `Error: Run Log table not found.`
+**where:** one imported XLSX Run Log append through artifact-tool
+
+The inspect result described a rectangular region, while the worksheet's native table collection contained no item.
+
+**Why:** REJECT at n=1 from one workbook and artifact-tool subject; there are not five observations from five different subjects.
+**Fix:** guard `worksheet.tables.items` before using native-table APIs. When it is empty, guard the destination row, copy the prior row formatting with `source.copyTo(destination, "all")`, overwrite values, recalculate, export, reopen, and render; the corrected workbook and PNG were verified.
+
 ### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 7 observations from one workbook
 
 **verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row

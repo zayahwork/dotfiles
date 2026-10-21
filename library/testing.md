@@ -528,6 +528,16 @@ The saved before state had ten nulls at used-range index 88 and the after state 
 **Why:** REJECT at n=1 from one builder and workbook subject; there are not five observations from five different subjects.
 **Fix:** skip only `nextApplicationIndex` in the existing-value preservation loop, then verify that row separately by its expected key and inspect the reopened workbook range. Preserve and compare every other pre-existing row.
 
+### `inspect({kind:"table"})` reported Run Log `A1:J7`, but `worksheet.tables.items` was `[]` at n=1
+
+**verified:** 2026-10-20, `SpreadsheetFile.importXlsx` followed by `workbook.inspect({kind:"table"})` reported a table-shaped Run Log region at `A1:J7`, while direct `JSON.stringify(runLog.tables.items)` printed `[]`; treating the inspect result as a native Excel Table then raised exactly `Error: Run Log table not found.`
+**where:** one imported XLSX Run Log append through artifact-tool
+
+The inspect result described a rectangular region, while the worksheet's native table collection contained no item.
+
+**Why:** REJECT at n=1 from one workbook and artifact-tool subject; there are not five observations from five different subjects.
+**Fix:** guard `worksheet.tables.items` before using native-table APIs. When it is empty, guard the destination row, copy the prior row formatting with `source.copyTo(destination, "all")`, overwrite values, recalculate, export, reopen, and render; the corrected workbook and PNG were verified.
+
 ### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 7 observations from one workbook
 
 **verified:** 2026-10-02, `copyFrom(..., "all")` on an imported workbook did not transfer formatting into blank tracker rows, and overlapping `copyFrom` from `A36:J39` to `A39:J42` overwrote the last source row; writing explicit values, unmerging the destination, and applying formatting directly produced the intended workbook; 2026-10-05, overlapping `A43:J46.copyTo(A46:J49, "all")` propagated the changed source during the copy, and the render showed row 49 duplicated `Take-home estimate assumptions` instead of preserving the original tax-basis row
@@ -595,17 +605,18 @@ Bare-package resolution failed from eval or script-directory contexts without th
 **Why:** still held back after six failed setups from one machine and package subject because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** symlink the script's conversation-specific `node_modules` to `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`, or import `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs` directly; both recovery paths are verified. The third recurrence requires a preflight that verifies the symlink target and a real package import before running the artifact script; that check remains UNCONFIRMED until built and exercised.
 
-### 2 Artifact Tool Date writes rendered UTC clock components; direct serial rendered `10/06/26 8:03 AM`
+### 3 Artifact Tool Date writes rendered UTC clock components; `excel-wall-clock-serial` returned `46315.74091435185`
 
 **verified:** 2026-10-05, artifact-tool wrote `new Date('2026-10-05T18:20:29-07:00')` and the XLSX displayed `10/06/26 1:20 AM`; writing `new Date('2026-10-05T18:20:29Z')` displayed the intended `10/05/26 6:20 PM`
 **verified:** 2026-10-06, an update script wrote `new Date("2026-10-06T15:03:35.791Z")` into a cell formatted `mm/dd/yy h:mm AM/PM`; inspection returned serial `46301.627497581016` and the rendered row 70 showed `10/06/26 3:03 PM` instead of the trigger's intended `8:03:35 am` Pacific wall time
 **verified:** 2026-10-06, the corrected workbook wrote the intended Pacific wall-clock components as an explicit Excel serial, then reopening and visually rendering showed Direct Meds row 70 as exactly `10/06/26 8:03 AM`
-**where:** two wrong Date writes and one corrected serial write in one Artifact Tool XLSX tracker and runtime subject
+**verified:** 2026-10-20, a JavaScript Date written to a Run Log column labeled Pacific rendered its UTC clock components instead of `5:46:55 pm` Pacific; explicit serial `46315.74091435185` rendered the intended Pacific wall time, and reopening the exported artifact plus PNG inspection confirmed the correction
+**where:** three wrong Date writes and two corrected serial writes in Artifact Tool XLSX tracker edits in one runtime subject
 
-The three rendered display values establish that this tracker path used serialized UTC clock components as timezone-free Excel wall-clock values, but not a universal rule for every spreadsheet engine.
+The rendered display values establish that these tracker edits used serialized UTC clock components as timezone-free Excel wall-clock values, but not a universal rule for every spreadsheet engine.
 
-**Why:** still held back at n=2 from one workbook and runtime subject; there are not five observations from five different subjects.
-**Fix:** write the desired timezone-free wall-clock components as an explicit Excel serial, such as `Date.UTC(2026,9,6,8,3,35,791) / 86400000 + 25569`, then reopen and render the formatted cell. The corrected workbook verified this recovery at `10/06/26 8:03 AM`.
+**Why:** still held back at n=3 from tracker subjects in one artifact-tool runtime; there are not five observations from five different subjects. The third recurrence triggered a reusable converter instead of another formula-only note.
+**Fix:** run `excel-wall-clock-serial '2026-10-20T17:46:55'`, write its timezone-free result to the formatted cell, then reopen and render. The helper's two-fixture self-test and corrected workbook verify `46315.74091435185` for `5:46:55 pm` Pacific wall-clock components.
 
 ### `pipeline.py` without `run` exited 2 with `the following arguments are required: command` at n=4
 

@@ -35,6 +35,7 @@ costs more than it can return.
 | [`bootstrap.md`](bootstrap.md) | Standing this repo up on a new machine. The nine things that broke doing it on 2026-09-02: the hardcoded username, the 127 that closes WezTerm instantly, the Windows half home-manager never touches. |
 | [`web.md`](web.md) | Fetching from the public internet. How to enumerate a YouTube channel's videos and read a video's title, views and full description with `curl`, and the grep that wrongly reports an empty page. |
 | [`testing.md`](testing.md) | Test and command walls: cwd and source-path discovery, sandbox comparisons, plus held-back patch, packaging, Chrome reload/navigation, and Computer Use reliability failures. |
+| [`npm.md`](npm.md) | npm package execution walls. `n8n@2.45.5` stayed in installation for 7:54:08, grew a 3.0G cache, and required KILL; cause held back at n=1. |
 | [`stream/`](stream/INDEX.md) | The live stream and its numbers, eight subtopics: titles, descriptions, going live, the machine, the overlay, measuring, platforms, credentials. Largest file is 66 lines. |
 | [`tooling/`](tooling/INDEX.md) | The kunchenguid agent toolchain: treehouse, no-mistakes, gnhf, firstmate. A file per tool. Versions, install, and what fought back. |
 

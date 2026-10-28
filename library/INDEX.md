@@ -29,6 +29,7 @@ costs more than it can return.
 | Topic | What is in it |
 | --- | --- |
 | [`terminal.md`](terminal.md) | herdr, WezTerm, the Windows key layer. Which chords reach the terminal and which the OS eats, how panes start, the theme keys. |
+| [`shell.md`](shell.md) | Shell and command execution walls. `exec_command` rejected one rm-style cleanup before execution, and zsh `path` clobbered `PATH` across two subjects; both held back. |
 | [`nix.md`](nix.md) | Nix, home-manager, WSL. What a store symlink can and cannot own, what a switch actually rewrites, the activation order. |
 | [`agents.md`](agents.md) | Claude, Codex, cursor-agent. Where each reads its rules, skills and subagent definitions from, the `library-admin` gate on writing to the library, the five-observation bar for a causal claim, and the standing yes on pushing to `development`. |
 | [`repo.md`](repo.md) | This repo's own rules. Branch flow, what may be committed where, the numbers we hold ourselves to. |

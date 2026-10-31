@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, and Computer Use API walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -37,6 +37,26 @@ Build-time font fetching and read-only Jina fetching both require DNS, so a sand
 ---
 
 ## Held back
+
+### `apply --build` prepared 3 paths, then `/Users/zayah/.local/bin/apply: line 76: exec: home-manager: not found` at n=1
+
+**verified:** 2026-10-31, `apply --build` printed `apply: 3 file(s) the flake cannot see`, listed `CorpAI-Pilot/`, `home/.config/wezterm/wezterm.lua`, and `install.log`, printed `apply: added with git add -N, contents still unstaged` and `apply: building .#zayah without activating`, then exited 127 with exactly `/Users/zayah/.local/bin/apply: line 76: exec: home-manager: not found`; `command -v home-manager` exited 127, while `zsh -ic 'whence -v home-manager'` reported `home-manager is a shell function from /Users/zayah/.zshrc` and `whence -p home-manager` returned no executable path
+**where:** one `apply --build` invocation on Zayah's Mac
+
+The script completed its untracked-path preparation, then failed because `exec` required a `home-manager` executable and only a shell function was available.
+
+**Why:** held back at n=1 from one machine subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; provide a `home-manager` executable on the script's PATH or change `apply` to invoke a verified canonical Home Manager entrypoint, then require nonempty build output.
+
+### Home Manager `activate` exited 1 on `Existing file ... would be clobbered` at n=1 while the Darwin system build exited 0
+
+**verified:** 2026-10-31, `nix build --no-link --print-out-paths '.#darwinConfigurations.zayah.system'` exited 0 and produced `/nix/store/mgq61sx98bsn787wjyymb3f3jncyfa8m-darwin-system-26.11.4cff07d`; `/nix/store/8n7z67qs8chjzb4jb1sq0drcj6mr619h-home-manager-generation/activate` printed `Starting Home Manager activation`, then exited 1 with `Existing file '/Users/zayah/.cursor/skills/calm/SKILL.md' would be clobbered` and `Existing file '/Users/zayah/.claude/skills' would be clobbered`; the narrow recovery moved the old `.zshrc` symlink to `/Users/zayah/.zshrc.before-terminal-home-20261031`, linked the new 2,652-byte `.zshrc`, and `zsh -lic 'pwd'` from `/Users/zayah` printed `/Users/zayah`
+**where:** one direct Home Manager generation activation from `/Users/zayah/github/dotfiles` on macOS
+
+The paired build and shell probe establish that the intended `.zshrc` output worked while the full activation stopped on existing managed paths.
+
+**Why:** held back at n=1 from one activation subject; there are not five observations from five different subjects.
+**Fix:** preserve the verified narrow `.zshrc` recovery; full Home Manager activation remains UNCONFIRMED until each reported clobber path is reconciled and `activate` exits 0 with nonempty output.
 
 ### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
 

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 
 BUNDLED_WORKSPACE_PYTHON = "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+RESERVED_ZSH_VARIABLES = {"path", "status", "HOME", "CODEX_HOME"}
 
 
 @dataclass
@@ -85,6 +86,26 @@ def violations(command: str) -> list[str]:
             errors.append(
                 "single-quote or escape backticks to prevent command substitution: "
                 + repr(token.text)
+            )
+
+    for index, token in enumerate(tokens):
+        if "=" in token.text:
+            variable = token.text.split("=", 1)[0]
+            if variable in RESERVED_ZSH_VARIABLES:
+                errors.append(
+                    "do not assign zsh special or system variable "
+                    + repr(variable)
+                    + "; use a task-specific name"
+                )
+        if (
+            token.text == "for"
+            and index + 1 < len(tokens)
+            and tokens[index + 1].text in RESERVED_ZSH_VARIABLES
+        ):
+            errors.append(
+                "do not use zsh special or system variable "
+                + repr(tokens[index + 1].text)
+                + " as a loop variable"
             )
 
     command_position = True
@@ -229,6 +250,11 @@ def self_test() -> int:
         "agent-reach search-web jobs --json",
         "agent-reach read https://example.com --json",
         "agent-reach get https://example.com --json",
+        "status=$?",
+        "for status in 200 404; do print $status; done",
+        "for path in one two; do print $path; done",
+        "HOME=/tmp command true",
+        "CODEX_HOME=/tmp find $CODEX_HOME/automations",
         'git commit -m "Verified `legal-admin` source spec"',
         'rg -n "`docx`" library/testing.md',
         "rg -n -- needle library -g '*.md'",
@@ -249,6 +275,8 @@ def self_test() -> int:
         "/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 pipeline.py --help",
         "agent-reach doctor --json",
         "agent-reach version",
+        "http_code=$?",
+        "for repo_file in one two; do print $repo_file; done",
         "rg -n '`docx`' library/testing.md",
     ]
     failures: list[str] = []
@@ -261,7 +289,7 @@ def self_test() -> int:
     if failures:
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("shell-preflight: 37 fixtures passed")
+    print("shell-preflight: 44 fixtures passed")
     return 0
 
 

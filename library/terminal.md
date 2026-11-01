@@ -11,7 +11,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
 - [`rg` parsed a pattern beginning with `--target` as a flag; insert `--` before the pattern.](#rg-parsed-a-pattern-beginning-with---target-as-a-flag-insert---before-the-pattern)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 3 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 8 failures, `rg` options after `--` became paths twice, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 4 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 8 failures, `rg` options after `--` became paths twice, bare zsh globs stopped 44 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -158,18 +158,19 @@ All three commands were rejected before removal, but the evidence does not estab
 Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all eight observations.
 
 **Why:** still held back at n=8 from eight zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. The required preflight must reject assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME` and pass fixtures for all eight `path` failures; it remains UNCONFIRMED until implemented and exercised.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. `shell-preflight` now rejects assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME`, and its self-test prints `shell-preflight: 44 fixtures passed`.
 
-### `status` assignment returned `read-only variable: status` in 3 zsh commands
+### `status` assignment returned `read-only variable: status` in 4 zsh commands
 
 **verified:** 2026-09-30, assigning a curl result to `status` returned exactly `zsh:1: read-only variable: status`, while renaming the variable to `http_code` worked
 **verified:** 2026-10-06, `for ...; do status=$(curl ...); ...; done` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications` failed immediately with exactly `zsh: read-only variable: status`; a current isolated assignment reproduced that exact error, `${(t)status}` printed `integer-readonly-special`, and `http_code=200` printed `200`
-**where:** three assignments in one macOS zsh environment
+**verified:** 2026-11-01, a dotfiles verification command assigned `status=$?` and returned exactly `zsh:7: read-only variable: status`; the corrected variable `preflight_exit=$?` printed the expected code, while `shell-preflight` rejected `status=$?` and its expanded self-test printed `shell-preflight: 44 fixtures passed`
+**where:** four assignments in one macOS zsh environment
 
-The two workflow failures and isolated reproduction establish that lowercase `status` is read-only in this zsh environment.
+The three workflow failures and isolated reproduction establish that lowercase `status` is read-only in this zsh environment.
 
-**Why:** REJECT at n=3 from one shell-parameter subject and environment; there are not five observations from five different subjects.
-**Fix:** use `http_code` or another task-specific variable name instead of `status`; both the earlier workflow retry and current isolated control are verified.
+**Why:** REJECT at n=4 from one shell-parameter subject and environment; there are not five observations from five different subjects.
+**Fix:** use `http_code`, `preflight_exit`, or another task-specific variable name instead of `status`; run `shell-preflight '<planned command>'` first because it now rejects assignments and loop variables named `status`.
 
 ### Quoted zsh spec stayed 1 argument and produced `sed: invalid command code ,` at n=1
 

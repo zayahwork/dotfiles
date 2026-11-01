@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions and short rows, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -194,7 +194,7 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **Why:** still held back at n=4 across three destination subjects in one browser-attachment environment; there are not five observations from five different subjects.
 **Fix:** call `cua.getState()` before creating a tab. If it reports a locked Mac or no browser, stop and ask the user to unlock the Mac rather than retrying or bypassing the gate; otherwise treat the requested inspection as unavailable if attachment still times out. Preserve prior verified state, do not claim fresh application questions or inbox results, and retry only in a later browser-enabled run.
 
-### 14 guessed, stale, wrong-cwd, or wrong-base local paths failed across 17 invocations; current paths found source, tracker, facts, test, counter, and skill targets
+### 15 guessed, stale, wrong-cwd, or wrong-base local paths failed across 18 invocations; current paths found source, tracker, facts, test, counter, and skill targets
 
 **verified:** 2026-09-22, `sed -n ... packages/core/src/rating.ts` failed in the MemeCoin repository, while `rg --files packages/core/src` listed the implementation as `packages/core/src/research-indicator.ts`
 **verified:** 2026-10-06, `wc -c job-pipeline/application-tracker.csv` returned `No such file or directory`; `rg --files /Users/zayah/Documents/Codex/2026-09-29/job-applications | rg '(^|/)(application-tracker|job-application-tracker)\\.(csv|xlsx)$'` found only `outputs/job-application-tracker.xlsx`, and `wc -c` reported 17,517 bytes for that file
@@ -208,12 +208,13 @@ The failed attachments prove that none of the four attempts produced fresh desti
 **verified:** 2026-10-19, the same profile still named `.private/job-application-facts.json`; `jq` on the pipeline-relative target returned `No such file or directory`, and a search limited to `/Users/zayah/Documents/Codex/life/01 💼 Jobs` found zero matches, while the broader `/Users/zayah/Documents/Codex/life` search found exactly one 796-byte object at `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json`
 **verified:** 2026-10-12, macOS accepted `/Users/zayah/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.905.11957/skills/Spreadsheets/SKILL.md`, but `realpath` returned the on-disk lowercase path ending in `skills/spreadsheets/SKILL.md`; resolving `workflows/edit_workflows.md` from the package parent returned exactly `No such file or directory`, while the canonical skill-relative path existed at 2,481 bytes
 **verified:** 2026-10-16, from the authoritative Job Pipeline directory, `jq` on job-applications-relative path `outputs/hourly-application-questions/tracker-edit/brooks-blocker-fixed2/after.json` returned exactly `Could not open file ...: No such file or directory` and exited 2; the absolute path under `/Users/zayah/Documents/Codex/2026-09-29/job-applications` exited 0 and reported 199 application rows
-**where:** seventeen failed reads of fourteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across nine local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
+**verified:** 2026-10-22, an `apply_patch` target beginning `../life/...` from `/Users/zayah/Documents/Codex/2026-09-29/job-applications` resolved under `/Users/zayah/Documents/Codex/2026-09-29/life` and failed because that path did not exist; `../../life/...` resolved to `/Users/zayah/Documents/Codex/life`, and `stat ../../life` printed `Directory: ../../life`
+**where:** eighteen failed reads or writes of fifteen guessed, stale, wrong-cwd, mistyped, or wrong-base paths across ten local path-discovery subjects in the MemeCoin, job-applications, life job-pipeline, and Codex skill-cache trees
 
 The failures used guessed concept paths, stale work paths, wrong cwd resolution, a retyped catalog identifier, or the parent of a relative-reference base; verified lookup paths resolved the intended files.
 
-**Why:** still held back at n=17 failures from nine workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
-**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. Use an absolute cross-workspace path or run from the workspace that owns the relative path; for the facts file, use the verified `/Users/zayah/Documents/Codex/life/.private/job-application-facts.json` path, and for Spreadsheets use `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` to verify the lowercase skill root and edit references.
+**Why:** still held back at n=18 failures from ten workspace and path subjects because no untouched population control was measured; the failure count alone does not pass the causal bar.
+**Fix:** run `rg --files -uu` in the narrow source tree immediately before reading, measuring, or selecting a hidden file, script, or test command; resolve relative references against the canonical `realpath` directory containing the selected file instead of a case-insensitive alias, package parent, or current directory. Use an absolute cross-workspace path or run from the workspace that owns the relative path; from the dated job-applications workspace, `../../life` reaches the verified life workspace, and for Spreadsheets use `/Users/zayah/github/dotfiles/home/bin/workspace-dependencies-fallback spreadsheets` to verify the lowercase skill root and edit references.
 
 ### `Applications!A7:J65` omitted row 66 while reporting 55 tracker rows and 21 blocked at n=1
 
@@ -297,16 +298,17 @@ The digest matched; the observed failure came from the carriage return retained 
 **Why:** REJECT at n=1; there are not five observations from five different subjects.
 **Fix:** preserve the downloaded asset and normalize only the validation stream with `tr -d '\r' < MemeCoin.exe.sha256 | shasum -a 256 -c -`.
 
-### System and bundled Python `-m pytest -q` returned `No module named pytest`; bundled `unittest discover` ran 75 tests at n=2
+### System and bundled Python `-m pytest -q` returned `No module named pytest`; bundled `unittest` ran 77 tests at n=3
 
 **verified:** 2026-10-05, `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m pytest -q` exited 1 with exactly `No module named pytest`, while the same interpreter running `tests/test_pipeline.py -q` exited 0 and printed `Ran 17 tests in 1.596s` and `OK`
 **verified:** 2026-10-12, system `python3 -m pytest -q` in the authoritative pipeline exited 1 and printed exactly `/opt/homebrew/opt/python@3.14/bin/python3.14: No module named pytest`; `tests/test_pipeline.py` imported `unittest` and called `unittest.main()`, while bundled Python running `-m unittest discover -s tests -q` exited 0 and printed `Ran 75 tests in 3.518s` plus `OK`
-**where:** two test-runner subjects in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
+**verified:** 2026-11-01, bundled Python running `-m pytest -q` in the authoritative pipeline exited 1 with exactly `No module named pytest`; the same interpreter running `-m unittest -v tests/test_pipeline.py` exited 0, ran 77 tests in 3.810 seconds, and printed `OK`
+**where:** three test-runner invocations across two pipeline subjects in `/Users/zayah/Documents/Codex/2026-09-29/job-applications/job-pipeline` and `/Users/zayah/Documents/Codex/life/01 💼 Jobs/03 🛠️ Tools/⚙️ Job Pipeline`
 
 Both pipeline test files use the standard-library `unittest` runner, and neither observed Python environment supplied pytest.
 
-**Why:** REJECT at n=2 from two pipeline and runtime subjects; there are not five observations from five different subjects.
-**Fix:** from the pipeline directory, run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest discover -s tests -q` and require exit 0 plus a nonzero test count; do not install pytest without approval.
+**Why:** REJECT at n=3 observations from two pipeline and runtime subjects; there are not five observations from five different subjects.
+**Fix:** from the pipeline directory, run `/Users/zayah/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest -v tests/test_pipeline.py` or `-m unittest discover -s tests -q`, and require exit 0 plus a nonzero test count; do not install pytest without approval.
 
 ### BrowserTab `click(...)` returned `Could not check the click target's shadow root` on 2 job links
 
@@ -527,16 +529,27 @@ The paired probe establishes that lxml itself was installed and XPath worked whi
 **Why:** REJECT at n=1 from one runtime and parser subject; there are not five observations from five different subjects.
 **Fix:** use lxml XPath expressions such as `.xpath('//form')` instead of `.cssselect()` in this runtime, and verify the expected node count before extracting fields.
 
-### A2-based `getUsedRange().values` indexes mapped to worksheet rows in 2 tracker edits; omitting the start-row offset overwrote row 89
+### A2-based `getUsedRange().values` indexes mapped to worksheet rows in 3 tracker edits; omitting the start-row offset wrote rows 31, 80, and 89
 
 **verified:** 2026-10-16, artifact-tool 2.8.94 imported a 23,247-byte tracker and returned `getUsedRange().values[0]` as `Job application tracker`, the value at `A2`; array index 20 and `getRange('A22:B22')` both returned `Adaptive Biotechnologies` and `IT Support Technician I`, while `getRange('A21:B21')` and zero-based `getRangeByIndexes(20,0,1,2)` both returned `Coperniq` and `Founding BDR`
 **verified:** 2026-10-19, `sheet.getUsedRange().values` covered `A2:J200`, so duplicate array index 88 mapped to worksheet row 90; the first update reported `targetRow` 90, but a rerun that calculated `duplicateIndex + 1` reported `targetRow` 89 and overwrote that row after finding the duplicate
-**where:** two imported job-application tracker edits through artifact-tool, including one artifact-tool 2.8.94 read in workspace bundle 26.1013.11914
+**verified:** 2026-10-22, `Applications.getUsedRange().address` was `A2:J200`; a script mapped `findIndex(...) + 1`, so intended Linear row 32 was written into Astra row 31 and intended Mercor row 81 into Tax basis row 80, while the repaired and reopened workbook verified Astra 31, Linear 32, Tax basis 80, Mercor 81, and zero formula errors
+**where:** three imported job-application tracker edits through artifact-tool, including one artifact-tool 2.8.94 read in workspace bundle 26.1013.11914
 
-Both observations show that `getUsedRange().values` indexes were relative to a used range whose first worksheet row was 2, not relative to worksheet row 1; the paired A1 and zero-based reads refute an A1 parser bug.
+All three observations show that `getUsedRange().values` indexes were relative to a used range whose first worksheet row was 2, not relative to worksheet row 1; the paired A1 and zero-based reads refute an A1 parser bug.
 
-**Why:** still REJECT at n=2 from tracker workbook subjects in one artifact-tool environment; there are not five observations from five different subjects.
-**Fix:** add the used range's starting worksheet row when translating a zero-based array index, and never use `duplicateIndex + 1` unless the range starts at row 1. Before writing, assert that the calculated A1 row contains the discovered company and role; after export, reopen the workbook and verify the restored prior row, the updated row, and exactly one duplicate match.
+**Why:** still REJECT at n=3 from tracker workbook subjects in one artifact-tool environment; there are not five observations from five different subjects.
+**Fix:** run `artifact-row-preflight <script.mjs>` before an artifact-tool edit; it rejects a used-range `findIndex` translated with `index + 1`. Add the used range's starting worksheet row, assert the calculated A1 row before writing, then reopen the export and verify the prior row, updated row, duplicate count, and formula errors.
+
+### 4 artifact-tool saves created `.inspect.ndjson` sidecars of 308,865 to 309,987 bytes
+
+**verified:** 2026-10-22, one tracker update exported to a temporary workbook and saved directly to the authoritative path; both operations created 309,987-byte `.inspect.ndjson` sidecars with SHA256 `ac1090c914bc3b6bbd9f148cb8d36863226cd25fc3791a7a5b0849e3fb263522`, while two repair saves created 308,865-byte sidecars that were moved back to the temporary directory
+**where:** four artifact-tool XLSX saves for one job-application tracker workbook
+
+All four saves wrote a diagnostic sidecar next to their XLSX destination; the authoritative directory was clean only after the sidecars were moved away.
+
+**Why:** REJECT at n=4 save observations from one workbook subject; there are not five observations from five different subjects.
+**Fix:** export and inspect in a unique temporary directory, move only the reopened and verified XLSX to its authoritative path, then check both directories for `*.inspect.ndjson`. If a direct authoritative save is unavoidable, move its sidecar back to the temporary directory and verify the authoritative directory is clean.
 
 ### `Unexpected existing Applications value change at row 88 column 0` rejected one authorized append
 
@@ -557,6 +570,16 @@ The inspect result described a rectangular region, while the worksheet's native 
 
 **Why:** REJECT at n=1 from one workbook and artifact-tool subject; there are not five observations from five different subjects.
 **Fix:** guard `worksheet.tables.items` before using native-table APIs. When it is empty, guard the destination row, copy the prior row formatting with `source.copyTo(destination, "all")`, overwrite values, recalculate, export, reopen, and render; the corrected workbook and PNG were verified.
+
+### Run Log retry computed row 11 after its first write had already filled row 10 at n=1
+
+**verified:** 2026-10-22, a spreadsheet update script derived its append row as `rows.length + 1`; after its first successful write made the used range include row 10, rerunning the idempotent timestamp correction threw exactly `Expected row 10, got row 11`
+**where:** one Run Log update script and one saved workbook retry
+
+The rerun proves that a used-range-length append calculation did not identify the same logical run after the first write.
+
+**Why:** REJECT at n=1 from one script and workbook subject; there are not five observations from five different subjects.
+**Fix:** resolve the intended row from the Run Log headers plus the current date or run key, and overwrite that known row on retry instead of appending from the current used-range length. Reopen the export and verify exactly one matching run row.
 
 ### artifact-tool copy operations lost formatting, retained merges, or corrupted overlapping sources on 7 observations from one workbook
 

@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Reject artifact-tool writes that treat used-range indexes as worksheet rows."""
+
+from __future__ import annotations
+
+import re
+import sys
+import tempfile
+from pathlib import Path
+
+
+USED_RANGE = re.compile(r"\bgetUsedRange\s*\(")
+FIND_INDEX = re.compile(r"\bfindIndex\s*\(")
+INDEX_PLUS_ONE = re.compile(
+    r"\b(?:index|[A-Za-z_$][\w$]*(?:Index|_index))\s*\+\s*1\b"
+)
+A1_WRITE = re.compile(r"\.getRange\s*\(")
+
+
+def violations(source: str) -> list[str]:
+    if not (
+        USED_RANGE.search(source)
+        and FIND_INDEX.search(source)
+        and A1_WRITE.search(source)
+    ):
+        return []
+
+    errors = []
+    for match in INDEX_PLUS_ONE.finditer(source):
+        line = source.count("\n", 0, match.start()) + 1
+        errors.append(
+            f"line {line}: {match.group(0)!r} maps a used-range index "
+            "without its A1 start row"
+        )
+    return errors
+
+
+def check(path: Path) -> list[str]:
+    try:
+        source = path.read_text()
+    except OSError as error:
+        return [f"cannot read {path}: {error}"]
+    return [f"{path}: {error}" for error in violations(source)]
+
+
+def self_test() -> int:
+    unsafe = """const used = sheet.getUsedRange();
+const rows = used.values;
+const index = rows.findIndex(row => row[0] === 'Linear');
+sheet.getRange(`A${index + 1}:J${index + 1}`).values = [rows[index]];
+"""
+    safe = """const used = sheet.getUsedRange();
+const rows = used.values;
+const index = rows.findIndex(row => row[0] === 'Linear');
+const startRow = Number(used.address.match(/A(\\d+)/)[1]);
+const worksheetRow = startRow + index;
+sheet.getRange(`A${worksheetRow}:J${worksheetRow}`).values = [rows[index]];
+"""
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        unsafe_path = Path(temp_dir) / "unsafe.mjs"
+        safe_path = Path(temp_dir) / "safe.mjs"
+        unsafe_path.write_text(unsafe)
+        safe_path.write_text(safe)
+        if not check(unsafe_path):
+            print("artifact-row-preflight: unsafe fixture was accepted", file=sys.stderr)
+            return 1
+        if check(safe_path):
+            print("artifact-row-preflight: safe fixture was rejected", file=sys.stderr)
+            return 1
+
+    print("artifact-row-preflight: 2 fixtures passed")
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) == 2 and sys.argv[1] == "--self-test":
+        return self_test()
+    if len(sys.argv) < 2:
+        print("usage: artifact-row-preflight <script.mjs> [...]", file=sys.stderr)
+        return 2
+
+    errors = []
+    for argument in sys.argv[1:]:
+        errors.extend(check(Path(argument)))
+    if errors:
+        for error in errors:
+            print(f"artifact-row-preflight: {error}", file=sys.stderr)
+        return 1
+
+    print(f"artifact-row-preflight: {len(sys.argv) - 1} script(s) passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

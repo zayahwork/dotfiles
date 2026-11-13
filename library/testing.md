@@ -383,15 +383,16 @@ All sixteen failures mean the hunk context did not match the named target file; 
 **Why:** still held back at n=16 across nine file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing, keep every hunk under its correct `Update File` header, and run `patch-preflight --root <workspace>` before applying a multi-file patch; the check rejects old context absent from the named file and its three-fixture self-test covers the verified wrong-header case.
 
-### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=2
+### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=3
 
 **verified:** 2026-10-10, one patch containing both `*** Delete File` and `*** Add File` for `state/local-run-latest.json` returned exactly `multiple operations target .../state/local-run-latest.json`
 **verified:** 2026-10-10, an isolated patch containing both operations for `/tmp/library-duplicate-op.json` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /tmp/library-duplicate-op.json` and left the original file unchanged
-**where:** two apply_patch requests against two JSON file targets
+**verified:** 2026-11-13, one patch containing both operations for `/Users/zayah/Documents/Codex/2026-11-13/referenced-chatgpt-conversation-this-is-an/work/project_tracker_builder.mjs` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /Users/zayah/Documents/Codex/2026-11-13/referenced-chatgpt-conversation-this-is-an/work/project_tracker_builder.mjs`
+**where:** three apply_patch requests against three file targets
 
-Both patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
+All three patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
 
-**Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
+**Why:** REJECT at n=3 across three file targets; there are not five observations from five different subjects. This third recurrence requires a reusable check; the existing `patch-preflight` does not detect duplicate file operations.
 **Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
 ### `rm -f style commands are not permitted` rejected 3 narrow cleanups before execution

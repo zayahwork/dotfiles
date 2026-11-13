@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify apply_patch update hunks against their named files before execution."""
+"""Verify apply_patch file operations and update hunks before execution."""
 
 from __future__ import annotations
 
@@ -13,6 +13,19 @@ from pathlib import Path
 class Update:
     path: str
     hunks: list[list[str]] = field(default_factory=list)
+
+
+OPERATION_PREFIXES = ("*** Add File: ", "*** Delete File: ", "*** Update File: ")
+
+
+def parse_operation_paths(patch_text: str) -> list[str]:
+    paths: list[str] = []
+    for line in patch_text.splitlines():
+        for prefix in OPERATION_PREFIXES:
+            if line.startswith(prefix):
+                paths.append(line.removeprefix(prefix))
+                break
+    return paths
 
 
 def parse_updates(patch_text: str) -> list[Update]:
@@ -53,6 +66,22 @@ def contains_sequence(lines: list[str], sequence: list[str]) -> bool:
 
 def violations(patch_text: str, root: Path) -> list[str]:
     errors: list[str] = []
+    operations: dict[Path, tuple[str, int]] = {}
+    for path in parse_operation_paths(patch_text):
+        target = Path(path)
+        if not target.is_absolute():
+            target = root / target
+        key = target.resolve()
+        original, count = operations.get(key, (path, 0))
+        operations[key] = (original, count + 1)
+    for original, count in operations.values():
+        if count > 1:
+            errors.append(
+                f"duplicate file operation: {original} appears {count} times; "
+                "use one Update File operation or split the patch into separate calls"
+            )
+    if errors:
+        return errors
     for update in parse_updates(patch_text):
         target = Path(update.path)
         if not target.is_absolute():
@@ -109,6 +138,13 @@ def self_test() -> int:
 +new
 *** End Patch
 """
+        duplicate = """*** Begin Patch
+*** Delete File: pipeline.py
+*** Add File: pipeline.py
++def score_job(item=None):
++    return 1
+*** End Patch
+"""
         failures: list[str] = []
         if not violations(bad, root):
             failures.append("expected wrong-file context rejection")
@@ -116,10 +152,15 @@ def self_test() -> int:
             failures.append("expected split code and test patch acceptance")
         if not violations(missing, root):
             failures.append("expected missing-target rejection")
+        duplicate_errors = violations(duplicate, root)
+        if len(duplicate_errors) != 1 or not duplicate_errors[0].startswith(
+            "duplicate file operation: pipeline.py appears 2 times"
+        ):
+            failures.append("expected duplicate file operation rejection")
         if failures:
             print("\n".join(failures))
             return 1
-    print("patch-preflight: 3 fixtures passed")
+    print("patch-preflight: 4 fixtures passed")
     return 0
 
 

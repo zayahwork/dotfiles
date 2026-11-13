@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -383,15 +383,16 @@ All sixteen failures mean the hunk context did not match the named target file; 
 **Why:** still held back at n=16 across nine file subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
 **Fix:** read each target immediately before editing, keep every hunk under its correct `Update File` header, and run `patch-preflight --root <workspace>` before applying a multi-file patch; the check rejects old context absent from the named file and its three-fixture self-test covers the verified wrong-header case.
 
-### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=2
+### `apply_patch` rejected delete plus add for one path with `multiple operations target` at n=3
 
 **verified:** 2026-10-10, one patch containing both `*** Delete File` and `*** Add File` for `state/local-run-latest.json` returned exactly `multiple operations target .../state/local-run-latest.json`
 **verified:** 2026-10-10, an isolated patch containing both operations for `/tmp/library-duplicate-op.json` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /tmp/library-duplicate-op.json` and left the original file unchanged
-**where:** two apply_patch requests against two JSON file targets
+**verified:** 2026-11-13, one patch containing both operations for `/Users/zayah/Documents/Codex/2026-11-13/referenced-chatgpt-conversation-this-is-an/work/project_tracker_builder.mjs` returned exactly `apply_patch verification failed: invalid patch: multiple operations target /Users/zayah/Documents/Codex/2026-11-13/referenced-chatgpt-conversation-this-is-an/work/project_tracker_builder.mjs`
+**where:** three apply_patch requests against three file targets
 
-Both patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
+All three patches named the same path twice inside one patch envelope; the evidence does not establish behavior for other operation combinations.
 
-**Why:** REJECT at n=2 across two file targets; there are not five observations from five different subjects.
+**Why:** REJECT at n=3 across three file targets; there are not five observations from five different subjects. This third recurrence requires a reusable check; the existing `patch-preflight` does not detect duplicate file operations.
 **Fix:** express the replacement as one `*** Update File` diff, or perform delete and add as two sequential apply_patch calls when replacement cannot be represented as an update.
 
 ### `rm -f style commands are not permitted` rejected 3 narrow cleanups before execution
@@ -593,6 +594,16 @@ The evidence establishes all seven copy results in this workbook but does not es
 
 **Why:** REJECT after seven observations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** read source values into a JavaScript matrix before mutation and write that matrix to the shifted destination; copy formatting only from non-overlapping template rows or reconstruct it, explicitly unmerge target rows with `sheet.unmergeCells`, then inspect values and render every affected column.
+
+### artifact-tool 2.8.58+ retained imported values after clearing 3 merged-range anchors in one workbook
+
+**verified:** 2026-11-13, after importing the Project Tracker template XLSX, clearing only `C5` left `Aurora Launch` in `D5:E5`, clearing only `H5` left `Jordan Lee` in `I5`, and clearing only `C6` left `Northstar Labs` in `D6:E6`
+**where:** one retained Project Tracker template imported through `@oai/artifact-tool` 2.8.58+
+
+The imported workbook exposed the visible merged labels as duplicate cell values, so clearing only each merged range's visible top-left cell did not make the sample data absent on rescan.
+
+**Why:** REJECT at n=3 merged ranges from one workbook subject; there are not five observations from five different subjects.
+**Fix:** clear each full merged range, including `C5:E5`, `H5:I5`, `C6:E6`, and `H6:I6`, then rescan for every synthetic sample value before export.
 
 ### `table.rows.add` overwrote 3 non-table rows once and blanked the last table row once in one workbook
 

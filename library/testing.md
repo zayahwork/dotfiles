@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby Psych anchor parsing, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -93,6 +93,16 @@ The passing controls changed only the user folder and explicit encryption key, i
 
 **Why:** REJECT at n=1 from one CLI, sandbox, and validation subject; there are not five observations from five different subjects.
 **Fix:** set an explicit writable `N8N_USER_FOLDER` and a temporary validation-only `N8N_ENCRYPTION_KEY` before read-only n8n CLI inspection, then require complete usage text and exit 0.
+
+### Ruby Psych lacked `YAML.unsafe_load_file` at n=1; `YAML.safe_load(File.read(path), [], [], true)` parsed Compose anchors
+
+**verified:** 2026-11-16, a Ruby Compose validation using `YAML.unsafe_load_file("04 ⚙️ n8n Automation/compose.n8n.yml")` exited 1 with `undefined method \`unsafe_load_file' for Psych:Module (NoMethodError)` and `Did you mean? safe_load`; replacing only the load with `YAML.safe_load(File.read("04 ⚙️ n8n Automation/compose.n8n.yml"), [], [], true)` exited 0 and printed `compose YAML parsed: 5 services, isolated internal runner network`
+**where:** one machine Ruby Psych runtime parsing the n8n Compose file from `/Users/zayah/Z&N`
+
+The fourth positional `true` enabled aliases for the Compose anchor in this runtime.
+
+**Why:** REJECT at n=1 from one Ruby runtime and Compose subject; there are not five observations from five different subjects.
+**Fix:** read the YAML text and call `YAML.safe_load(File.read(path), [], [], true)`, then require the parsed service and network assertions plus nonempty success output.
 
 ### n8n `execute --file` exited 0 with `"--id" has to be set!`; import plus `--id` ran 12 steps
 

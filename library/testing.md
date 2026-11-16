@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, reply, and delivery-state acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, delivery-state, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -217,6 +217,46 @@ An explicit false assignment could survive parent freeze and permit an organizat
 
 **Why:** REJECT at n=1 from one schema and experiment-integrity audit subject; there are not five observations from five different subjects or a fresh-database control.
 **Fix:** UNCONFIRMED; require assigned rows to be frozen or derive protection from the parent experiment state, then prove explicit-false rejection and owner-cluster immutability on a fresh database.
+
+### 19 scalar `IF value <> expected` assertions could silently pass SQL NULL at n=1
+
+**verified:** 2026-11-16, independent audit of `002_acceptance.sql` identified NULL-unsafe scalar assertions around lines 503, 507, 545, 569, 587, 590, 1155, 1160, 1183, 1259, 1283, 1347, 1360, 1380, 1431, 1436, 1487, 1498, and 1519; in PL/pgSQL, `IF value <> expected` evaluates to NULL rather than true when `value` is NULL, so the exception branch is skipped
+**where:** one static assertion audit of the n8n gym research PostgreSQL acceptance file in `/Users/zayah/Z&N`
+
+These assertions could report success without proving that the queried scalar existed.
+
+**Why:** REJECT at n=1 from one acceptance file and assertion-class audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; replace scalar inequality checks with `IS DISTINCT FROM` or explicit NULL guards, then require mutation tests and a fresh-database acceptance pass.
+
+### Advisory lock 5402 and organization row locks used opposite order on assignment versus owner update at n=1
+
+**verified:** 2026-11-16, independent static audit found `validate_assignment_owner_cluster` acquired advisory lock 5402 before an organization `FOR SHARE` lock, while an owner `UPDATE` acquired the organization row lock before its row trigger called `reject_assigned_owner_change`, which then acquired advisory lock 5402
+**where:** one static concurrency audit of the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
+
+Concurrent assignment and owner-update transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+
+**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
+**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving owner-cluster invariants.
+
+### `provider_message_correlations` could pair provider A with provider B's outbox at n=1
+
+**verified:** 2026-11-16, independent static audit found `provider_message_correlations` referenced only `outbox_messages(outbox_id)`, so a direct row could use a provider different from the provider stored on that outbox even though other related tables used composite `(outbox_id, provider)` foreign keys
+**where:** one static referential-integrity audit of the n8n gym research PostgreSQL provider-correlation schema in `/Users/zayah/Z&N`
+
+The single-column foreign key proved that the outbox existed but did not prove that the correlation belonged to the same provider.
+
+**Why:** REJECT at n=1 from one schema and provider-correlation audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; use a composite `(outbox_id, provider)` foreign key and add a negative mismatched-provider insert, then require fresh-database acceptance proof.
+
+### Advisory lock 5403 and location row locks used opposite order on qualification finalization versus edit at n=1
+
+**verified:** 2026-11-16, independent static audit found `validate_finalized_qualification_location` acquired advisory lock 5403 before a location `FOR SHARE` lock, while a location `UPDATE` acquired the row lock before its trigger called `reject_finalized_location_change`, which then acquired advisory lock 5403
+**where:** one static concurrency audit of the n8n gym research PostgreSQL qualification and location triggers in `/Users/zayah/Z&N`
+
+Concurrent qualification finalization and location edit transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+
+**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
+**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving finalized qualification geography.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

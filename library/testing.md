@@ -298,6 +298,16 @@ The event's verified global safety side effect depended on unrelated current ret
 **Why:** REJECT at n=1 from one schema and historical provider-policy audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; apply global pause as an unconditional side effect of every verified correlated `sender_policy_failure`, then require historical reserved-retry and replay acceptance on a fresh database.
 
+### Historical exact-ID `invalid_mailbox` could leave the current retry and quota reserved at n=1
+
+**verified:** 2026-11-16, independent audit found a historical exact-ID `invalid_mailbox` created durable email suppression but excluded the same outbox from quota release and status suppression; the historical-preserve path could leave a current reserved retry and its reservation stuck `reserved` indefinitely
+**where:** one static historical mailbox-event audit of the n8n gym research PostgreSQL delivery and quota path in `/Users/zayah/Z&N`
+
+Durable suppression kept the path fail closed against sending, but the unsent retry and reserved quota could leak state and capacity.
+
+**Why:** REJECT at n=1 from one schema and historical mailbox-event audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; suppress the same current unsent retry, release its reserved quota, and require fresh-database processing plus replay acceptance.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -287,6 +287,16 @@ Exact historical correlation protected event identity but did not stop an older 
 
 **Why:** REJECT at n=1 from one schema and historical-event audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; keep historical events attempt-local or allow only monotonic global transitions, then require a late-retry acceptance test that preserves retry 2's accepted state.
+
+### Historical exact-ID `sender_policy_failure` skipped global pause in 4 current outbox states at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` applied the verified sender-policy global pause only for selected current outbox states; a correlated historical exact-ID event entered the historical-preserve path without pausing when the current retry was `reserved`, `queued`, `blocked`, or `confirmed_not_accepted`
+**where:** one static provider-policy event audit of the n8n gym research PostgreSQL delivery path in `/Users/zayah/Z&N`
+
+The event's verified global safety side effect depended on unrelated current retry state, so a historical provider block could be recorded without pausing future work.
+
+**Why:** REJECT at n=1 from one schema and historical provider-policy audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; apply global pause as an unconditional side effect of every verified correlated `sender_policy_failure`, then require historical reserved-retry and replay acceptance on a fresh database.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

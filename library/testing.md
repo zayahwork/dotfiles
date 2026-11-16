@@ -452,15 +452,15 @@ The expired current reservation blocked handoff while the outbox could not safel
 **Why:** REJECT at n=1 from one schema and quota-replacement audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; permit safe fresh replacement only for unused expired quota on never-attempted or explicitly retry-prepared outboxes, then require negative and positive acceptance on a fresh database.
 
-### Transaction-stable timestamp equality could defeat fresh-quota ordering at n=1
+### Transaction-stable `current_date` and timestamps could defeat fresh-quota ordering across midnight at n=1
 
-**verified:** 2026-11-16, independent static audit found quota freshness ordering compared timestamps assigned inside one transaction, where transaction-stable time values could be equal and fail to prove which reservation was newer
-**where:** one static timestamp-ordering audit of the n8n gym research PostgreSQL quota ledger in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two independent static clock audits found fresh-quota ordering could compare equal transaction-stable timestamps and quota date gates used transaction-stable `current_date` while expiry used wall clock, allowing a long transaction to consume or count a prior-day reservation after midnight
+**where:** two static clock audits of one n8n gym research PostgreSQL quota-ledger subject in `/Users/zayah/Z&N`
 
-Equal transaction timestamps could make replacement ordering ambiguous even when a fresh reservation was created later in statement order.
+The quota paths mixed ordering and date semantics, so neither statement order nor a midnight boundary was represented consistently.
 
-**Why:** REJECT at n=1 from one schema and timestamp-ordering audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; use server-assigned clock ordering plus a distinct durable ledger order, then require same-transaction replacement acceptance on a fresh database.
+**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; use server-assigned clock ordering plus a distinct durable ledger order, use `clock_timestamp()::date` consistently for quota date gates, then require same-transaction replacement and cross-midnight acceptance on a fresh database.
 
 ### Atomic safety ingest could erase the verified event when processing failed at n=1
 
@@ -471,6 +471,26 @@ The transaction removed both the failed side effect and the durable evidence tha
 
 **Why:** REJECT at n=1 from one schema and safety-ingest failure audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; catch processing failure in a subtransaction that preserves the pending verified event, then require bad-secret, blocker, recovery, and replay acceptance on a fresh database.
+
+### Late verified `accepted` or `delivered` events could roll back and leave a prepared retry sendable at n=1
+
+**verified:** 2026-11-16, independent static audit found a verified late `accepted` or `delivered` event arriving after terminal `confirmed_not_accepted` raised an exception, rolled back the positive provider evidence, and did not block or cancel an already prepared retry
+**where:** one static contradictory-event and retry-safety audit of the n8n gym research PostgreSQL delivery-event path in `/Users/zayah/Z&N`
+
+The prepared retry could remain eligible to send even though the provider later proved acceptance or delivery of the earlier attempt, creating duplicate-send risk.
+
+**Why:** REJECT at n=1 from one schema and contradictory-event audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; persist the contradictory positive event, release prepared quota, move shared state monotonically to accepted or delivered, record an anomaly, fail closed on any unprocessed blocker, then require pre-prepare, post-prepare, and replay acceptance on a fresh database.
+
+### Exact verified negative events could not promote a terminal null-ID attempt to retry evidence at n=1
+
+**verified:** 2026-11-16, independent static audit found provider lookup could resolve an attempt as `confirmed_not_accepted` before an exact provider event arrived, but the later verified negative event could not select or promote that terminal attempt while its provider message ID remained null
+**where:** one static provider-evidence promotion audit of the n8n gym research PostgreSQL delivery-event and retry path in `/Users/zayah/Z&N`
+
+The system could retain lookup evidence yet leave event-only retry proof impossible forever because the exact event could not bind its provider ID to the prior terminal attempt.
+
+**Why:** REJECT at n=1 from one schema and evidence-promotion audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; select one unique latest terminal null-ID attempt, bind the provider ID, promote verified-event evidence while preserving prior lookup evidence, then require lookup rejection, event promotion, retry, and replay acceptance on a fresh database.
 
 ### Non-unique `apply_patch` context put `clock_timestamp()` on campaign creation at n=1
 

@@ -308,6 +308,26 @@ Durable suppression kept the path fail closed against sending, but the unsent re
 **Why:** REJECT at n=1 from one schema and historical mailbox-event audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; suppress the same current unsent retry, release its reserved quota, and require fresh-database processing plus replay acceptance.
 
+### A late opt-out to a prior retry ID could miss future-campaign email suppression at n=1
+
+**verified:** 2026-11-16, independent audit found `process_inbound_reply` checked the reply provider ID only against the outbox's current pointer, so a legitimate late opt-out to a prior retry ID was rejected after pointer advance and no durable email suppression was created for future campaigns
+**where:** one static historical-reply audit of the n8n gym research PostgreSQL inbound-reply path in `/Users/zayah/Z&N`
+
+The current pointer identified only the latest attempt and was not a durable correlation registry for earlier provider messages.
+
+**Why:** REJECT at n=1 from one schema and historical opt-out audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; use a provider-scoped durable correlation registry and require a fresh-database late historical opt-out test that creates future-campaign email suppression.
+
+### An unverified inbound reply row could block follow-ups before processing rejected it at n=1
+
+**verified:** 2026-11-16, independent audit found `activation_blockers` treated any inbound reply as a follow-up blocker without checking `signature_verified`, so an unverified webhook row could halt follow-ups even though later reply processing rejected that row
+**where:** one static reply-gate audit of the n8n gym research PostgreSQL activation and webhook path in `/Users/zayah/Z&N`
+
+The activation gate trusted row presence more than the processing path's signature requirement.
+
+**Why:** REJECT at n=1 from one schema and unverified-reply audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; gate follow-ups only on verified replies, then require negative unverified and positive verified acceptance cases on a fresh database.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

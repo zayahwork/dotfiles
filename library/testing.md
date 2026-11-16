@@ -80,15 +80,16 @@ The observed fix kept zsh from expanding the exclude glob before Vitest received
 **Why:** REJECT at n=1 from one repository and runner subject; there are not five observations from five different subjects.
 **Fix:** single-quote glob arguments in npm scripts when the called test runner must interpret them, then require a nonzero unit-test count and no imported Playwright suite.
 
-### `docker version` returned `zsh:1: command not found: docker` at n=1
+### `docker` and `podman` were absent while `pg_isready` returned `/tmp:5432 - no response` at n=1
 
 **verified:** 2026-11-15, `docker version` returned exactly `zsh:1: command not found: docker`, so the Zaya Dialer PostgreSQL container and lock checks were not run
+**verified:** 2026-11-15, `command -v docker` and `command -v podman` printed no path, `/opt/homebrew/bin/psql` and `/opt/homebrew/bin/pg_isready` existed, and `pg_isready` printed exactly `/tmp:5432 - no response`
 **where:** one Zaya Dialer verification session on Zayah's Mac
 
-The missing command proves only that this shell could not launch Docker, not that PostgreSQL behavior failed.
+No container runtime command was available and no PostgreSQL server answered the local client probe; installed client commands alone do not verify server behavior.
 
 **Why:** REJECT at n=1 from one machine and command subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; provide a working Docker command or another configured PostgreSQL service, then run the PostgreSQL-only tests before claiming database verification.
+**Fix:** UNCONFIRMED; provide a working Docker or Podman command or start another configured PostgreSQL service, require `pg_isready` to report an accepting server, then run the PostgreSQL-only tests before claiming database verification.
 
 ### `ps -axo pid,command` returned `zsh:1: operation not permitted: ps` at n=1
 

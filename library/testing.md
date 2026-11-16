@@ -422,6 +422,66 @@ The gate recognized one reservation's expiry while aggregate quota accounting co
 **Why:** REJECT at n=1 from one schema and stale-reservation audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; count consumed plus only unexpired reserved quota, optionally expire stale rows, and require stale-peer capacity acceptance on a fresh database.
 
+### Caller-authored provider lookup JSON could forge `confirmed_not_accepted` retry proof at n=1
+
+**verified:** 2026-11-16, independent static audit found the retry proof path trusted caller-authored provider lookup JSON, so a writer could forge `confirmed_not_accepted` evidence and authorize an automated retry
+**where:** one static retry-evidence audit of the n8n gym research PostgreSQL provider lookup and retry path in `/Users/zayah/Z&N`
+
+The purported provider fact was application-supplied data rather than an exact processed, signature-verified provider event.
+
+**Why:** REJECT at n=1 from one schema and provider-proof audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; permit automated retry only from an exact processed signature-verified event, then require forged and valid evidence cases on a fresh database.
+
+### Inbound opt-out lacked a durable reply-to-suppression link and mishandled existing suppression at n=1
+
+**verified:** 2026-11-16, independent static audit found inbound opt-out processing created no relational evidence from the reply to its suppression and did not correctly handle a matching suppression that already existed
+**where:** one static idempotence and evidence audit of the n8n gym research PostgreSQL inbound-reply suppression path in `/Users/zayah/Z&N`
+
+The system could not durably prove which reply caused suppression or treat replay against a preexisting row as the same completed safety outcome.
+
+**Why:** REJECT at n=1 from one schema and reply-suppression evidence audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; store a durable reply-to-suppression link, make existing suppression idempotent, and require first-process plus replay acceptance on a fresh database.
+
+### Expired current quota could strand an unattempted or retry-prepared outbox at n=1
+
+**verified:** 2026-11-16, independent static audit found an expired quota reservation linked to the current outbox had no safe replacement path even when the outbox had never been attempted or had only been explicitly retry-prepared
+**where:** one static quota-replacement audit of the n8n gym research PostgreSQL outbox and reservation lifecycle in `/Users/zayah/Z&N`
+
+The expired current reservation blocked handoff while the outbox could not safely attach fresh unused quota and resume its allowed lifecycle.
+
+**Why:** REJECT at n=1 from one schema and quota-replacement audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; permit safe fresh replacement only for unused expired quota on never-attempted or explicitly retry-prepared outboxes, then require negative and positive acceptance on a fresh database.
+
+### Transaction-stable timestamp equality could defeat fresh-quota ordering at n=1
+
+**verified:** 2026-11-16, independent static audit found quota freshness ordering compared timestamps assigned inside one transaction, where transaction-stable time values could be equal and fail to prove which reservation was newer
+**where:** one static timestamp-ordering audit of the n8n gym research PostgreSQL quota ledger in `/Users/zayah/Z&N`
+
+Equal transaction timestamps could make replacement ordering ambiguous even when a fresh reservation was created later in statement order.
+
+**Why:** REJECT at n=1 from one schema and timestamp-ordering audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; use server-assigned clock ordering plus a distinct durable ledger order, then require same-transaction replacement acceptance on a fresh database.
+
+### Atomic safety ingest could erase the verified event when processing failed at n=1
+
+**verified:** 2026-11-16, independent static audit found atomic safety-event ingest and processing shared one transaction, so a processing error such as a bad suppression secret rolled back the verified event row and erased the unprocessed-event activation blocker
+**where:** one static failure-boundary audit of the n8n gym research PostgreSQL safety-event ingest and processing path in `/Users/zayah/Z&N`
+
+The transaction removed both the failed side effect and the durable evidence that should have kept later activation fail closed.
+
+**Why:** REJECT at n=1 from one schema and safety-ingest failure audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; catch processing failure in a subtransaction that preserves the pending verified event, then require bad-secret, blocker, recovery, and replay acceptance on a fresh database.
+
+### Non-unique `apply_patch` context put `clock_timestamp()` on campaign creation at n=1
+
+**verified:** 2026-11-16, during integrated SQL repair, an `apply_patch` target changed campaign creation to `clock_timestamp()` instead of changing `quota_reservations.created_at`; a static scan caught the misplaced edit before hashes or database execution
+**where:** one patch application against repeated `created_at` defaults in the n8n gym research PostgreSQL schema in `/Users/zayah/Z&N`
+
+Multiple identical default expressions made the patch context insufficient to identify the intended table.
+
+**Why:** REJECT at n=1 from one schema and patch-target subject; there are not five observations from five different subjects or database proof.
+**Fix:** UNCONFIRMED; patch with table-specific context, verify the exact changed line plus function boundaries and dollar quotes, then require fresh-database proof.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

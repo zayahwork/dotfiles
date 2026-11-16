@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -126,15 +126,27 @@ The unchanged command completed when only sandbox authority changed, isolating t
 **Why:** REJECT at n=1 from one PostgreSQL, sandbox, and cluster-initialization subject; there are not five observations from five different subjects.
 **Fix:** rerun the exact isolated `initdb` command with approved escalation, then require exit 0 plus both bootstrap `ok` lines and the completed data-directory path.
 
-### Sandboxed `psql` local Unix-socket connection returned `Operation not permitted` at n=1
+### Sandboxed `psql` returned `Operation not permitted`; escalation created 29 tables and 55 indexes at n=1
 
 **verified:** 2026-11-16, after the isolated PostgreSQL server started successfully, default-sandbox `psql -h /tmp/zn-n8n-pg.lFKw3l/socket -p 55439` failed to connect with `Operation not permitted`
+**verified:** 2026-11-16, after renaming reserved identifier `current_role` to `role_name`, escalated `psql -X -v ON_ERROR_STOP=1 -h /tmp/zn-n8n-pg.lFKw3l/socket -p 55439 -d zn_validate -f .../001_schema.sql` exited 0 with no errors; catalog checks found 29 tables, 55 indexes, 3 functions, and 1 default control row with `live_sending=false`, `provider_adapter=false`, and `global_pause=true`
 **where:** one local Unix-socket schema-validation attempt against the isolated n8n PostgreSQL cluster
 
-The failure occurred after server startup, but the exact socket permission boundary and escalated recovery remain UNCONFIRMED.
+The final pass changed both sandbox authority and one SQL identifier, so the complete schema success is not attributable to escalation alone; successful socket connection and DDL execution still verify that escalation crossed the connection boundary.
 
 **Why:** REJECT at n=1 from one PostgreSQL, sandbox, and connection subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; rerun the same local Unix-socket schema validation with approved escalation and require the expected nonempty schema output before claiming PostgreSQL verification.
+**Fix:** use `role_name` instead of reserved `current_role`, run the local Unix-socket validation with approved escalation, and require exit 0 plus 29 tables, 55 indexes, 3 functions, and the fail-closed default control row.
+
+### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
+
+**verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`
+**verified:** 2026-11-16, hashing concatenated UTF-8 `bytea` with `decode('00','hex')` as the separator made the rerun print `activation blockers, suppression hash, and monotonic events passed`, after which the transaction printed `ROLLBACK`
+**where:** one isolated PostgreSQL acceptance transaction for the n8n gym platform schema
+
+PostgreSQL text rejected the null character, while the bytea separator preserved the intended unambiguous hash input and allowed every acceptance assertion to run inside a rolled-back transaction.
+
+**Why:** REJECT at n=1 from one database and acceptance-transaction subject; there are not five observations from five different subjects.
+**Fix:** encode each value as UTF-8 `bytea`, concatenate with `decode('00','hex')`, hash the bytes, and require the exact acceptance success line followed by `ROLLBACK`.
 
 ### `docker` and `podman` were absent while `pg_isready` returned `/tmp:5432 - no response` at n=1
 

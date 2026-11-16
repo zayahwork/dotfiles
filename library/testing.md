@@ -59,16 +59,17 @@ The paired build and shell probe establish that the intended `.zshrc` output wor
 **Why:** held back at n=1 from one activation subject; there are not five observations from five different subjects.
 **Fix:** preserve the verified narrow `.zshrc` recovery; full Home Manager activation remains UNCONFIRMED until each reported clobber path is reconciled and `activate` exits 0 with nonempty output.
 
-### Loopback bind `operation not permitted` blocked 3 command paths across 2 projects
+### Loopback bind `operation not permitted` blocked 4 command paths across 3 projects
 
 **verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
 **verified:** 2026-11-15, a sandboxed Uvicorn preview failed to bind `127.0.0.1:8000` with `[Errno 1] ... operation not permitted`; the identical approved rerun returned HTTP 200 and `{"status":"ok","database":"ready"}`
 **verified:** 2026-11-15, sandboxed `npm run test:e2e` in Zaya Dialer built 89 modules in 730ms, then Playwright's FastAPI webServer failed with `[Errno 1] error while attempting to bind on address ('127.0.0.1', 8012): operation not permitted` and the command exited 3
-**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`; one Zaya Dialer preview pair using Uvicorn; one Zaya Dialer Playwright webServer run using FastAPI
+**verified:** 2026-11-16, sandboxed `n8n execute --file=... --rawOutput` completed SQLite migrations, then its internal task broker failed to bind `127.0.0.1:5679` with `listen EPERM: operation not permitted`; the identical escalated command printed `Task Broker ready on 127.0.0.1, port 5679`
+**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`; two Zaya Dialer command paths using Uvicorn and Playwright's FastAPI webServer; one n8n CLI validation pair using its internal task broker
 
-The first two unchanged commands passed when only sandbox authority changed; the third exact escalated rerun remains UNCONFIRMED.
+The MemeCoin, Uvicorn, and n8n commands passed their loopback bind when only sandbox authority changed; Playwright's exact escalated rerun remains UNCONFIRMED.
 
-**Why:** still held back across two project subjects; the third command path is a second Zaya Dialer observation and does not supply a third independent project subject.
+**Why:** still held back across three independent project subjects; there are not five observations from five different subjects.
 **Fix:** rerun the complete unchanged gate with approved escalation, then use its full counts and artifact output.
 
 ### `http://127.0.0.1:8012/health/ready is already used` after one Playwright test exited 0 at n=1
@@ -92,6 +93,17 @@ The passing controls changed only the user folder and explicit encryption key, i
 
 **Why:** REJECT at n=1 from one CLI, sandbox, and validation subject; there are not five observations from five different subjects.
 **Fix:** set an explicit writable `N8N_USER_FOLDER` and a temporary validation-only `N8N_ENCRYPTION_KEY` before read-only n8n CLI inspection, then require complete usage text and exit 0.
+
+### n8n `execute --file` exited 0 with `"--id" has to be set!`; import plus `--id` ran 12 steps
+
+**verified:** 2026-11-16, `n8n execute --help` still listed deprecated `--file`, but escalated `n8n execute --file=... --rawOutput` bound its task broker, exited 0 without executing the workflow, and printed exactly `"--id" has to be set!`
+**verified:** 2026-11-16, after importing the master workflow, escalated `n8n execute --id=GYM_G00_FIXTURE_DRY_RUN --rawOutput` exited 0, bound the task broker on `127.0.0.1:5679`, reported success for all 12 steps, and returned `ok=true`, 33 fixtures, 30 qualified, 3 `needs_review`, 34 contacts, 102 drafts, and 0 provider requests
+**where:** one isolated n8n CLI workflow-validation subject
+
+The first exit 0 did not prove workflow execution because its output required a different argument, while import plus the workflow ID produced complete node and result evidence.
+
+**Why:** REJECT at n=1 from one CLI version and workflow subject; there are not five observations from five different subjects.
+**Fix:** import the workflow into the isolated n8n database, execute it with `--id`, and require successful step counts plus the final result payload instead of trusting exit 0 alone.
 
 ### Unquoted `e2e/**` let zsh feed Playwright specs to Vitest at n=1
 

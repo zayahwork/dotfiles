@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -267,6 +267,26 @@ The rolling and provider-window calculations could omit a newly consumed reserva
 
 **Why:** REJECT at n=1 from one schema and quota-hardening audit; there are not five observations from five different subjects or a fresh-database control.
 **Fix:** UNCONFIRMED; generate the transition timestamp on the server or reject caller-supplied backdating, then require a negative backdate test and fresh-database quota-window proof.
+
+### `process_delivery_event` matched 2 correlations for a normal retry and rejected its new provider ID at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` counted every prior `temporary_deferral` plus the new `submitting` retry, so the normal retry event matched 2 records; the outbox's single `provider_message_id` then rejected the retry's distinct provider ID and the event never advanced
+**where:** one static retry-correlation audit of the n8n gym research PostgreSQL delivery-event path in `/Users/zayah/Z&N`
+
+Historical deferrals and the current unresolved attempt were treated as competing live correlations, while the shared outbox pointer still assumed one provider message forever.
+
+**Why:** REJECT at n=1 from one schema and retry-correlation audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; preserve the historical registry, prefer an exact attempt and otherwise one latest unresolved attempt, advance the current pointer only for a newer retry, and require a fresh-database multi-attempt event test.
+
+### A late retry 1 deferral could downgrade retry 2 `accepted_by_provider` to `deferred` at n=1
+
+**verified:** 2026-11-16, independent audit found that after retry 2 acceptance, an exact late `temporary_deferral` for historical retry 1 could still change the shared outbox from `accepted_by_provider` to `deferred` even when the provider-message pointer did not move
+**where:** one static late-event audit of the n8n gym research PostgreSQL multi-attempt delivery path in `/Users/zayah/Z&N`
+
+Exact historical correlation protected event identity but did not stop an older attempt from weakening the newer attempt's global outbox state.
+
+**Why:** REJECT at n=1 from one schema and historical-event audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; keep historical events attempt-local or allow only monotonic global transitions, then require a late-retry acceptance test that preserves retry 2's accepted state.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

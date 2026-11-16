@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry lifecycle, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -337,6 +337,16 @@ Durable suppression kept activation fail closed, but the greater-step filter lea
 
 **Why:** REJECT at n=1 from one schema and cross-campaign opt-out audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; clean up all matching pre-send email outboxes across campaigns, then require lower-step, equal-step retry, and replay acceptance on a fresh database.
+
+### Raw DML could reopen terminal outbox states into a duplicate retry claim at n=1
+
+**verified:** 2026-11-16, independent audit found retry acceptance used raw DML to set an outbox to `submitting` and insert attempts 2 and 3 against the already consumed first quota; no retry-preparation API or lifecycle trigger prevented reopening `unknown`, `accepted_by_provider`, `delivered`, invalid-mailbox, or sender-policy rows, while claim trusted an externally set `reserved` state and could consume fresh quota
+**where:** one static retry-lifecycle and acceptance-fixture audit of the n8n gym research PostgreSQL outbox path in `/Users/zayah/Z&N`
+
+Direct state reopening could bypass the evidence boundary between a confirmed non-acceptance and a potentially duplicated provider submission.
+
+**Why:** REJECT at n=1 from one schema and retry-lifecycle audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with durable evidence and fresh reserved quota, claim atomically, and require illegal-reopen tests for every other terminal or uncertain state.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

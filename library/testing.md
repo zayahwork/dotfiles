@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, reply, and delivery-state acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, and delivery-state acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -217,6 +217,16 @@ An explicit false assignment could survive parent freeze and permit an organizat
 
 **Why:** REJECT at n=1 from one schema and experiment-integrity audit subject; there are not five observations from five different subjects or a fresh-database control.
 **Fix:** UNCONFIRMED; require assigned rows to be frozen or derive protection from the parent experiment state, then prove explicit-false rejection and owner-cluster immutability on a fresh database.
+
+### 19 scalar `IF value <> expected` assertions could silently pass SQL NULL at n=1
+
+**verified:** 2026-11-16, independent audit of `002_acceptance.sql` identified NULL-unsafe scalar assertions around lines 503, 507, 545, 569, 587, 590, 1155, 1160, 1183, 1259, 1283, 1347, 1360, 1380, 1431, 1436, 1487, 1498, and 1519; in PL/pgSQL, `IF value <> expected` evaluates to NULL rather than true when `value` is NULL, so the exception branch is skipped
+**where:** one static assertion audit of the n8n gym research PostgreSQL acceptance file in `/Users/zayah/Z&N`
+
+These assertions could report success without proving that the queried scalar existed.
+
+**Why:** REJECT at n=1 from one acceptance file and assertion-class audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; replace scalar inequality checks with `IS DISTINCT FROM` or explicit NULL guards, then require mutation tests and a fresh-database acceptance pass.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

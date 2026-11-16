@@ -167,6 +167,16 @@ The final pass changed both sandbox authority and one SQL identifier, so the com
 **Why:** REJECT at n=1 from one PostgreSQL, sandbox, and connection subject; there are not five observations from five different subjects.
 **Fix:** use `role_name` instead of reserved `current_role`, run the local Unix-socket validation with approved escalation, and require exit 0 plus 29 tables, 55 indexes, 3 functions, and the fail-closed default control row.
 
+### `002_acceptance.sql:1072` omitted NOT NULL `provider_adapter_id` after `campaign_authorizations` changed at n=1
+
+**verified:** 2026-11-16, PostgreSQL 17 loaded `001_schema.sql` into a fresh disposable database, then `psql -v ON_ERROR_STOP=1` running `002_acceptance.sql` stopped at line 1072 with `null value in column "provider_adapter_id" of relation "campaign_authorizations" violates not-null constraint`
+**where:** one PostgreSQL 17 acceptance fixture for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The production schema required structured authorization fields that this acceptance fixture insert did not supply, so the fixture had drifted from the table contract.
+
+**Why:** REJECT at n=1 from one schema and acceptance-fixture subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; add `provider_adapter_id` and every other required structured authorization column to the fixture, then rerun both SQL files against another fresh database and require the transaction's complete success output.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

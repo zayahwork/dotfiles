@@ -328,6 +328,16 @@ The activation gate trusted row presence more than the processing path's signatu
 **Why:** REJECT at n=1 from one schema and unverified-reply audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; gate follow-ups only on verified replies, then require negative unverified and positive verified acceptance cases on a fresh database.
 
+### Inbound opt-out cleanup skipped cross-campaign step 1 and same-step retries at n=1
+
+**verified:** 2026-11-16, independent audit found inbound opt-out cleanup targeted matching outboxes only when `sequence_step` was greater than the source; sequence steps restart per campaign and retries reuse the same step, so a reserved cross-campaign step 1 or same-step retry could keep its quota and state despite durable email suppression
+**where:** one static opt-out cleanup audit of the n8n gym research PostgreSQL inbound-reply, outbox, and quota path in `/Users/zayah/Z&N`
+
+Durable suppression kept activation fail closed, but the greater-step filter leaked pre-send state and reserved capacity outside the source campaign's sequence ordering.
+
+**Why:** REJECT at n=1 from one schema and cross-campaign opt-out audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; clean up all matching pre-send email outboxes across campaigns, then require lower-step, equal-step retry, and replay acceptance on a fresh database.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

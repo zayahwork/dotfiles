@@ -6,8 +6,8 @@ environment rather than the source under test.
 ## Contents
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
-- [`getaddrinfo ENOTFOUND` and `curl: (6) Could not resolve host` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-and-curl-6-could-not-resolve-host-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing PDF fallback paths, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -24,15 +24,16 @@ Relative test filters are resolved from the runner's actual working directory, i
 
 ---
 
-## getaddrinfo ENOTFOUND and curl: (6) Could not resolve host are sandbox DNS boundaries when unchanged commands pass with approved network access
+## getaddrinfo ENOTFOUND, curl: (6) Could not resolve host, and NameResolutionError are sandbox DNS boundaries when unchanged commands pass with approved network access
 
 **verified:** 2026-09-20, sandboxed `npm run build` failed on `getaddrinfo ENOTFOUND fonts.googleapis.com` and the unchanged command completed the Next.js 15.5.25 build with approved network access; 2026-09-22, sandboxed `curl --max-time 20 --show-error --include https://r.jina.ai/https://pump.fun/` failed immediately with `curl: (6) Could not resolve host: r.jina.ai`, while the identical escalated command returned HTTP/2 200 and 26,172 decompressed bytes; 2026-09-22, three parallel `curl --max-time 20 --show-error` reads of `https://docs.typesafe.ai/llms.txt`, `/patterns/composite-scoring.md`, and `/confidence.md` each failed immediately with `curl: (6) Could not resolve host: docs.typesafe.ai`, then identical escalated reads succeeded with 16,019, 13,545, and 11,396 bytes respectively; 2026-09-22, sandboxed `curl -sS --max-time 20 https://r.jina.ai/https://docs.typesafe.ai/llms.txt` failed immediately with `curl: (6) Could not resolve host: r.jina.ai` during TypeSafe indicator work, while the exact escalated read returned the current `llms.txt` index in 4.3 seconds, four targeted composite-scoring, citation-checking, confidence, and primitives reads completed in 23.7 seconds, and a filtered citation/confidence read completed in 5.2 seconds
-**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/Users/zayah/Downloads/home-main`
+**verified:** 2026-11-15, a sandboxed pip install for optional `Scrapy==2.20.0` failed on `NameResolutionError` for `pypi.org`, while the identical approved rerun installed Scrapy 2.20.0 and its four adapter tests passed
+**where:** `Home/09 🏗️ Builds/Nate Pool Studio/source/cove-crm`; `/Users/zayah/Downloads/home-main`; `/Users/zayah/Z&N`
 
-Build-time font fetching and read-only Jina fetching both require DNS, so a sandbox network boundary can fail before source or target-page behavior is evaluated.
+Build-time font fetching, read-only Jina fetching, and Python package installation all require DNS, so a sandbox network boundary can fail before source, endpoint, or package behavior is evaluated.
 
 **Why:** in every completed comparison pair, the identical command passed when only network authority changed, isolating the failure to the sandbox boundary.
-**Fix:** rerun the identical read-only command with approved network access; investigate the source or endpoint only if that rerun still fails.
+**Fix:** rerun the identical network command with approved access; investigate the source, endpoint, or package only if that rerun still fails.
 
 ---
 
@@ -58,15 +59,46 @@ The paired build and shell probe establish that the intended `.zshrc` output wor
 **Why:** held back at n=1 from one activation subject; there are not five observations from five different subjects.
 **Fix:** preserve the verified narrow `.zshrc` recovery; full Home Manager activation remains UNCONFIRMED until each reported clobber path is reconciled and `activate` exits 0 with nonempty output.
 
-### `listen EPERM: operation not permitted 127.0.0.1` disappeared on the exact escalated `npm run verify` at n=1
+### Loopback bind `operation not permitted` disappeared on exact escalated reruns across 2 projects
 
 **verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
-**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`
+**verified:** 2026-11-15, a sandboxed Uvicorn preview failed to bind `127.0.0.1:8000` with `[Errno 1] ... operation not permitted`; the identical approved rerun returned HTTP 200 and `{"status":"ok","database":"ready"}`
+**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`; one Zaya Dialer preview pair using Uvicorn
 
-The same source and complete command passed when only sandbox authority changed, isolating this occurrence to loopback-bind permission.
+Both unchanged commands passed when only sandbox authority changed, isolating these occurrences to loopback-bind permission.
 
-**Why:** held back at n=1 from one project subject; there are not five observations from five different subjects.
+**Why:** still held back at n=2 from two project subjects; there are not five observations from five different subjects.
 **Fix:** rerun the complete unchanged gate with approved escalation, then use its full counts and artifact output.
+
+### Unquoted `e2e/**` let zsh feed Playwright specs to Vitest at n=1
+
+**verified:** 2026-11-15, `vitest run --exclude e2e/**` imported Playwright end-to-end specs, while changing only the script argument to `vitest run --exclude 'e2e/**'` made the unit suite pass first 37 and then 42 tests
+**where:** `frontend/package.json` in `/Users/zayah/Z&N`
+
+The observed fix kept zsh from expanding the exclude glob before Vitest received it.
+
+**Why:** REJECT at n=1 from one repository and runner subject; there are not five observations from five different subjects.
+**Fix:** single-quote glob arguments in npm scripts when the called test runner must interpret them, then require a nonzero unit-test count and no imported Playwright suite.
+
+### `docker version` returned `zsh:1: command not found: docker` at n=1
+
+**verified:** 2026-11-15, `docker version` returned exactly `zsh:1: command not found: docker`, so the Zaya Dialer PostgreSQL container and lock checks were not run
+**where:** one Zaya Dialer verification session on Zayah's Mac
+
+The missing command proves only that this shell could not launch Docker, not that PostgreSQL behavior failed.
+
+**Why:** REJECT at n=1 from one machine and command subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; provide a working Docker command or another configured PostgreSQL service, then run the PostgreSQL-only tests before claiming database verification.
+
+### `ps -axo pid,command` returned `zsh:1: operation not permitted: ps` at n=1
+
+**verified:** 2026-11-15, library-admin ran `ps -axo pid,command` to recover the exact Uvicorn preview command and received exactly `zsh:1: operation not permitted: ps`
+**where:** one restricted agent sandbox on Zayah's Mac
+
+The failed inspection did not establish whether the Uvicorn process was running or expose its command line.
+
+**Why:** REJECT at n=1 from one sandbox and process-inspection subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; retain the original command output or use an approved process-inspection surface before relying on process state.
 
 ### Reloading one unpacked Chrome extension left old page contexts active at n=2 from one subject
 

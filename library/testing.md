@@ -492,6 +492,16 @@ The system could retain lookup evidence yet leave event-only retry proof impossi
 **Why:** REJECT at n=1 from one schema and evidence-promotion audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; select one unique latest terminal null-ID attempt, bind the provider ID, promote verified-event evidence while preserving prior lookup evidence, then require lookup rejection, event promotion, retry, and replay acceptance on a fresh database.
 
+### Unconstrained `processing_error_code` columns could persist provider errors or secrets at n=1
+
+**verified:** 2026-11-16, independent static audit found `delivery_events.processing_error_code` and `inbound_replies.processing_error_code` were unconstrained text despite a fixed public-code convention in their writer functions, so direct or future writes could store raw provider errors or secrets
+**where:** one static error-persistence audit of the n8n gym research PostgreSQL delivery-event and inbound-reply tables in `/Users/zayah/Z&N`
+
+The corresponding SQLSTATE fields were already constrained, so this finding applies only to the two public processing-error code columns.
+
+**Why:** REJECT at n=1 from one schema and error-code constraint audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; add nullable `CHECK` constraints containing only the exact public code sets, then require raw-string rejection and valid-code acceptance on a fresh database.
+
 ### Non-unique `apply_patch` context put `clock_timestamp()` on campaign creation at n=1
 
 **verified:** 2026-11-16, during integrated SQL repair, an `apply_patch` target changed campaign creation to `clock_timestamp()` instead of changing `quota_reservations.created_at`; a static scan caught the misplaced edit before hashes or database execution

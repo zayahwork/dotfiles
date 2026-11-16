@@ -11,7 +11,7 @@ herdr, WezTerm, Windows Terminal, and the Windows key layer underneath them.
 - [`ls` is eza, which prints nothing at all under a non-tty. Use `/bin/ls`.](#ls-is-aliased-to-eza-and-prints-nothing-at-all-under-a-non-tty)
 - [`rg -h` is help in ripgrep 15.2.0; use `--no-filename`.](#rg--h-is-help-in-ripgrep-1520-use---no-filename)
 - [`rg` parsed a pattern beginning with `--target` as a flag; insert `--` before the pattern.](#rg-parsed-a-pattern-beginning-with---target-as-a-flag-insert---before-the-pattern)
-- [Held back: `path` replaced `PATH` across 8 zsh subjects, `status` was read-only in 4 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 9 failures, `rg` options after `--` became paths twice, bare zsh globs stopped 45 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
+- [Held back: `path` replaced `PATH` across 9 zsh subjects, `status` was read-only in 4 commands, one quoted spec stayed one argument, literal `\n` raised 2 Python SyntaxErrors, double-quoted backticks caused 9 failures, `rg` options after `--` became paths twice, bare zsh globs stopped 45 commands, and the exec safety gate rejected 3 `rm` removals.](#held-back)
 - [macOS `date %:z` exited 0 with literal `:z` suffixes at n=3.](#macos-date-z-exited-0-with-literal-z-suffixes-at-n3)
 - [macOS date emitted literal `.3NZ` on 3 millisecond timestamp attempts; Node ISO parsed.](#macos-date-emitted-literal-3nz-on-3-millisecond-timestamp-attempts-node-iso-parsed)
 - [macOS date returned `Failed conversion` twice for one valid fractional-second ISO timestamp.](#macos-date-returned-failed-conversion-twice-for-one-valid-fractional-second-iso-timestamp)
@@ -144,7 +144,7 @@ All three commands were rejected before removal, but the evidence does not estab
 **Why:** still held back at n=3 from three command subjects in one execution layer; there are not five observations from five different subjects.
 **Fix:** use a fresh never-before-used output directory or `mktemp -d` instead of deleting or reusing a render directory, and leave generated sidecars in place rather than bypassing the command gate. Run `shell-preflight '<planned command>'` first; its verified rm check rejects direct and combined rm commands before execution.
 
-### `path` replaced `PATH` and made 8 command names unavailable across 8 zsh subjects
+### `path` replaced `PATH` and made 9 command names unavailable across 9 zsh subjects
 
 **verified:** 2026-09-20, `zsh -fc 'original_path=$PATH; path=/tmp/example-file; print -r -- "PATH=$PATH"; whence -p perl || print perl=not-found; whence -p git || print git=not-found'` printed `PATH=/tmp/example-file`, `perl=not-found`, and `git=not-found`; 2026-10-04, a three-iteration `for path in ...` job-search loop printed `zsh: command not found: curl` and `head` on every iteration
 **verified:** 2026-10-05, commands ran before `for path in "$HOME/.claude/CLAUDE.md" ...` in `/Users/zayah/github/dotfiles`, then `rg`, `gh`, and `head` each returned `zsh: command not found`; an isolated `zsh -fc` reproduction showed `path=( /tmp/b )`, `PATH=/tmp/b`, and `rg missing`
@@ -153,12 +153,13 @@ All three commands were rejected before removal, but the evidence does not estab
 **verified:** 2026-10-05, `for path in Argus/store.py ...; do ...; done` in the job-applications heartbeat printed `zsh:1: command not found: gh`, `base64`, and `sed` for every item after the first `path` assignment, exited 127, and produced 570 output bytes
 **verified:** 2026-10-06, another `for path in ...; do ...; gh ... | sed ...; done` research loop returned `command not found: gh` and `command not found: sed` on every iteration after assigning the special lowercase `path` variable
 **verified:** 2026-10-06, `for path in ...; do gh ... | base64 ... | sed ...; done` in `/Users/zayah/Documents/Codex/2026-09-29/job-applications` printed exactly `command not found: gh`, `command not found: base64`, and `command not found: sed` for every iteration; the `repo_file` retry restored all three commands, and a current `whence -p` control returned `/opt/homebrew/bin/gh`, `/usr/bin/base64`, and `/usr/bin/sed`
-**where:** eight zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, and five job-application tooling loops
+**verified:** 2026-11-16, a read-only validation loop using `for path in ...` made `stat` and `head` return `command not found`; changing only the loop variable to `candidate` restored both commands
+**where:** nine zsh subjects covering an isolated reproduction, a remote-job endpoint loop, a dotfiles check, five job-application tooling loops, and one read-only validation loop
 
-Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all eight observations.
+Lowercase `path` is a special zsh array tied to uppercase `PATH`, so assigning a filename or endpoint to it replaced command lookup in all nine observations.
 
-**Why:** still held back at n=8 from eight zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
-**Fix:** never use `path` as a loop or scalar variable in zsh; use `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. `shell-preflight` now rejects assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME`, and its self-test prints `shell-preflight: 44 fixtures passed`.
+**Why:** still held back at n=9 from nine zsh subjects because no untouched control was measured; the subject count alone does not pass the causal bar.
+**Fix:** never use `path` as a loop or scalar variable in zsh; use `candidate`, `repo_file`, `file_path`, `endpoint_path`, or another task-specific name, then rerun and check output. `shell-preflight` now rejects assignments and loop variables named `path`, `status`, `HOME`, or `CODEX_HOME`, and its self-test prints `shell-preflight: 44 fixtures passed`.
 
 ### `status` assignment returned `read-only variable: status` in 4 zsh commands
 

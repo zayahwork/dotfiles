@@ -177,15 +177,16 @@ The production schema required structured authorization fields that this accepta
 **Why:** REJECT at n=1 from one schema and acceptance-fixture subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; add `provider_adapter_id` and every other required structured authorization column to the fixture, then rerun both SQL files against another fresh database and require the transaction's complete success output.
 
-### `register_provider_message_correlation()` read missing `NEW.signature_verified` on `outbox_messages` at n=1
+### `register_provider_message_correlation()` missed `NEW.signature_verified` once; table-specific branches passed 3 runs at n=1
 
 **verified:** 2026-11-16, PostgreSQL 17.12 loaded `001_schema.sql` into a fresh disposable database, then `psql -v ON_ERROR_STOP=1` running `002_acceptance.sql` stopped at line 1525 during its first outbox insert with `record "new" has no field "signature_verified"`
+**verified:** 2026-11-16, after splitting the signature check into table-specific branches, fresh database `zn_integrity_repair_20261116c` passed `000`, `001`, and `002` with exit 0, the same database passed `001` and `002` again with exit 0, and a final `002` rerun printed `fail-closed geography, owner clusters, provider policy and quotas, atomic attempts, reconciliation, replies, correlation, suppression, and classified events passed`, then `DO` and `ROLLBACK`; after rollback it held 35 tables, 81 indexes, 27 functions, 33 user triggers, 231 constraints, 1 `system_controls` row, and 0 non-control rows
 **where:** one PostgreSQL 17.12 acceptance run for the n8n gym research schema in `/Users/zayah/Z&N`
 
-The generic trigger function referenced a `delivery_events`-only field while it was firing for an `outbox_messages` row.
+The generic trigger function referenced a `delivery_events`-only field while firing for `outbox_messages`; the table-specific branch split isolated that check and passed all three observed runs.
 
 **Why:** REJECT at n=1 from one schema and trigger-execution subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; split the signature-verification check into table-specific branches, then rerun both SQL files against another fresh database and require the transaction's complete success output.
+**Fix:** split the signature-verification check into table-specific branches, then require the full fail-closed notice, `DO`, `ROLLBACK`, one control row, and zero non-control rows after repeated acceptance runs.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

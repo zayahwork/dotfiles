@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader and runtime paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -81,6 +81,17 @@ Whether Playwright, FastAPI, or another process briefly retained port 8012 is UN
 
 **Why:** REJECT at n=1 from one repository and command-sequence subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; identify the process that owns port 8012, stop it only if it belongs to the temporary E2E run, then rerun and require the intended repeated-test count plus exit 0.
+
+### n8n CLI help hit `EPERM` creating `/Users/zayah/.n8n`; 2 explicit environment variables made 3 commands pass
+
+**verified:** 2026-11-15, `n8n import:workflow --help`, `n8n execute --help`, and `n8n export:workflow --help` all failed before showing help because n8n tried to generate its encryption key under `/Users/zayah/.n8n/config` and the sandbox denied `mkdir /Users/zayah/.n8n` with `EPERM`
+**verified:** 2026-11-15, prefixing each unchanged command with `env N8N_USER_FOLDER=/tmp/zn-n8n-home N8N_ENCRYPTION_KEY=temporary-validation-key-at-least-thirty-two-chars` made all three commands exit 0 and print complete usage
+**where:** one isolated n8n CLI validation session in the managed macOS sandbox
+
+The passing controls changed only the user folder and explicit encryption key, isolating this occurrence to n8n initialization outside the writable sandbox roots.
+
+**Why:** REJECT at n=1 from one CLI, sandbox, and validation subject; there are not five observations from five different subjects.
+**Fix:** set an explicit writable `N8N_USER_FOLDER` and a temporary validation-only `N8N_ENCRYPTION_KEY` before read-only n8n CLI inspection, then require complete usage text and exit 0.
 
 ### Unquoted `e2e/**` let zsh feed Playwright specs to Vitest at n=1
 

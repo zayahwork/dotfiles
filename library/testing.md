@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, reply, and delivery-state acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -187,6 +187,36 @@ The generic trigger function referenced a `delivery_events`-only field while fir
 
 **Why:** REJECT at n=1 from one schema and trigger-execution subject; there are not five observations from five different subjects.
 **Fix:** split the signature-verification check into table-specific branches, then require the full fail-closed notice, `DO`, `ROLLBACK`, one control row, and zero non-control rows after repeated acceptance runs.
+
+### `processed_at` could freeze a pending reply before later `opt_out` classification at n=1
+
+**verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2453-2539` found that processing a pending inbound reply set `processed_at`, while a later classification as `opt_out` returned early because that timestamp was already present; `002_acceptance.sql:1248-1285` exercised the same process-then-classify sequence without proving that the later suppression ran
+**where:** one static SQL and acceptance-sequence audit for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The receipt could become terminal before classification, so an opt-out classification could lose its suppression side effect.
+
+**Why:** REJECT at n=1 from one schema and reply-state audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; keep pending replies eligible for terminal classification processing, then require a fresh-database acceptance case in which process-then-opt-out creates suppression exactly once.
+
+### `apply_delivery_event()` advanced outbox state without reconciling its durable `send_attempt` at n=1
+
+**verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2679-2717` found that `apply_delivery_event()` updated the outbox without updating the durable attempt created by claim; the acceptance fixture began from a manually `submitting` outbox with no `send_attempt`, so it could not detect an attempt left `submitting` or `unknown` after the outbox advanced
+**where:** one static SQL and acceptance-fixture audit for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The outbox and its attempt could report incompatible terminal state because the event transaction changed only one side.
+
+**Why:** REJECT at n=1 from one schema and delivery-state audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; reconcile the claimed attempt in the same event transaction and add acceptance that starts with a real attempt, then require both rows to reach compatible states on a fresh database.
+
+### `experiment_assignments.frozen=false` could bypass owner-change protection after experiment freeze at n=1
+
+**verified:** 2026-11-16, independent static audit found `experiment_assignments.frozen` defaulted to true but was not constrained to true at `001_schema.sql:367-381`, while `reject_assigned_owner_change` blocked changes only when `assignment.frozen = true` at lines 953-965; `002_acceptance.sql:971-976` inserted only default-true assignments and did not exercise an explicit false value followed by parent experiment freeze
+**where:** one static SQL and acceptance-fixture audit for the n8n gym research experiment schema in `/Users/zayah/Z&N`
+
+An explicit false assignment could survive parent freeze and permit an organization owner change that left `owner_cluster_key` and cluster membership stale.
+
+**Why:** REJECT at n=1 from one schema and experiment-integrity audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; require assigned rows to be frozen or derive protection from the parent experiment state, then prove explicit-false rejection and owner-cluster immutability on a fresh database.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

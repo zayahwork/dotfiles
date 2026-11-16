@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry lifecycle, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -337,6 +337,86 @@ Durable suppression kept activation fail closed, but the greater-step filter lea
 
 **Why:** REJECT at n=1 from one schema and cross-campaign opt-out audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; clean up all matching pre-send email outboxes across campaigns, then require lower-step, equal-step retry, and replay acceptance on a fresh database.
+
+### Raw DML could reopen terminal outbox states into a duplicate retry claim at n=1
+
+**verified:** 2026-11-16, independent audit found retry acceptance used raw DML to set an outbox to `submitting` and insert attempts 2 and 3 against the already consumed first quota; no retry-preparation API or lifecycle trigger prevented reopening `unknown`, `accepted_by_provider`, `delivered`, invalid-mailbox, or sender-policy rows, while claim trusted an externally set `reserved` state and could consume fresh quota
+**where:** one static retry-lifecycle and acceptance-fixture audit of the n8n gym research PostgreSQL outbox path in `/Users/zayah/Z&N`
+
+Direct state reopening could bypass the evidence boundary between a confirmed non-acceptance and a potentially duplicated provider submission.
+
+**Why:** REJECT at n=1 from one schema and retry-lifecycle audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with durable evidence and fresh reserved quota, claim atomically, and require illegal-reopen tests for every other terminal or uncertain state.
+
+### Opt-out classification could commit before suppression and leave future campaigns sendable after a crash at n=1
+
+**verified:** 2026-11-16, independent audit found opt-out classification could commit separately before `process_inbound_reply` created durable suppression; a crash in that window left future campaigns unsuppressed because `activation_blockers` considered the unprocessed reply only for the same campaign and organization
+**where:** one static transaction-boundary audit of the n8n gym research PostgreSQL inbound-reply and activation path in `/Users/zayah/Z&N`
+
+The durable safety decision and its cross-campaign enforcement were split across commits with no fail-closed bridge.
+
+**Why:** REJECT at n=1 from one schema and reply crash-window audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; classify and process atomically and gate every matching email on an unprocessed verified opt-out, then require cross-campaign crash-window acceptance on a fresh database.
+
+### Verified safety event insert could commit before processing while activation ignored the pending event at n=1
+
+**verified:** 2026-11-16, independent audit found a verified delivery-event insert could commit before processing, while `activation_blockers` ignored unprocessed `opt_out`, `complaint`, `invalid_mailbox`, and `sender_policy_failure` events; claims could proceed during a processor crash or queue delay
+**where:** one static ingest-processing boundary audit of the n8n gym research PostgreSQL delivery-event and activation path in `/Users/zayah/Z&N`
+
+Verified safety evidence existed durably but was not part of the pre-handoff gate until a later processor applied its side effects.
+
+**Why:** REJECT at n=1 from one schema and event crash-window audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; ingest and process atomically and add fail-closed gates for unprocessed verified safety events, then require crash-delay acceptance on a fresh database.
+
+### `sender_policy_failure` global pause could roll back after a later terminal-state exception at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` updated `global_pause` for a verified `sender_policy_failure` before later state checks, but an exception on a `confirmed_not_accepted` or invalid-mailbox attempt rolled back the entire transaction and erased the pause
+**where:** one static transaction-rollback audit of the n8n gym research PostgreSQL sender-policy event path in `/Users/zayah/Z&N`
+
+The safety side effect executed first but did not become durable because incompatible terminal-state handling still raised inside the same transaction.
+
+**Why:** REJECT at n=1 from one schema and sender-policy rollback audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; preserve incompatible terminal state while committing pause and marking the exactly correlated verified event processed, then require terminal-state and replay acceptance on a fresh database.
+
+### `invalid_mailbox` suppression could roll back after a later terminal attempt conflict at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` inserted `invalid_mailbox` suppression before later attempt checks, but an exception when the attempt was already `sender_policy_failure` or `confirmed_not_accepted` rolled back the transaction and erased suppression
+**where:** one static transaction-rollback audit of the n8n gym research PostgreSQL invalid-mailbox event path in `/Users/zayah/Z&N`
+
+The safety event could lose its durable suppression because a conflicting terminal attempt outcome was handled by exception after the insert.
+
+**Why:** REJECT at n=1 from one schema and invalid-mailbox rollback audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; preserve an incompatible terminal ledger while committing suppression, cleanup, and the processed marker for the verified event, then require terminal-state and replay acceptance on a fresh database.
+
+### Verified safety events with zero or ambiguous send attempts could fail before suppression or pause at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` required exactly one send attempt before safety side effects, so a verified provider-scoped `opt_out`, `complaint`, `invalid_mailbox`, or `sender_policy_failure` event with zero or ambiguous attempts raised before durable suppression or global pause
+**where:** one static correlation-cardinality audit of the n8n gym research PostgreSQL delivery-event path in `/Users/zayah/Z&N`
+
+Attempt ambiguity blocked safety evidence even when durable provider-to-outbox correlation identified the affected recipient or provider scope.
+
+**Why:** REJECT at n=1 from one schema and safety-event cardinality audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; accept durable provider-outbox correlation for safety side effects, mark the event processed with a durable reconciliation anomaly and replay uniqueness, keep non-safety events fail closed, and prove every cardinality case on a fresh database.
+
+### `quota_reservations.amount > 1` could consume provider totals with no dispatch path at n=1
+
+**verified:** 2026-11-16, independent audit found `quota_reservations.amount` accepted any positive number while activation required the linked amount to equal 1 and each reservation could fund at most one outbox; malformed amount 100 and 2 rows used in acceptance consumed provider totals but could not activate dispatch
+**where:** one static quota-schema and acceptance-fixture audit of the n8n gym research PostgreSQL path in `/Users/zayah/Z&N`
+
+Oversized reservations could exhaust quota accounting without representing dispatchable recipient messages.
+
+**Why:** REJECT at n=1 from one schema and quota-amount audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; constrain `amount = 1`, add malformed-amount rejection, and prove quota limits with multiple valid reservations on a fresh database.
+
+### Expired reserved quota still counted against campaign and provider daily totals at n=1
+
+**verified:** 2026-11-16, independent audit found campaign and provider daily quota sums included every `reserved` row without excluding `expires_at <= now()`, and no expiry routine released stale reservations; a crashed reservation could block capacity until date rollover even though the current-row activation gate called it expired
+**where:** one static quota-window audit of the n8n gym research PostgreSQL reservation and activation path in `/Users/zayah/Z&N`
+
+The gate recognized one reservation's expiry while aggregate quota accounting continued to charge every expired peer.
+
+**Why:** REJECT at n=1 from one schema and stale-reservation audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; count consumed plus only unexpired reserved quota, optionally expire stale rows, and require stale-peer capacity acceptance on a fresh database.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

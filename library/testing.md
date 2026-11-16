@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -114,6 +114,27 @@ The observed fix kept zsh from expanding the exclude glob before Vitest received
 
 **Why:** REJECT at n=1 from one repository and runner subject; there are not five observations from five different subjects.
 **Fix:** single-quote glob arguments in npm scripts when the called test runner must interpret them, then require a nonzero unit-test count and no imported Playwright suite.
+
+### PostgreSQL `initdb` hit `shmget(...)` `Operation not permitted`; escalation completed with `posix` at n=1
+
+**verified:** 2026-11-16, `initdb -D /tmp/zn-n8n-pg.lFKw3l/data --no-locale --encoding=UTF8` failed during bootstrap with `FATAL: could not create shared memory segment: Operation not permitted`, reported `Failed system call was shmget(...)`, exited 1, and removed the partial data directory
+**verified:** 2026-11-16, the identical escalated command exited 0, selected shared memory implementation `posix`, printed `ok` for bootstrap and post-bootstrap initialization, and completed the cluster at `/tmp/zn-n8n-pg.lFKw3l/data`
+**where:** one isolated PostgreSQL cluster initialization for n8n validation in `/tmp`
+
+The unchanged command completed when only sandbox authority changed, isolating this occurrence to the managed sandbox's shared-memory permissions.
+
+**Why:** REJECT at n=1 from one PostgreSQL, sandbox, and cluster-initialization subject; there are not five observations from five different subjects.
+**Fix:** rerun the exact isolated `initdb` command with approved escalation, then require exit 0 plus both bootstrap `ok` lines and the completed data-directory path.
+
+### Sandboxed `psql` local Unix-socket connection returned `Operation not permitted` at n=1
+
+**verified:** 2026-11-16, after the isolated PostgreSQL server started successfully, default-sandbox `psql -h /tmp/zn-n8n-pg.lFKw3l/socket -p 55439` failed to connect with `Operation not permitted`
+**where:** one local Unix-socket schema-validation attempt against the isolated n8n PostgreSQL cluster
+
+The failure occurred after server startup, but the exact socket permission boundary and escalated recovery remain UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one PostgreSQL, sandbox, and connection subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; rerun the same local Unix-socket schema validation with approved escalation and require the expected nonempty schema output before claiming PostgreSQL verification.
 
 ### `docker` and `podman` were absent while `pg_isready` returned `/tmp:5432 - no response` at n=1
 

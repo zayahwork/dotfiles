@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby Psych anchor parsing, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -103,6 +103,16 @@ The fourth positional `true` enabled aliases for the Compose anchor in this runt
 
 **Why:** REJECT at n=1 from one Ruby runtime and Compose subject; there are not five observations from five different subjects.
 **Fix:** read the YAML text and call `YAML.safe_load(File.read(path), [], [], true)`, then require the parsed service and network assertions plus nonempty success output.
+
+### Four empty n8n example secrets made `tests/validate.mjs:35` expect stale `replace-with` text at n=1
+
+**verified:** 2026-11-16, after `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `N8N_ENCRYPTION_KEY`, and `N8N_RUNNERS_AUTH_TOKEN` were intentionally left empty in `.env.n8n.example`, `npm test` exited 1 at `tests/validate.mjs:35` because it still asserted `exampleEnvironment.includes("N8N_ENCRYPTION_KEY=replace-with")`; changing the test to require all four exact empty lines and reject any `replace-with` text made the rerun exit 0 and print `all n8n offline acceptance checks passed`
+**where:** one n8n offline acceptance suite in `/Users/zayah/Z&N/04 ⚙️ n8n Automation`
+
+The product fixture changed to fail closed while its literal-text assertion still described the prior public placeholders.
+
+**Why:** REJECT at n=1 from one repository and safety-fixture change; there are not five observations from five different subjects.
+**Fix:** assert the four exact empty secret lines plus absence of `replace-with`, then require the full offline acceptance command to exit 0 with its final success line.
 
 ### n8n `execute --file` exited 0 with `"--id" has to be set!`; import plus `--id` ran 12 steps
 

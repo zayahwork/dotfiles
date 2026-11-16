@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -103,6 +103,16 @@ The fourth positional `true` enabled aliases for the Compose anchor in this runt
 
 **Why:** REJECT at n=1 from one Ruby runtime and Compose subject; there are not five observations from five different subjects.
 **Fix:** read the YAML text and call `YAML.safe_load(File.read(path), [], [], true)`, then require the parsed service and network assertions plus nonempty success output.
+
+### `Array#filter_map` was absent at n=1; `each_with_object({})` verified 4 empty n8n secrets
+
+**verified:** 2026-11-16, a Ruby validation using `File.readlines(...).filter_map` exited 1 with `undefined method \`filter_map' for #<Array:0x00000009faf023b0> (NoMethodError)` and `Did you mean? filter`; replacing only that collection step with `each_with_object({})` exited 0 and printed `example secrets: 4 required values are empty`
+**where:** one machine Ruby runtime validating `.env.n8n.example` from `/Users/zayah/Z&N`
+
+This proves method availability only for one runtime; its Ruby version and a shared cause with the Psych API wall are UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one Ruby runtime and environment-file subject; there are not five observations from five different subjects.
+**Fix:** collect the required secret lines with `each_with_object({})`, then require all four exact empty values and the nonempty success output.
 
 ### Four empty n8n example secrets made `tests/validate.mjs:35` expect stale `replace-with` text at n=1
 

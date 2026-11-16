@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, retry, delivery-state, provider-policy, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -287,6 +287,56 @@ Exact historical correlation protected event identity but did not stop an older 
 
 **Why:** REJECT at n=1 from one schema and historical-event audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; keep historical events attempt-local or allow only monotonic global transitions, then require a late-retry acceptance test that preserves retry 2's accepted state.
+
+### Historical exact-ID `sender_policy_failure` skipped global pause in 4 current outbox states at n=1
+
+**verified:** 2026-11-16, independent audit found `process_delivery_event` applied the verified sender-policy global pause only for selected current outbox states; a correlated historical exact-ID event entered the historical-preserve path without pausing when the current retry was `reserved`, `queued`, `blocked`, or `confirmed_not_accepted`
+**where:** one static provider-policy event audit of the n8n gym research PostgreSQL delivery path in `/Users/zayah/Z&N`
+
+The event's verified global safety side effect depended on unrelated current retry state, so a historical provider block could be recorded without pausing future work.
+
+**Why:** REJECT at n=1 from one schema and historical provider-policy audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; apply global pause as an unconditional side effect of every verified correlated `sender_policy_failure`, then require historical reserved-retry and replay acceptance on a fresh database.
+
+### Historical exact-ID `invalid_mailbox` could leave the current retry and quota reserved at n=1
+
+**verified:** 2026-11-16, independent audit found a historical exact-ID `invalid_mailbox` created durable email suppression but excluded the same outbox from quota release and status suppression; the historical-preserve path could leave a current reserved retry and its reservation stuck `reserved` indefinitely
+**where:** one static historical mailbox-event audit of the n8n gym research PostgreSQL delivery and quota path in `/Users/zayah/Z&N`
+
+Durable suppression kept the path fail closed against sending, but the unsent retry and reserved quota could leak state and capacity.
+
+**Why:** REJECT at n=1 from one schema and historical mailbox-event audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; suppress the same current unsent retry, release its reserved quota, and require fresh-database processing plus replay acceptance.
+
+### A late opt-out to a prior retry ID could miss future-campaign email suppression at n=1
+
+**verified:** 2026-11-16, independent audit found `process_inbound_reply` checked the reply provider ID only against the outbox's current pointer, so a legitimate late opt-out to a prior retry ID was rejected after pointer advance and no durable email suppression was created for future campaigns
+**where:** one static historical-reply audit of the n8n gym research PostgreSQL inbound-reply path in `/Users/zayah/Z&N`
+
+The current pointer identified only the latest attempt and was not a durable correlation registry for earlier provider messages.
+
+**Why:** REJECT at n=1 from one schema and historical opt-out audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; use a provider-scoped durable correlation registry and require a fresh-database late historical opt-out test that creates future-campaign email suppression.
+
+### An unverified inbound reply row could block follow-ups before processing rejected it at n=1
+
+**verified:** 2026-11-16, independent audit found `activation_blockers` treated any inbound reply as a follow-up blocker without checking `signature_verified`, so an unverified webhook row could halt follow-ups even though later reply processing rejected that row
+**where:** one static reply-gate audit of the n8n gym research PostgreSQL activation and webhook path in `/Users/zayah/Z&N`
+
+The activation gate trusted row presence more than the processing path's signature requirement.
+
+**Why:** REJECT at n=1 from one schema and unverified-reply audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; gate follow-ups only on verified replies, then require negative unverified and positive verified acceptance cases on a fresh database.
+
+### Inbound opt-out cleanup skipped cross-campaign step 1 and same-step retries at n=1
+
+**verified:** 2026-11-16, independent audit found inbound opt-out cleanup targeted matching outboxes only when `sequence_step` was greater than the source; sequence steps restart per campaign and retries reuse the same step, so a reserved cross-campaign step 1 or same-step retry could keep its quota and state despite durable email suppression
+**where:** one static opt-out cleanup audit of the n8n gym research PostgreSQL inbound-reply, outbox, and quota path in `/Users/zayah/Z&N`
+
+Durable suppression kept activation fail closed, but the greater-step filter leaked pre-send state and reserved capacity outside the source campaign's sequence ordering.
+
+**Why:** REJECT at n=1 from one schema and cross-campaign opt-out audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; clean up all matching pre-send email outboxes across campaigns, then require lower-step, equal-step retry, and replay acceptance on a fresh database.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

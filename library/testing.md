@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, delivery-state, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -257,6 +257,16 @@ Concurrent qualification finalization and location edit transactions could form 
 
 **Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
 **Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving finalized qualification geography.
+
+### Caller-supplied `consumed_at` could backdate quota consumption outside rolling windows at n=1
+
+**verified:** 2026-11-16, independent static audit found the quota lifecycle trigger accepted a caller-supplied `consumed_at`, allowing a direct writer to backdate consumption before stored-function-only write privileges were in place
+**where:** one static hardening audit of the n8n gym research PostgreSQL quota lifecycle in `/Users/zayah/Z&N`
+
+The rolling and provider-window calculations could omit a newly consumed reservation when its timestamp came from the caller rather than the transition transaction.
+
+**Why:** REJECT at n=1 from one schema and quota-hardening audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; generate the transition timestamp on the server or reject caller-supplied backdating, then require a negative backdate test and fresh-database quota-window proof.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

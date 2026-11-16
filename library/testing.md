@@ -7,7 +7,7 @@ environment rather than the source under test.
 
 - [Relative test paths follow the runner working directory, including `unittest discover -s tests`.](#relative-test-paths-follow-the-runner-working-directory-including-unittest-discover--s-tests)
 - [`getaddrinfo ENOTFOUND`, `curl: (6) Could not resolve host`, and `NameResolutionError` are sandbox DNS boundaries when unchanged commands pass with approved network access.](#getaddrinfo-enotfound-curl-6-could-not-resolve-host-and-nameresolutionerror-are-sandbox-dns-boundaries-when-unchanged-commands-pass-with-approved-network-access)
-- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
+- [Held back: source-path and artifact marker arguments, Codex dependency-loader, runtime, and sandbox home paths, pipeline partial-source timeouts, tracker count and idempotency bounds, missing system and PDF commands, Python runtime and python-docx enum imports, dynamic-import and test-runner walls, PostgreSQL schema, assertion, reply, delivery-state, quota, correlation, and concurrency acceptance, Ruby API compatibility and Psych anchor parsing, stale assertions after security-fixture changes, jq shape, syntax, and row normalization, openpyxl dimensions, short rows, export sidecars, artifact-tool date, row, merged-cell, and copy behavior, Git push and revision-flag failures, patch-context and patch-format, loopback-bind, shared-memory IPC, and process inspection, Chrome reload/navigation, browser creation, Computer Use API walls, and Home Manager activation clobber walls.](#held-back)
 
 ---
 
@@ -177,15 +177,96 @@ The production schema required structured authorization fields that this accepta
 **Why:** REJECT at n=1 from one schema and acceptance-fixture subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; add `provider_adapter_id` and every other required structured authorization column to the fixture, then rerun both SQL files against another fresh database and require the transaction's complete success output.
 
-### `register_provider_message_correlation()` read missing `NEW.signature_verified` on `outbox_messages` at n=1
+### `register_provider_message_correlation()` missed `NEW.signature_verified` once; table-specific branches passed 3 runs at n=1
 
 **verified:** 2026-11-16, PostgreSQL 17.12 loaded `001_schema.sql` into a fresh disposable database, then `psql -v ON_ERROR_STOP=1` running `002_acceptance.sql` stopped at line 1525 during its first outbox insert with `record "new" has no field "signature_verified"`
+**verified:** 2026-11-16, after splitting the signature check into table-specific branches, fresh database `zn_integrity_repair_20261116c` passed `000`, `001`, and `002` with exit 0, the same database passed `001` and `002` again with exit 0, and a final `002` rerun printed `fail-closed geography, owner clusters, provider policy and quotas, atomic attempts, reconciliation, replies, correlation, suppression, and classified events passed`, then `DO` and `ROLLBACK`; after rollback it held 35 tables, 81 indexes, 27 functions, 33 user triggers, 231 constraints, 1 `system_controls` row, and 0 non-control rows
 **where:** one PostgreSQL 17.12 acceptance run for the n8n gym research schema in `/Users/zayah/Z&N`
 
-The generic trigger function referenced a `delivery_events`-only field while it was firing for an `outbox_messages` row.
+The generic trigger function referenced a `delivery_events`-only field while firing for `outbox_messages`; the table-specific branch split isolated that check and passed all three observed runs.
 
 **Why:** REJECT at n=1 from one schema and trigger-execution subject; there are not five observations from five different subjects.
-**Fix:** UNCONFIRMED; split the signature-verification check into table-specific branches, then rerun both SQL files against another fresh database and require the transaction's complete success output.
+**Fix:** split the signature-verification check into table-specific branches, then require the full fail-closed notice, `DO`, `ROLLBACK`, one control row, and zero non-control rows after repeated acceptance runs.
+
+### `processed_at` could freeze a pending reply before later `opt_out` classification at n=1
+
+**verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2453-2539` found that processing a pending inbound reply set `processed_at`, while a later classification as `opt_out` returned early because that timestamp was already present; `002_acceptance.sql:1248-1285` exercised the same process-then-classify sequence without proving that the later suppression ran
+**where:** one static SQL and acceptance-sequence audit for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The receipt could become terminal before classification, so an opt-out classification could lose its suppression side effect.
+
+**Why:** REJECT at n=1 from one schema and reply-state audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; keep pending replies eligible for terminal classification processing, then require a fresh-database acceptance case in which process-then-opt-out creates suppression exactly once.
+
+### `apply_delivery_event()` advanced outbox state without reconciling its durable `send_attempt` at n=1
+
+**verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2679-2717` found that `apply_delivery_event()` updated the outbox without updating the durable attempt created by claim; the acceptance fixture began from a manually `submitting` outbox with no `send_attempt`, so it could not detect an attempt left `submitting` or `unknown` after the outbox advanced
+**where:** one static SQL and acceptance-fixture audit for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The outbox and its attempt could report incompatible terminal state because the event transaction changed only one side.
+
+**Why:** REJECT at n=1 from one schema and delivery-state audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; reconcile the claimed attempt in the same event transaction and add acceptance that starts with a real attempt, then require both rows to reach compatible states on a fresh database.
+
+### `experiment_assignments.frozen=false` could bypass owner-change protection after experiment freeze at n=1
+
+**verified:** 2026-11-16, independent static audit found `experiment_assignments.frozen` defaulted to true but was not constrained to true at `001_schema.sql:367-381`, while `reject_assigned_owner_change` blocked changes only when `assignment.frozen = true` at lines 953-965; `002_acceptance.sql:971-976` inserted only default-true assignments and did not exercise an explicit false value followed by parent experiment freeze
+**where:** one static SQL and acceptance-fixture audit for the n8n gym research experiment schema in `/Users/zayah/Z&N`
+
+An explicit false assignment could survive parent freeze and permit an organization owner change that left `owner_cluster_key` and cluster membership stale.
+
+**Why:** REJECT at n=1 from one schema and experiment-integrity audit subject; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; require assigned rows to be frozen or derive protection from the parent experiment state, then prove explicit-false rejection and owner-cluster immutability on a fresh database.
+
+### 19 scalar `IF value <> expected` assertions could silently pass SQL NULL at n=1
+
+**verified:** 2026-11-16, independent audit of `002_acceptance.sql` identified NULL-unsafe scalar assertions around lines 503, 507, 545, 569, 587, 590, 1155, 1160, 1183, 1259, 1283, 1347, 1360, 1380, 1431, 1436, 1487, 1498, and 1519; in PL/pgSQL, `IF value <> expected` evaluates to NULL rather than true when `value` is NULL, so the exception branch is skipped
+**where:** one static assertion audit of the n8n gym research PostgreSQL acceptance file in `/Users/zayah/Z&N`
+
+These assertions could report success without proving that the queried scalar existed.
+
+**Why:** REJECT at n=1 from one acceptance file and assertion-class audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; replace scalar inequality checks with `IS DISTINCT FROM` or explicit NULL guards, then require mutation tests and a fresh-database acceptance pass.
+
+### Advisory lock 5402 and organization row locks used opposite order on assignment versus owner update at n=1
+
+**verified:** 2026-11-16, independent static audit found `validate_assignment_owner_cluster` acquired advisory lock 5402 before an organization `FOR SHARE` lock, while an owner `UPDATE` acquired the organization row lock before its row trigger called `reject_assigned_owner_change`, which then acquired advisory lock 5402
+**where:** one static concurrency audit of the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
+
+Concurrent assignment and owner-update transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+
+**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
+**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving owner-cluster invariants.
+
+### `provider_message_correlations` could pair provider A with provider B's outbox at n=1
+
+**verified:** 2026-11-16, independent static audit found `provider_message_correlations` referenced only `outbox_messages(outbox_id)`, so a direct row could use a provider different from the provider stored on that outbox even though other related tables used composite `(outbox_id, provider)` foreign keys
+**where:** one static referential-integrity audit of the n8n gym research PostgreSQL provider-correlation schema in `/Users/zayah/Z&N`
+
+The single-column foreign key proved that the outbox existed but did not prove that the correlation belonged to the same provider.
+
+**Why:** REJECT at n=1 from one schema and provider-correlation audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; use a composite `(outbox_id, provider)` foreign key and add a negative mismatched-provider insert, then require fresh-database acceptance proof.
+
+### Advisory lock 5403 and location row locks used opposite order on qualification finalization versus edit at n=1
+
+**verified:** 2026-11-16, independent static audit found `validate_finalized_qualification_location` acquired advisory lock 5403 before a location `FOR SHARE` lock, while a location `UPDATE` acquired the row lock before its trigger called `reject_finalized_location_change`, which then acquired advisory lock 5403
+**where:** one static concurrency audit of the n8n gym research PostgreSQL qualification and location triggers in `/Users/zayah/Z&N`
+
+Concurrent qualification finalization and location edit transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+
+**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
+**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving finalized qualification geography.
+
+### Caller-supplied `consumed_at` could backdate quota consumption outside rolling windows at n=1
+
+**verified:** 2026-11-16, independent static audit found the quota lifecycle trigger accepted a caller-supplied `consumed_at`, allowing a direct writer to backdate consumption before stored-function-only write privileges were in place
+**where:** one static hardening audit of the n8n gym research PostgreSQL quota lifecycle in `/Users/zayah/Z&N`
+
+The rolling and provider-window calculations could omit a newly consumed reservation when its timestamp came from the caller rather than the transition transaction.
+
+**Why:** REJECT at n=1 from one schema and quota-hardening audit; there are not five observations from five different subjects or a fresh-database control.
+**Fix:** UNCONFIRMED; generate the transition timestamp on the server or reject caller-supplied backdating, then require a negative backdate test and fresh-database quota-window proof.
 
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 

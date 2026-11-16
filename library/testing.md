@@ -188,16 +188,15 @@ The generic trigger function referenced a `delivery_events`-only field while fir
 **Why:** REJECT at n=1 from one schema and trigger-execution subject; there are not five observations from five different subjects.
 **Fix:** split the signature-verification check into table-specific branches, then require the full fail-closed notice, `DO`, `ROLLBACK`, one control row, and zero non-control rows after repeated acceptance runs.
 
-### `processed_at` could freeze a pending reply before later `opt_out` classification at n=1
+### Direct processed state could bypass inbound-reply and delivery-event side effects at n=1
 
-**verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2453-2539` found that processing a pending inbound reply set `processed_at`, while a later classification as `opt_out` returned early because that timestamp was already present; `002_acceptance.sql:1248-1285` exercised the same process-then-classify sequence without proving that the later suppression ran
-**verified:** 2026-11-16, final static sweep found the database still allowed direct mutation of a pending reply's `processed_at`, which could permanently block later classification or terminalize `opt_out` before its suppression side effect
-**where:** one static SQL and acceptance-sequence audit for the n8n gym research schema in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, three static lifecycle audits found a pending reply could be processed before later `opt_out` classification, direct reply `processed_at` mutation could terminalize it before suppression, the reply lifecycle trigger omitted `INSERT` and allowed an already-processed opt-out insert, and direct delivery-event `processed_at` or result mutation could bypass both side effects and the unprocessed-event blocker
+**where:** three static state-transition and guard audits of one n8n gym research PostgreSQL reply and delivery-event subject in `/Users/zayah/Z&N`
 
-The receipt could become terminal before classification through either the processing path or direct DML, so an opt-out classification could lose its suppression side effect.
+Direct DML could make either safety record appear complete without the relational proof or side effects that completion was meant to represent.
 
-**Why:** REJECT at n=1 from one schema and reply-state audit subject; there are not five observations from five different subjects or a fresh-database control.
-**Fix:** UNCONFIRMED; enforce the pending-reply invariant against direct mutation, keep pending replies eligible for terminal classification processing, and require process-then-opt-out plus direct-mutation acceptance on a fresh database.
+**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; require relational proof before delivery-event completion, guard inbound-reply lifecycle fields on `INSERT`, `UPDATE`, and `DELETE`, keep pending replies eligible for terminal classification, then require bypass, process-then-opt-out, and already-processed insert rejection on a fresh database.
 
 ### `apply_delivery_event()` advanced outbox state without reconciling its durable `send_attempt` at n=1
 
@@ -341,16 +340,15 @@ Durable suppression kept activation fail closed, but the greater-step filter lea
 **Why:** REJECT at n=1 from one schema and cross-campaign opt-out audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; clean up all matching pre-send email outboxes across campaigns, then require lower-step, equal-step retry, and replay acceptance on a fresh database.
 
-### Raw DML could reopen terminal outbox states into a duplicate retry claim at n=1
+### Raw DML or evidence-free confirmed negatives could reopen an outbox into duplicate retry at n=1
 
-**verified:** 2026-11-16, independent audit found retry acceptance used raw DML to set an outbox to `submitting` and insert attempts 2 and 3 against the already consumed first quota; no retry-preparation API or lifecycle trigger prevented reopening `unknown`, `accepted_by_provider`, `delivered`, invalid-mailbox, or sender-policy rows, while claim trusted an externally set `reserved` state and could consume fresh quota
-**verified:** 2026-11-16, final static sweep found `confirmed_not_accepted`, the sole intended safe retry outcome, required no durable evidence and had no acceptance or replay coverage, so a forged outcome could authorize retry
-**where:** one static retry-lifecycle and acceptance-fixture audit of the n8n gym research PostgreSQL outbox path in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, three static retry audits found raw DML could reopen terminal states and reuse consumed quota, `confirmed_not_accepted` could authorize retry without durable evidence, and confirmed-negative events applied from `submitting` or `deferred` without uniform exact-event evidence or evidence time
+**where:** three static retry-lifecycle and evidence audits of one n8n gym research PostgreSQL outbox subject in `/Users/zayah/Z&N`
 
-Direct state reopening or a forged non-acceptance could bypass the evidence boundary between a confirmed provider rejection and a potentially duplicated submission.
+An unproved negative outcome could cross the evidence boundary between a provider rejection and a potentially duplicated submission.
 
-**Why:** REJECT at n=1 from one schema and retry-lifecycle audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with exact durable evidence and fresh reserved quota, claim atomically, and require negative forgery, positive retry, replay, and illegal-reopen coverage.
+**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with exact durable evidence, uniform server evidence time, and fresh reserved quota, claim atomically, then require forgery, submitting, deferred, replay, and illegal-reopen coverage on a fresh database.
 
 ### Opt-out classification could commit before suppression and leave future campaigns sendable after a crash at n=1
 
@@ -422,25 +420,25 @@ The gate recognized one reservation's expiry while aggregate quota accounting co
 **Why:** REJECT at n=1 from one schema and stale-reservation audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; count consumed plus only unexpired reserved quota, optionally expire stale rows, and require stale-peer capacity acceptance on a fresh database.
 
-### Caller-authored provider lookup JSON could forge `confirmed_not_accepted` retry proof at n=1
+### Timeout provider lookups accepted arbitrary, raw, or conflicting JSON evidence at n=1
 
-**verified:** 2026-11-16, independent static audit found the retry proof path trusted caller-authored provider lookup JSON, so a writer could forge `confirmed_not_accepted` evidence and authorize an automated retry
-**where:** one static retry-evidence audit of the n8n gym research PostgreSQL provider lookup and retry path in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, three static provider-proof audits found caller-authored lookup JSON could forge `confirmed_not_accepted`, accepted timeout lookup could retain raw or conflicting JSON, and timeout outcomes could rely on arbitrary JSON instead of exact verified-event evidence
+**where:** three static timeout-lookup and retry-evidence audits of one n8n gym research PostgreSQL provider subject in `/Users/zayah/Z&N`
 
-The purported provider fact was application-supplied data rather than an exact processed, signature-verified provider event.
+Unnormalized application-supplied payloads could become durable provider facts, expose raw data, or produce different evidence on replay.
 
-**Why:** REJECT at n=1 from one schema and provider-proof audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; permit automated retry only from an exact processed signature-verified event, then require forged and valid evidence cases on a fresh database.
+**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; derive retry outcomes only from exact processed signature-verified events, normalize permitted public fields, hash canonical evidence, enforce replay equality, and require forged, raw, conflicting, and valid evidence cases on a fresh database.
 
-### Inbound opt-out lacked a durable reply-to-suppression link and mishandled existing suppression at n=1
+### Inbound opt-out suppression proof was not recipient-bound and mishandled existing suppression at n=1
 
-**verified:** 2026-11-16, independent static audit found inbound opt-out processing created no relational evidence from the reply to its suppression and did not correctly handle a matching suppression that already existed
-**where:** one static idempotence and evidence audit of the n8n gym research PostgreSQL inbound-reply suppression path in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static suppression-proof audits found inbound opt-out processing lacked durable reply-to-suppression evidence, mishandled an existing matching suppression, and allowed the link without proving the suppression belonged to the same recipient
+**where:** two static idempotence and relational-binding audits of one n8n gym research PostgreSQL inbound-reply suppression subject in `/Users/zayah/Z&N`
 
-The system could not durably prove which reply caused suppression or treat replay against a preexisting row as the same completed safety outcome.
+`PUBLIC` DML revocation existed, but the deployed non-owner role boundary is UNCONFIRMED, so schema-owner maintenance alone does not prove the link is protected in production.
 
-**Why:** REJECT at n=1 from one schema and reply-suppression evidence audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; store a durable reply-to-suppression link, make existing suppression idempotent, and require first-process plus replay acceptance on a fresh database.
+**Why:** REJECT at n=1 from two defects in one schema subject and an unproved role boundary; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; bind reply, suppression, and recipient relationally under the trusted schema-owner path, preserve idempotence for existing suppression, verify `PUBLIC` and deployed non-owner privileges, then require first-process, cross-recipient rejection, and replay acceptance on a fresh database.
 
 ### Expired current quota could strand an unattempted or retry-prepared outbox at n=1
 
@@ -452,15 +450,15 @@ The expired current reservation blocked handoff while the outbox could not safel
 **Why:** REJECT at n=1 from one schema and quota-replacement audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; permit safe fresh replacement only for unused expired quota on never-attempted or explicitly retry-prepared outboxes, then require negative and positive acceptance on a fresh database.
 
-### Transaction-stable `current_date` and timestamps could defeat fresh-quota ordering across midnight at n=1
+### Transaction-stable and session-local clocks could defeat UTC quota ordering across midnight at n=1
 
-**verified:** 2026-11-16, two independent static clock audits found fresh-quota ordering could compare equal transaction-stable timestamps and quota date gates used transaction-stable `current_date` while expiry used wall clock, allowing a long transaction to consume or count a prior-day reservation after midnight
-**where:** two static clock audits of one n8n gym research PostgreSQL quota-ledger subject in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, three static clock audits found fresh-quota timestamps could compare equal inside one transaction, transaction-stable `current_date` could outlive wall-clock expiry across midnight, and quota dates followed the session `TimeZone` instead of one UTC calendar
+**where:** three static clock audits of one n8n gym research PostgreSQL quota-ledger subject in `/Users/zayah/Z&N`
 
-The quota paths mixed ordering and date semantics, so neither statement order nor a midnight boundary was represented consistently.
+The quota paths mixed ordering, wall-clock, transaction, and session-local date semantics, so freshness and the accounting day were not represented consistently.
 
-**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; use server-assigned clock ordering plus a distinct durable ledger order, use `clock_timestamp()::date` consistently for quota date gates, then require same-transaction replacement and cross-midnight acceptance on a fresh database.
+**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; use server-assigned wall-clock ordering plus a distinct durable ledger order and one UTC helper based on `clock_timestamp()`, then require same-transaction, cross-midnight, and non-UTC-session acceptance on a fresh database.
 
 ### Atomic safety ingest could erase the verified event when processing failed at n=1
 
@@ -482,25 +480,65 @@ The prepared retry could remain eligible to send even though the provider later 
 **Why:** REJECT at n=1 from one schema and contradictory-event audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; persist the contradictory positive event, release prepared quota, move shared state monotonically to accepted or delivered, record an anomaly, fail closed on any unprocessed blocker, then require pre-prepare, post-prepare, and replay acceptance on a fresh database.
 
-### Exact verified negative events could not promote a terminal null-ID attempt to retry evidence at n=1
+### Negative lookup IDs could block verified-event promotion to a terminal attempt at n=1
 
-**verified:** 2026-11-16, independent static audit found provider lookup could resolve an attempt as `confirmed_not_accepted` before an exact provider event arrived, but the later verified negative event could not select or promote that terminal attempt while its provider message ID remained null
-**where:** one static provider-evidence promotion audit of the n8n gym research PostgreSQL delivery-event and retry path in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static evidence-promotion audits found a later exact verified negative event could not select or promote the lookup-terminal attempt while its provider ID was null, while negative lookup also accepted a nonnull provider ID that prevented the required null-ID promotion path
+**where:** two static provider-evidence promotion audits of one n8n gym research PostgreSQL delivery-event and retry subject in `/Users/zayah/Z&N`
 
-The system could retain lookup evidence yet leave event-only retry proof impossible forever because the exact event could not bind its provider ID to the prior terminal attempt.
+Either ID state could leave exact event-only retry proof impossible or bind lookup evidence to an unproved provider identifier.
 
-**Why:** REJECT at n=1 from one schema and evidence-promotion audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; select one unique latest terminal null-ID attempt, bind the provider ID, promote verified-event evidence while preserving prior lookup evidence, then require lookup rejection, event promotion, retry, and replay acceptance on a fresh database.
+**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; reject nonnull provider IDs for negative lookup, select one unique latest terminal null-ID attempt, bind the exact event's provider ID, preserve prior lookup evidence, then require lookup rejection, event promotion, retry, and replay acceptance on a fresh database.
 
-### Unconstrained `processing_error_code` columns could persist provider errors or secrets at n=1
+### Processing error codes were not type-bound and SQLSTATE accepted success code `00000` at n=1
 
-**verified:** 2026-11-16, independent static audit found `delivery_events.processing_error_code` and `inbound_replies.processing_error_code` were unconstrained text despite a fixed public-code convention in their writer functions, so direct or future writes could store raw provider errors or secrets
-**where:** one static error-persistence audit of the n8n gym research PostgreSQL delivery-event and inbound-reply tables in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static error-constraint audits found `delivery_events.processing_error_code` and `inbound_replies.processing_error_code` accepted arbitrary text, exact public codes were not bound to the matching event or reply type, and the structurally constrained SQLSTATE fields still accepted success code `00000`
+**where:** two static error-persistence and type-binding audits of one n8n gym research PostgreSQL delivery-event and inbound-reply subject in `/Users/zayah/Z&N`
 
-The corresponding SQLSTATE fields were already constrained, so this finding applies only to the two public processing-error code columns.
+Direct or future writes could persist raw provider errors, secrets, a public code for the wrong record type, or a success SQLSTATE on a failed processing row.
 
-**Why:** REJECT at n=1 from one schema and error-code constraint audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; add nullable `CHECK` constraints containing only the exact public code sets, then require raw-string rejection and valid-code acceptance on a fresh database.
+**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; add nullable type-bound `CHECK` constraints for the exact public code sets, reject SQLSTATE `00000` when present, then require raw, wrong-type, success-SQLSTATE, and valid-code acceptance on a fresh database.
+
+### Long transactions and split instants could claim after policy or quota expiry at n=1
+
+**verified:** 2026-11-16, two static claim-time audits found transaction-stable `now()` could let a long transaction claim after policy, readiness, eligibility, or source expiry, while gate and quota checks could evaluate the same claim at different instants
+**where:** two static clock-consistency audits of one n8n gym research PostgreSQL claim and quota subject in `/Users/zayah/Z&N`
+
+One claim could be valid according to an earlier gate instant but expired according to a later quota instant, or remain valid only because transaction time stopped advancing.
+
+**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; capture one wall-clock claim instant and pass it through every policy, readiness, eligibility, source, and quota check, then require long-transaction and boundary-crossing acceptance on a fresh database.
+
+### Caller-controlled reconciliation metadata could fake freshness or be rewritten at n=1
+
+**verified:** 2026-11-16, two static reconciliation audits found caller-controlled `reconciled_at` could fake evidence freshness and reconciliation metadata could be attached outside its transition or rewritten after attachment
+**where:** two static evidence-lifecycle audits of one n8n gym research PostgreSQL reconciliation subject in `/Users/zayah/Z&N`
+
+Mutable caller-authored metadata could make old evidence appear fresh or detach the durable record from the transition it was meant to prove.
+
+**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; assign reconciliation time on the server, permit metadata only during its exact transition, freeze it afterward, then require fake-time, wrong-transition, rewrite, and valid-transition acceptance on a fresh database.
+
+### `SECURITY DEFINER` functions could be `PUBLIC` executable before tail revocation under autocommit at n=1
+
+**verified:** 2026-11-16, independent static deployment audit found PostgreSQL's default function privilege exposed new `SECURITY DEFINER` functions to `PUBLIC` when `001_schema.sql` ran statement-by-statement under autocommit, before the file's later revoke statements executed
+**where:** one static privilege-window audit of the n8n gym research PostgreSQL schema deployment in `/Users/zayah/Z&N`
+
+A concurrent untrusted session could reach a privileged function during the deployment window even though the final schema state revoked that access.
+
+**Why:** REJECT at n=1 from one schema and deployment-window audit; there are not five observations from five different subjects or fresh-database role proof.
+**Fix:** UNCONFIRMED; execute all of `001_schema.sql` in one transaction with function creation and privilege revocation atomic to other sessions, then require concurrent untrusted-role visibility and post-commit privilege acceptance on a fresh database.
+
+### A caught rollback left a stale delivery-event ID variable in acceptance at n=1
+
+**verified:** 2026-11-16, independent static test audit found a caught subtransaction rollback removed its delivery-event insert while the PL/pgSQL variable retained that rolled-back event ID for later assertions
+**where:** one static exception-path audit of the n8n gym research PostgreSQL acceptance file in `/Users/zayah/Z&N`
+
+Later checks could appear to reference the tested event while actually holding an identifier with no durable row behind it.
+
+**Why:** REJECT at n=1 from one acceptance file and rollback-variable audit; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; reselect the durable delivery-event ID after the caught rollback, then require the intended row to exist before every downstream assertion on a fresh database.
 
 ### Non-unique `apply_patch` context put `clock_timestamp()` on campaign creation at n=1
 

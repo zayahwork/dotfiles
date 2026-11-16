@@ -649,6 +649,16 @@ The two operations establish destructive row changes in this workbook but do not
 **Why:** REJECT at n=2 operations from one workbook subject; there are not five observations from five different subjects.
 **Fix:** do not use `table.rows.add` when worksheet content or a footer exists outside the table. Shift explicit worksheet ranges, restore overwritten rows from durable source data, write the new row, then reopen the exported workbook and verify the exact previous row, new row, table address, dashboard total, and footer rows.
 
+### `git push origin development` could not run because `/Users/zayah/Z&N` has no Git remote at n=1
+
+**verified:** 2026-11-15, after local commit `870cde9`, `git push origin development` failed because no `origin` remote exists; `git remote -v` and `git config --get-regexp '^remote\.'` printed nothing, and `gh repo view --json nameWithOwner,url,defaultBranchRef` printed exactly `no git remotes found`
+**where:** one `/Users/zayah/Z&N` repository and local commit
+
+All three remote checks agree that this repository has no configured destination, so neither a push nor a valid `commit-url` review link can be produced from the current configuration.
+
+**Why:** REJECT at n=1 from one repository subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; obtain the intended repository URL from its owner, configure that exact remote, push `development`, and require a nonempty remote ref plus a resolving commit link before claiming publication.
+
 ### Git SSH operations failed 4 times and HTTPS push failed 3 times across 2 sessions, then unchanged SSH retries succeeded
 
 **verified:** 2026-10-05 at 4:58 pm Pacific, two `git push origin development` attempts returned exactly `git@github.com: Permission denied (publickey)` while `ssh-add -l` listed one ED25519 key; three HTTPS push attempts, including one forced to HTTP/1.1, reached `github.com` but were rejected with exactly `remote: Internal Server Error`

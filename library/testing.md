@@ -167,6 +167,16 @@ The final pass changed both sandbox authority and one SQL identifier, so the com
 **Why:** REJECT at n=1 from one PostgreSQL, sandbox, and connection subject; there are not five observations from five different subjects.
 **Fix:** use `role_name` instead of reserved `current_role`, run the local Unix-socket validation with approved escalation, and require exit 0 plus 29 tables, 55 indexes, 3 functions, and the fail-closed default control row.
 
+### `brew services start postgresql@17` could not write its LaunchAgents plist until escalation at n=1
+
+**verified:** 2026-11-16, `brew services start postgresql@17` failed in the workspace sandbox with exactly `Error: Operation not permitted @ rb_sysopen - /Users/zayah/Library/LaunchAgents/homebrew.mxcl.postgresql@17.plist`; the unchanged command under approved escalation printed `Successfully started postgresql@17`
+**where:** one Homebrew PostgreSQL 17 service start during fresh acceptance proof on Zayah's Mac
+
+Changing only execution authority crossed the observed LaunchAgents write boundary and let Homebrew start the service.
+
+**Why:** REJECT at n=1 from one machine, sandbox, and service-start subject; there are not five observations from five different subjects.
+**Fix:** rerun the exact service-start command with approved escalation, then require the exact `Successfully started postgresql@17` output before probing database readiness.
+
 ### `002_acceptance.sql:1072` omitted NOT NULL `provider_adapter_id` after `campaign_authorizations` changed at n=1
 
 **verified:** 2026-11-16, PostgreSQL 17 loaded `001_schema.sql` into a fresh disposable database, then `psql -v ON_ERROR_STOP=1` running `002_acceptance.sql` stopped at line 1072 with `null value in column "provider_adapter_id" of relation "campaign_authorizations" violates not-null constraint`
@@ -529,6 +539,26 @@ A concurrent untrusted session could reach a privileged function during the depl
 
 **Why:** REJECT at n=1 from one schema and deployment-window audit; there are not five observations from five different subjects or fresh-database role proof.
 **Fix:** UNCONFIRMED; execute all of `001_schema.sql` in one transaction with function creation and privilege revocation atomic to other sessions, then require concurrent untrusted-role visibility and post-commit privilege acceptance on a fresh database.
+
+### PostgreSQL hashes d435/4137 failed confirmed retry with `{provider_rate_limit_wait}` at n=1
+
+**verified:** 2026-11-16, a fresh PostgreSQL run at exact schema and acceptance hashes d435/4137 passed `000`, committed `001`, then `002` stopped at file line 3802 and `DO` line 2541 with `Confirmed retry claim retained blockers: {provider_rate_limit_wait}`
+**where:** one fresh n8n gym research PostgreSQL acceptance run in `/Users/zayah/Z&N`
+
+The runtime schema enforced the configured provider interval while the acceptance fixture expected an immediate confirmed retry; the exact fixture trace and final repair remain UNCONFIRMED.
+
+**Why:** REJECT at n=1 from one database and confirmed-retry fixture subject; there are not five observations from five different subjects, a completed trace, or a passing fresh-database control.
+**Fix:** UNCONFIRMED; trace the interval policy and fixture timestamps, then either wait past the configured interval or isolate the rate-limit fixture without weakening the gate, and require the full acceptance transaction to pass on a fresh database.
+
+### `one_active_sequence_per_organization` rejected a cross-campaign fixture collision at n=1
+
+**verified:** 2026-11-16, after fixture timing cleared the provider-rate blocker, interim `002` hash `1265481...` stopped at file line 3803 and `DO` line 2806 on unique constraint `one_active_sequence_per_organization` while inserting a cross-campaign outbox for `v_org` with its current outbox still active
+**where:** one fresh n8n gym research PostgreSQL acceptance run in `/Users/zayah/Z&N`; hash `1265481...` was explicitly interim, not final
+
+The schema invariant correctly rejected two active sequences for one organization, so this failure identifies a colliding acceptance fixture rather than permission to weaken the unique index.
+
+**Why:** REJECT at n=1 from one database, one interim acceptance hash, and no passing fresh-database control.
+**Fix:** UNCONFIRMED; isolate the cross-campaign fixture with another organization or legally terminalize the prior outbox first, preserve the unique index, then require the final acceptance hash to pass on a fresh database.
 
 ### A caught rollback left a stale delivery-event ID variable in acceptance at n=1
 

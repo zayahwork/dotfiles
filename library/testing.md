@@ -242,12 +242,13 @@ These assertions could report success without proving that the queried scalar ex
 
 **verified:** 2026-11-16, independent static audit found `validate_assignment_owner_cluster` acquired advisory lock 5402 before an organization `FOR SHARE` lock, while an owner `UPDATE` acquired the organization row lock before its row trigger called `reject_assigned_owner_change`, which then acquired advisory lock 5402
 **verified:** 2026-11-16, final static sweep found the lock order clean after revision, but single-session `002_acceptance.sql` could not prove two-session blocking, wakeup, uniqueness, or quota no-overrun behavior
-**where:** one static concurrency audit of the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, the first two-session runtime attempt observed session B waiting on `Lock|advisory` while session A was idle in transaction, but B's 10-second `lock_timeout` expired before interactive tool round trips released A; no database deadlock was reproduced and wakeup was not proved
+**where:** one static and runtime concurrency subject for the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
 
-The original paths could form a lock cycle; the revised static order is clean, while runtime concurrency behavior remains UNCONFIRMED.
+The revised static order is clean and the first harness observed blocking, but its operator timing invalidated wakeup proof and cannot be used as deadlock evidence.
 
-**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
-**Fix:** UNCONFIRMED at runtime; keep one lock order across both paths and require an external two-session harness to prove blocking, wakeup, uniqueness, quota no-overrun, and owner-cluster invariants.
+**Why:** REJECT at n=1 from one schema and concurrency subject; there are not five observations from five different subjects or a timing-valid two-session control.
+**Fix:** UNCONFIRMED at runtime; keep one lock order, run self-contained concurrent `psql` scripts with a short `pg_sleep` in session A plus background launch and `wait`, then prove blocking, wakeup, uniqueness, quota no-overrun, and owner-cluster invariants without interactive round trips.
 
 ### `provider_message_correlations` could pair provider A with provider B's outbox at n=1
 

@@ -59,16 +59,28 @@ The paired build and shell probe establish that the intended `.zshrc` output wor
 **Why:** held back at n=1 from one activation subject; there are not five observations from five different subjects.
 **Fix:** preserve the verified narrow `.zshrc` recovery; full Home Manager activation remains UNCONFIRMED until each reported clobber path is reconciled and `activate` exits 0 with nonempty output.
 
-### Loopback bind `operation not permitted` disappeared on exact escalated reruns across 2 projects
+### Loopback bind `operation not permitted` blocked 3 command paths across 2 projects
 
 **verified:** 2026-09-22, sandboxed `npm run verify` in `/private/tmp/memecoin-standalone-20260922` failed only when the local listener returned `EPERM`; the unchanged approved rerun passed 26 core tests, every typecheck and build, 27 extension/backend/Windows tests, and artifact checks
 **verified:** 2026-11-15, a sandboxed Uvicorn preview failed to bind `127.0.0.1:8000` with `[Errno 1] ... operation not permitted`; the identical approved rerun returned HTTP 200 and `{"status":"ok","database":"ready"}`
-**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`; one Zaya Dialer preview pair using Uvicorn
+**verified:** 2026-11-15, sandboxed `npm run test:e2e` in Zaya Dialer built 89 modules in 730ms, then Playwright's FastAPI webServer failed with `[Errno 1] error while attempting to bind on address ('127.0.0.1', 8012): operation not permitted` and the command exited 3
+**where:** one MemeCoin verification pair using `server.listen(0, "127.0.0.1")`; one Zaya Dialer preview pair using Uvicorn; one Zaya Dialer Playwright webServer run using FastAPI
 
-Both unchanged commands passed when only sandbox authority changed, isolating these occurrences to loopback-bind permission.
+The first two unchanged commands passed when only sandbox authority changed; the third exact escalated rerun remains UNCONFIRMED.
 
-**Why:** still held back at n=2 from two project subjects; there are not five observations from five different subjects.
+**Why:** still held back across two project subjects; the third command path is a second Zaya Dialer observation and does not supply a third independent project subject.
 **Fix:** rerun the complete unchanged gate with approved escalation, then use its full counts and artifact output.
+
+### `http://127.0.0.1:8012/health/ready is already used` after one Playwright test exited 0 at n=1
+
+**verified:** 2026-11-15, an isolated Firefox Playwright test exited 0, then the next `npx playwright test ... --project=firefox --repeat-each=3` invocation failed because `http://127.0.0.1:8012/health/ready is already used`
+**verified:** 2026-11-15, the follow-up `lsof -nP -iTCP:8012 -sTCP:LISTEN` printed no output; a repeated rerun was started and intentionally terminated when the user changed the implementation target to n8n
+**where:** one consecutive Zaya Dialer Playwright E2E command sequence
+
+Whether Playwright, FastAPI, or another process briefly retained port 8012 is UNCONFIRMED, and the later empty listener check did not reproduce or explain the conflict.
+
+**Why:** REJECT at n=1 from one repository and command-sequence subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; identify the process that owns port 8012, stop it only if it belongs to the temporary E2E run, then rerun and require the intended repeated-test count plus exit 0.
 
 ### Unquoted `e2e/**` let zsh feed Playwright specs to Vitest at n=1
 

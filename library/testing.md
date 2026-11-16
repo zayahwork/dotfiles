@@ -238,17 +238,15 @@ These assertions could report success without proving that the queried scalar ex
 **Why:** REJECT at n=1 from one acceptance file and assertion-class audit; there are not five observations from five different subjects or a fresh-database control.
 **Fix:** UNCONFIRMED; replace scalar inequality checks with `IS DISTINCT FROM` or explicit NULL guards, then require mutation tests and a fresh-database acceptance pass.
 
-### Advisory lock 5402 and organization row locks used opposite order on assignment versus owner update at n=1
+### Advisory locks 5402 and 5403 plus quota and suppression races passed a two-session harness at n=1
 
-**verified:** 2026-11-16, independent static audit found `validate_assignment_owner_cluster` acquired advisory lock 5402 before an organization `FOR SHARE` lock, while an owner `UPDATE` acquired the organization row lock before its row trigger called `reject_assigned_owner_change`, which then acquired advisory lock 5402
-**verified:** 2026-11-16, final static sweep found the lock order clean after revision, but single-session `002_acceptance.sql` could not prove two-session blocking, wakeup, uniqueness, or quota no-overrun behavior
-**verified:** 2026-11-16, the first two-session runtime attempt observed session B waiting on `Lock|advisory` while session A was idle in transaction, but B's 10-second `lock_timeout` expired before interactive tool round trips released A; no database deadlock was reproduced and wakeup was not proved
-**where:** one static and runtime concurrency subject for the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, static audits found the original owner and location paths used opposite advisory and row-lock order before revision; the first interactive owner attempt saw session B waiting on `Lock|advisory` but hit its 10-second `lock_timeout` before tool round trips released A, so that attempt proved neither wakeup nor deadlock
+**verified:** 2026-11-16, a self-contained two-session harness completed all four races with no deadlock or timeout: owner B woke after 1.788728 seconds, its conflicting write was rejected, and the invariant was `1|t|t|t|t`; location B woke after 1.796429 seconds, its write was rejected, and the invariant was `qualified|t|Seattle|WA|98101|t`
+**verified:** 2026-11-16, quota B woke after 1.880691 seconds with `2 outboxes|2 attempts|2 request IDs|2 quota IDs|2 consumed|sum2|campaign2|provider daily2|rolling2|all submitting t|attempt 1 t`; the suppression claim woke after 1.831441 seconds with `{email_suppression}` and ended with a reserved outbox and quota, 0 attempts, 1 suppression, 1 binding, and blocker true
+**where:** one revised n8n gym research PostgreSQL schema and one self-contained four-race concurrency harness in `/Users/zayah/Z&N`
 
-The revised static order is clean and the first harness observed blocking, but its operator timing invalidated wakeup proof and cannot be used as deadlock evidence.
-
-**Why:** REJECT at n=1 from one schema and concurrency subject; there are not five observations from five different subjects or a timing-valid two-session control.
-**Fix:** UNCONFIRMED at runtime; keep one lock order, run self-contained concurrent `psql` scripts with a short `pg_sleep` in session A plus background launch and `wait`, then prove blocking, wakeup, uniqueness, quota no-overrun, and owner-cluster invariants without interactive round trips.
+**Why:** REJECT at n=1 because all four races came from one schema and harness subject, not five different subjects with a population control.
+**Fix:** use one lock order and self-contained concurrent `psql` scripts with a short `pg_sleep` in session A plus background launch and `wait`; this produced all four wakeups and invariants without interactive timing.
 
 ### `provider_message_correlations` could pair provider A with provider B's outbox at n=1
 
@@ -259,17 +257,6 @@ The single-column foreign key proved that the outbox existed but did not prove t
 
 **Why:** REJECT at n=1 from one schema and provider-correlation audit; there are not five observations from five different subjects or a fresh-database control.
 **Fix:** UNCONFIRMED; use a composite `(outbox_id, provider)` foreign key and add a negative mismatched-provider insert, then require fresh-database acceptance proof.
-
-### Advisory lock 5403 and location row locks used opposite order on qualification finalization versus edit at n=1
-
-**verified:** 2026-11-16, independent static audit found `validate_finalized_qualification_location` acquired advisory lock 5403 before a location `FOR SHARE` lock, while a location `UPDATE` acquired the row lock before its trigger called `reject_finalized_location_change`, which then acquired advisory lock 5403
-**verified:** 2026-11-16, final static sweep found the lock order clean after revision, but single-session `002_acceptance.sql` could not prove two-session blocking, wakeup, uniqueness, or quota no-overrun behavior
-**where:** one static concurrency audit of the n8n gym research PostgreSQL qualification and location triggers in `/Users/zayah/Z&N`
-
-The original paths could form a lock cycle; the revised static order is clean, while runtime concurrency behavior remains UNCONFIRMED.
-
-**Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
-**Fix:** UNCONFIRMED at runtime; keep one lock order across both paths and require an external two-session harness to prove blocking, wakeup, uniqueness, quota no-overrun, and finalized qualification geography.
 
 ### Caller-supplied `consumed_at` could backdate quota consumption outside rolling windows at n=1
 
@@ -331,15 +318,16 @@ The current pointer identified only the latest attempt and was not a durable cor
 **Why:** REJECT at n=1 from one schema and historical opt-out audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; use a provider-scoped durable correlation registry and require a fresh-database late historical opt-out test that creates future-campaign email suppression.
 
-### Inbound replies lacked a trusted verified-ingest boundary and unverified rows could block follow-ups at n=1
+### Inbound reply ingest passed restricted-role replay and 4 direct-DML denials at n=1
 
-**verified:** 2026-11-16, two static trust-boundary audits found `activation_blockers` accepted any inbound reply without checking `signature_verified`, while the documented future function-only n8n role had no `SECURITY DEFINER` reply-ingest API, classify and process required an existing row, and granting raw `INSERT` would let that role author `signature_verified=true`
-**where:** two static reply-gate and role-capability audits of one n8n gym research PostgreSQL inbound-reply subject in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static trust-boundary audits found `activation_blockers` accepted unverified reply rows while the intended function-only n8n role lacked a safe ingest API and raw `INSERT` could let that role author `signature_verified=true`
+**verified:** 2026-11-16, the restricted role passed the exact verified-ingest, classify, process, and replay function calls, while four direct DML attempts each failed with `insufficient_privilege`
+**where:** one revised n8n gym research PostgreSQL inbound-reply schema and restricted-role acceptance subject in `/Users/zayah/Z&N`
 
-The system had neither a safe verified-row creation path for the intended role nor a gate that rejected unverified row presence.
+The tested role now had an idempotent function path that server-set verification after provider correlation without receiving raw table-write authority.
 
-**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database role proof.
-**Fix:** UNCONFIRMED; add verified idempotent reply ingest that server-sets the flag after provider correlation, revoke `PUBLIC`, grant only the function to the deployed non-owner role, gate only on verified replies, then require forged-row rejection plus valid and replay acceptance on a fresh database.
+**Why:** REJECT at n=1 because the proof came from one schema and role subject, not five different subjects with a population control.
+**Fix:** use verified idempotent `SECURITY DEFINER` reply ingest, server-set `signature_verified` after provider correlation, revoke `PUBLIC`, and grant only the function; the exact replay calls passed and four direct DML paths were denied.
 
 ### Inbound opt-out cleanup skipped cross-campaign step 1 and same-step retries at n=1
 
@@ -441,15 +429,16 @@ Unnormalized application-supplied payloads could become durable provider facts, 
 **Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; derive retry outcomes only from exact processed signature-verified events, normalize permitted public fields, hash canonical evidence, enforce replay equality, and require forged, raw, conflicting, and valid evidence cases on a fresh database.
 
-### Inbound opt-out suppression proof was not recipient-bound and mishandled existing suppression at n=1
+### Recipient-bound opt-out suppression passed final acceptance and restricted-role replay at n=1
 
-**verified:** 2026-11-16, two static suppression-proof audits found inbound opt-out processing lacked durable reply-to-suppression evidence, mishandled an existing matching suppression, and allowed the link without proving the suppression belonged to the same recipient
-**where:** two static idempotence and relational-binding audits of one n8n gym research PostgreSQL inbound-reply suppression subject in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static suppression-proof audits found inbound opt-out processing lacked durable reply-to-suppression evidence, mishandled an existing suppression, and did not prove that the linked suppression belonged to the same recipient
+**verified:** 2026-11-16, the final exact-hash schema passed `002` three times plus idempotent `001`, while the restricted role passed exact function and replay calls and four direct DML attempts returned `insufficient_privilege`
+**where:** one revised n8n gym research PostgreSQL suppression schema, acceptance file, and restricted-role subject in `/Users/zayah/Z&N`
 
-`PUBLIC` DML revocation existed, but the deployed non-owner role boundary is UNCONFIRMED, so schema-owner maintenance alone does not prove the link is protected in production.
+The tested schema bound reply, suppression, and recipient through the trusted function path and preserved replay without exposing direct table writes to the deployed role.
 
-**Why:** REJECT at n=1 from two defects in one schema subject and an unproved role boundary; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; bind reply, suppression, and recipient relationally under the trusted schema-owner path, preserve idempotence for existing suppression, verify `PUBLIC` and deployed non-owner privileges, then require first-process, cross-recipient rejection, and replay acceptance on a fresh database.
+**Why:** REJECT at n=1 because repeated runs of one schema and role remain one subject, not five different subjects with a population control.
+**Fix:** bind reply, suppression, and recipient relationally, preserve existing-suppression idempotence, revoke `PUBLIC`, and grant only trusted functions; final acceptance, replay, and four direct-DML denials passed.
 
 ### Expired current quota could strand an unattempted or retry-prepared outbox at n=1
 
@@ -531,35 +520,38 @@ Mutable caller-authored metadata could make old evidence appear fresh or detach 
 **Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; assign reconciliation time on the server, permit metadata only during its exact transition, freeze it afterward, then require fake-time, wrong-transition, rewrite, and valid-transition acceptance on a fresh database.
 
-### `SECURITY DEFINER` functions could be `PUBLIC` executable before tail revocation under autocommit at n=1
+### `SECURITY DEFINER` post-deployment privileges passed 4 direct-DML denials at n=1
 
-**verified:** 2026-11-16, independent static deployment audit found PostgreSQL's default function privilege exposed new `SECURITY DEFINER` functions to `PUBLIC` when `001_schema.sql` ran statement-by-statement under autocommit, before the file's later revoke statements executed
-**where:** one static privilege-window audit of the n8n gym research PostgreSQL schema deployment in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, static deployment audit found PostgreSQL's default function privilege could expose new `SECURITY DEFINER` functions to `PUBLIC` if `001_schema.sql` ran statement-by-statement under autocommit before its tail revokes
+**verified:** 2026-11-16, exact hash `d4352783c43c284565d65982c99237e237705b0bd8328e8c7d84599e1c070cbe` passed an idempotent `001` rerun, the restricted role passed exact function and replay calls, and four direct DML attempts returned `insufficient_privilege`
+**where:** one revised n8n gym research PostgreSQL deployment and restricted-role subject in `/Users/zayah/Z&N`
 
-A concurrent untrusted session could reach a privileged function during the deployment window even though the final schema state revoked that access.
+The run proves the final role surface but did not include a concurrent observer during deployment, so visibility of any pre-revoke autocommit window remains UNCONFIRMED.
 
-**Why:** REJECT at n=1 from one schema and deployment-window audit; there are not five observations from five different subjects or fresh-database role proof.
-**Fix:** UNCONFIRMED; execute all of `001_schema.sql` in one transaction with function creation and privilege revocation atomic to other sessions, then require concurrent untrusted-role visibility and post-commit privilege acceptance on a fresh database.
+**Why:** REJECT at n=1 because one schema and role subject does not meet the five-subject bar and the deployment-window control was not run.
+**Fix:** UNCONFIRMED for the deployment window; execute all of `001_schema.sql` in one transaction, keep creation and revocation atomic to other sessions, and add a concurrent untrusted-role visibility check even though the final post-commit privilege checks passed.
 
-### PostgreSQL hashes d435/4137 failed confirmed retry with `{provider_rate_limit_wait}` at n=1
+### PostgreSQL rate-limit fixture failed before exact final hashes passed `002` 3 times at n=1
 
 **verified:** 2026-11-16, a fresh PostgreSQL run at exact schema and acceptance hashes d435/4137 passed `000`, committed `001`, then `002` stopped at file line 3802 and `DO` line 2541 with `Confirmed retry claim retained blockers: {provider_rate_limit_wait}`
-**where:** one fresh n8n gym research PostgreSQL acceptance run in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, after fixture timing cleared the configured provider interval, exact `001` hash `d4352783c43c284565d65982c99237e237705b0bd8328e8c7d84599e1c070cbe` passed idempotently and exact `002` hash `e7a4fba06b8592e2001d7ea2fc244ab62ff03e5315a55ec2df5331c67e19905d` passed three fresh runs
+**where:** one revised n8n gym research PostgreSQL schema and acceptance subject in `/Users/zayah/Z&N`
 
-The runtime schema enforced the configured provider interval while the acceptance fixture expected an immediate confirmed retry; the exact fixture trace and final repair remain UNCONFIRMED.
+The schema kept the provider interval gate intact while the fixture stopped expecting an immediate confirmed retry.
 
-**Why:** REJECT at n=1 from one database and confirmed-retry fixture subject; there are not five observations from five different subjects, a completed trace, or a passing fresh-database control.
-**Fix:** UNCONFIRMED; trace the interval policy and fixture timestamps, then either wait past the configured interval or isolate the rate-limit fixture without weakening the gate, and require the full acceptance transaction to pass on a fresh database.
+**Why:** REJECT at n=1 because three runs of one schema and fixture remain one subject, not five different subjects with a population control.
+**Fix:** move the confirmed-retry fixture past the configured provider interval without weakening the gate; the final exact hashes passed idempotent `001` and three `002` runs.
 
 ### `one_active_sequence_per_organization` rejected a cross-campaign fixture collision at n=1
 
 **verified:** 2026-11-16, after fixture timing cleared the provider-rate blocker, interim `002` hash `1265481...` stopped at file line 3803 and `DO` line 2806 on unique constraint `one_active_sequence_per_organization` while inserting a cross-campaign outbox for `v_org` with its current outbox still active
-**where:** one fresh n8n gym research PostgreSQL acceptance run in `/Users/zayah/Z&N`; hash `1265481...` was explicitly interim, not final
+**verified:** 2026-11-16, exact final `001` hash `d4352783c43c284565d65982c99237e237705b0bd8328e8c7d84599e1c070cbe` passed idempotently and exact final `002` hash `e7a4fba06b8592e2001d7ea2fc244ab62ff03e5315a55ec2df5331c67e19905d` passed three fresh runs with the unique index preserved
+**where:** one revised n8n gym research PostgreSQL schema and acceptance subject in `/Users/zayah/Z&N`; hash `1265481...` was interim, not final
 
-The schema invariant correctly rejected two active sequences for one organization, so this failure identifies a colliding acceptance fixture rather than permission to weaken the unique index.
+The final fixture used distinct organization `v_org_three` with fresh identities and the same immutable normalized email, so the one-active-sequence-per-organization gate stayed intact.
 
-**Why:** REJECT at n=1 from one database, one interim acceptance hash, and no passing fresh-database control.
-**Fix:** UNCONFIRMED; isolate the cross-campaign fixture with another organization or legally terminalize the prior outbox first, preserve the unique index, then require the final acceptance hash to pass on a fresh database.
+**Why:** REJECT at n=1 because three runs of one schema and fixture remain one subject, not five different subjects with a population control.
+**Fix:** use distinct organization `v_org_three` with fresh identities and the same immutable normalized email; the exact final hashes passed idempotent `001` and three `002` runs without weakening the unique index.
 
 ### A caught rollback left a stale delivery-event ID variable in acceptance at n=1
 

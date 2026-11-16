@@ -190,13 +190,13 @@ The generic trigger function referenced a `delivery_events`-only field while fir
 
 ### Direct processed state could bypass inbound-reply and delivery-event side effects at n=1
 
-**verified:** 2026-11-16, three static lifecycle audits found a pending reply could be processed before later `opt_out` classification, direct reply `processed_at` mutation could terminalize it before suppression, the reply lifecycle trigger omitted `INSERT` and allowed an already-processed opt-out insert, and direct delivery-event `processed_at` or result mutation could bypass both side effects and the unprocessed-event blocker
-**where:** three static state-transition and guard audits of one n8n gym research PostgreSQL reply and delivery-event subject in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, four static lifecycle audits found a pending reply could be processed before later `opt_out` classification, direct reply `processed_at` mutation or an omitted `INSERT` guard could terminalize it before suppression, direct delivery-event completion could bypass side effects, and the processed safety-event guard required pause, suppression, and cleanup but not exact send-attempt reconciliation or a durable missing-or-ambiguous-attempt anomaly
+**where:** four static state-transition, reconciliation, and guard audits of one n8n gym research PostgreSQL reply and delivery-event subject in `/Users/zayah/Z&N`
 
-Direct DML could make either safety record appear complete without the relational proof or side effects that completion was meant to represent.
+Direct DML could clear the unprocessed blocker and make either safety record appear complete without the relational proof, side effects, exact attempt, or anomaly ledger that completion was meant to represent.
 
-**Why:** REJECT at n=1 from three defects in one schema subject; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; require relational proof before delivery-event completion, guard inbound-reply lifecycle fields on `INSERT`, `UPDATE`, and `DELETE`, keep pending replies eligible for terminal classification, then require bypass, process-then-opt-out, and already-processed insert rejection on a fresh database.
+**Why:** REJECT at n=1 from four audits of one schema subject; there are not five observations from five different subjects or fresh-database proof.
+**Fix:** UNCONFIRMED; require exact send-attempt reconciliation or a durable missing-or-ambiguous-attempt anomaly before delivery-event completion, guard inbound-reply lifecycle fields on `INSERT`, `UPDATE`, and `DELETE`, keep pending replies eligible for terminal classification, then require negative direct-terminalization, exact-attempt, anomaly, process-then-opt-out, and already-processed insert acceptance on a fresh database.
 
 ### `apply_delivery_event()` advanced outbox state without reconciling its durable `send_attempt` at n=1
 
@@ -320,15 +320,15 @@ The current pointer identified only the latest attempt and was not a durable cor
 **Why:** REJECT at n=1 from one schema and historical opt-out audit; there are not five observations from five different subjects or fresh-database proof.
 **Fix:** UNCONFIRMED; use a provider-scoped durable correlation registry and require a fresh-database late historical opt-out test that creates future-campaign email suppression.
 
-### An unverified inbound reply row could block follow-ups before processing rejected it at n=1
+### Inbound replies lacked a trusted verified-ingest boundary and unverified rows could block follow-ups at n=1
 
-**verified:** 2026-11-16, independent audit found `activation_blockers` treated any inbound reply as a follow-up blocker without checking `signature_verified`, so an unverified webhook row could halt follow-ups even though later reply processing rejected that row
-**where:** one static reply-gate audit of the n8n gym research PostgreSQL activation and webhook path in `/Users/zayah/Z&N`
+**verified:** 2026-11-16, two static trust-boundary audits found `activation_blockers` accepted any inbound reply without checking `signature_verified`, while the documented future function-only n8n role had no `SECURITY DEFINER` reply-ingest API, classify and process required an existing row, and granting raw `INSERT` would let that role author `signature_verified=true`
+**where:** two static reply-gate and role-capability audits of one n8n gym research PostgreSQL inbound-reply subject in `/Users/zayah/Z&N`
 
-The activation gate trusted row presence more than the processing path's signature requirement.
+The system had neither a safe verified-row creation path for the intended role nor a gate that rejected unverified row presence.
 
-**Why:** REJECT at n=1 from one schema and unverified-reply audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; gate follow-ups only on verified replies, then require negative unverified and positive verified acceptance cases on a fresh database.
+**Why:** REJECT at n=1 from two defects in one schema subject; there are not five observations from five different subjects or fresh-database role proof.
+**Fix:** UNCONFIRMED; add verified idempotent reply ingest that server-sets the flag after provider correlation, revoke `PUBLIC`, grant only the function to the deployed non-owner role, gate only on verified replies, then require forged-row rejection plus valid and replay acceptance on a fresh database.
 
 ### Inbound opt-out cleanup skipped cross-campaign step 1 and same-step retries at n=1
 

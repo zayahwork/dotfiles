@@ -177,6 +177,16 @@ The production schema required structured authorization fields that this accepta
 **Why:** REJECT at n=1 from one schema and acceptance-fixture subject; there are not five observations from five different subjects.
 **Fix:** UNCONFIRMED; add `provider_adapter_id` and every other required structured authorization column to the fixture, then rerun both SQL files against another fresh database and require the transaction's complete success output.
 
+### `register_provider_message_correlation()` read missing `NEW.signature_verified` on `outbox_messages` at n=1
+
+**verified:** 2026-11-16, PostgreSQL 17.12 loaded `001_schema.sql` into a fresh disposable database, then `psql -v ON_ERROR_STOP=1` running `002_acceptance.sql` stopped at line 1525 during its first outbox insert with `record "new" has no field "signature_verified"`
+**where:** one PostgreSQL 17.12 acceptance run for the n8n gym research schema in `/Users/zayah/Z&N`
+
+The generic trigger function referenced a `delivery_events`-only field while it was firing for an `outbox_messages` row.
+
+**Why:** REJECT at n=1 from one schema and trigger-execution subject; there are not five observations from five different subjects.
+**Fix:** UNCONFIRMED; split the signature-verification check into table-specific branches, then rerun both SQL files against another fresh database and require the transaction's complete success output.
+
 ### PostgreSQL `chr(0)` caused `ERROR: null character not permitted`; a bytea separator passed at n=1
 
 **verified:** 2026-11-16, a real schema acceptance transaction failed while computing `suppression_hash` with `chr(0)` and printed exactly `ERROR: null character not permitted`

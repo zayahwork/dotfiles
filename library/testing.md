@@ -191,12 +191,13 @@ The generic trigger function referenced a `delivery_events`-only field while fir
 ### `processed_at` could freeze a pending reply before later `opt_out` classification at n=1
 
 **verified:** 2026-11-16, independent static audit of stable `001_schema.sql:2453-2539` found that processing a pending inbound reply set `processed_at`, while a later classification as `opt_out` returned early because that timestamp was already present; `002_acceptance.sql:1248-1285` exercised the same process-then-classify sequence without proving that the later suppression ran
+**verified:** 2026-11-16, final static sweep found the database still allowed direct mutation of a pending reply's `processed_at`, which could permanently block later classification or terminalize `opt_out` before its suppression side effect
 **where:** one static SQL and acceptance-sequence audit for the n8n gym research schema in `/Users/zayah/Z&N`
 
-The receipt could become terminal before classification, so an opt-out classification could lose its suppression side effect.
+The receipt could become terminal before classification through either the processing path or direct DML, so an opt-out classification could lose its suppression side effect.
 
 **Why:** REJECT at n=1 from one schema and reply-state audit subject; there are not five observations from five different subjects or a fresh-database control.
-**Fix:** UNCONFIRMED; keep pending replies eligible for terminal classification processing, then require a fresh-database acceptance case in which process-then-opt-out creates suppression exactly once.
+**Fix:** UNCONFIRMED; enforce the pending-reply invariant against direct mutation, keep pending replies eligible for terminal classification processing, and require process-then-opt-out plus direct-mutation acceptance on a fresh database.
 
 ### `apply_delivery_event()` advanced outbox state without reconciling its durable `send_attempt` at n=1
 
@@ -231,12 +232,13 @@ These assertions could report success without proving that the queried scalar ex
 ### Advisory lock 5402 and organization row locks used opposite order on assignment versus owner update at n=1
 
 **verified:** 2026-11-16, independent static audit found `validate_assignment_owner_cluster` acquired advisory lock 5402 before an organization `FOR SHARE` lock, while an owner `UPDATE` acquired the organization row lock before its row trigger called `reject_assigned_owner_change`, which then acquired advisory lock 5402
+**verified:** 2026-11-16, final static sweep found the lock order clean after revision, but single-session `002_acceptance.sql` could not prove two-session blocking, wakeup, uniqueness, or quota no-overrun behavior
 **where:** one static concurrency audit of the n8n gym research PostgreSQL assignment and organization triggers in `/Users/zayah/Z&N`
 
-Concurrent assignment and owner-update transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+The original paths could form a lock cycle; the revised static order is clean, while runtime concurrency behavior remains UNCONFIRMED.
 
 **Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
-**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving owner-cluster invariants.
+**Fix:** UNCONFIRMED at runtime; keep one lock order across both paths and require an external two-session harness to prove blocking, wakeup, uniqueness, quota no-overrun, and owner-cluster invariants.
 
 ### `provider_message_correlations` could pair provider A with provider B's outbox at n=1
 
@@ -251,12 +253,13 @@ The single-column foreign key proved that the outbox existed but did not prove t
 ### Advisory lock 5403 and location row locks used opposite order on qualification finalization versus edit at n=1
 
 **verified:** 2026-11-16, independent static audit found `validate_finalized_qualification_location` acquired advisory lock 5403 before a location `FOR SHARE` lock, while a location `UPDATE` acquired the row lock before its trigger called `reject_finalized_location_change`, which then acquired advisory lock 5403
+**verified:** 2026-11-16, final static sweep found the lock order clean after revision, but single-session `002_acceptance.sql` could not prove two-session blocking, wakeup, uniqueness, or quota no-overrun behavior
 **where:** one static concurrency audit of the n8n gym research PostgreSQL qualification and location triggers in `/Users/zayah/Z&N`
 
-Concurrent qualification finalization and location edit transactions could form a lock cycle; PostgreSQL deadlock abort would preserve integrity but make the path operationally fragile.
+The original paths could form a lock cycle; the revised static order is clean, while runtime concurrency behavior remains UNCONFIRMED.
 
 **Why:** REJECT at n=1 from one schema and static lock-order audit; there are not five observations from five different subjects or a real two-session control.
-**Fix:** UNCONFIRMED; use one lock order across both paths, then require a real two-session test to complete without deadlock while preserving finalized qualification geography.
+**Fix:** UNCONFIRMED at runtime; keep one lock order across both paths and require an external two-session harness to prove blocking, wakeup, uniqueness, quota no-overrun, and finalized qualification geography.
 
 ### Caller-supplied `consumed_at` could backdate quota consumption outside rolling windows at n=1
 
@@ -341,12 +344,13 @@ Durable suppression kept activation fail closed, but the greater-step filter lea
 ### Raw DML could reopen terminal outbox states into a duplicate retry claim at n=1
 
 **verified:** 2026-11-16, independent audit found retry acceptance used raw DML to set an outbox to `submitting` and insert attempts 2 and 3 against the already consumed first quota; no retry-preparation API or lifecycle trigger prevented reopening `unknown`, `accepted_by_provider`, `delivered`, invalid-mailbox, or sender-policy rows, while claim trusted an externally set `reserved` state and could consume fresh quota
+**verified:** 2026-11-16, final static sweep found `confirmed_not_accepted`, the sole intended safe retry outcome, required no durable evidence and had no acceptance or replay coverage, so a forged outcome could authorize retry
 **where:** one static retry-lifecycle and acceptance-fixture audit of the n8n gym research PostgreSQL outbox path in `/Users/zayah/Z&N`
 
-Direct state reopening could bypass the evidence boundary between a confirmed non-acceptance and a potentially duplicated provider submission.
+Direct state reopening or a forged non-acceptance could bypass the evidence boundary between a confirmed provider rejection and a potentially duplicated submission.
 
 **Why:** REJECT at n=1 from one schema and retry-lifecycle audit; there are not five observations from five different subjects or fresh-database proof.
-**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with durable evidence and fresh reserved quota, claim atomically, and require illegal-reopen tests for every other terminal or uncertain state.
+**Fix:** UNCONFIRMED; permit retry preparation only from `confirmed_not_accepted` with exact durable evidence and fresh reserved quota, claim atomically, and require negative forgery, positive retry, replay, and illegal-reopen coverage.
 
 ### Opt-out classification could commit before suppression and leave future campaigns sendable after a crash at n=1
 

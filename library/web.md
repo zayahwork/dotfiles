@@ -32,6 +32,7 @@ return, and where they quietly return nothing.
 | [Web open returned `Internal Error` on 2 Kroger job pages; Jina returned 11,801 and 5,476 bytes](#web-open-returned-internal-error-on-2-kroger-job-pages-jina-returned-11801-and-5476-bytes) | Jina exposed active job 225488 and the closed status for 203050. Verify nonempty output and the current status text. |
 | [Pilot careers IAB navigation failed with `net::ERR_CERT_COMMON_NAME_INVALID` at n=1](#pilot-careers-iab-navigation-failed-with-neterr_cert_common_name_invalid-at-n1) | No page content loaded. Do not bypass the safety interstitial; find a certificate-valid official route. |
 | [`web__run` completed 4 searches covering 13 queries with zero text, image, or error content](#web__run-completed-4-searches-covering-13-queries-with-zero-text-image-or-error-content) | A successful tool completion did not expose any results. Require nonempty content; Firecrawl returned results in the latest pass. |
+| [`firecrawl_scrape` failed before running when connected-app and team credits were insufficient at n=1](#firecrawl_scrape-failed-before-running-when-connected-app-and-team-credits-were-insufficient-at-n1) | Indexed passages remained usable. Do not retry parameter variants; use official sources through the indexed text, GitHub CLI, Jina, or runtime web, or wait for the reported reset. |
 | [4 Jina-wrapped Google searches returned 696 to 754 CAPTCHA bytes and 0 results](#4-jina-wrapped-google-searches-returned-696-to-754-captcha-bytes-and-0-results) | Exit 0 and nonempty output still hid every search result. Detect CAPTCHA or homepage content and switch search routes. |
 | [Jina routes returned 8 unusable responses across 10 Brave, Yahoo, and Bing queries](#jina-routes-returned-8-unusable-responses-across-10-brave-yahoo-and-bing-queries) | Search-engine text is only a lead. Validate expected results, then verify candidates on official pages or platform APIs. |
 | [Twitch help articles are a JavaScript app and `curl` returns 343,121 bytes with no article text](#twitch-help-articles-are-a-javascript-app-and-curl-returns-343121-bytes-with-no-article-text) | `help.twitch.tv` renders from JS. The policy text is not in the HTML at any depth. |
@@ -202,6 +203,16 @@ permission.
 ---
 
 ## Held back
+
+### `firecrawl_scrape` failed before running when connected-app and team credits were insufficient at n=1
+
+**verified:** 2026-11-15, Firecrawl developer search returned useful indexed n8n passages, then every direct `firecrawl_scrape` call failed without running because connected-app and team credits were insufficient; the tool reported reset time `2026-11-17T01:38:59.283Z`, directed the user to its billing link, and said not to retry with different parameters
+**where:** one n8n developer-research session using the connected Firecrawl app
+
+The quota failure did not show that the official sources were unavailable because indexed passages, GitHub CLI, Agent Reach Jina routes, and runtime web routes remained available.
+
+**Why:** REJECT at n=1 from one connected-app and team-credit subject; there are not five observations from five different subjects.
+**Fix:** use official n8n documentation through the already returned indexed passages, GitHub CLI, Agent Reach Jina, or runtime web; use the billing link or wait until the reported reset instead of retrying scrape parameter variants.
 
 ### `agent-reach` rejected `search` 29 times, `read` 5 times, `get` once, and `search-web` twice across 8 dates
 
